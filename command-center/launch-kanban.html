@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraneGenius &mdash; Go-Live Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080e1a;
+    --bg2: #0d1627;
+    --bg3: #111e35;
+    --gold: #c9a84c;
+    --gold-dim: #7a6130;
+    --gold-bright: #e8c96a;
+    --red: #e05252;
+    --yellow: #e8b84c;
+    --green: #4cad7a;
+    --blue: #4c82c9;
+    --text: #e8e8e8;
+    --text-dim: #8899aa;
+    --border: rgba(201,168,76,0.15);
+    --border-strong: rgba(201,168,76,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border-strong);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--gold);
+  }
+  .header-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+  .header-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 32px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 12px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* MAIN */
+  .main { padding: 28px 32px; max-width: 1600px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+
+  /* ALERT BANNER */
+  .alert-banner {
+    background: rgba(224,82,82,0.12);
+    border: 1px solid rgba(224,82,82,0.4);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .alert-text { font-size: 13px; line-height: 1.6; }
+  .alert-text strong { color: var(--red); }
+
+  /* KANBAN */
+  .kanban {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+  .kanban-col {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .kanban-col-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .kanban-col-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .col-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--bg3);
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .col-blocker .kanban-col-title { color: var(--red); }
+  .col-todo .kanban-col-title { color: var(--yellow); }
+  .col-inprog .kanban-col-title { color: var(--blue); }
+  .col-done .kanban-col-title { color: var(--green); }
+
+  .kanban-cards { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+  .card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-strong); }
+  .card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .badge-critical { background: rgba(224,82,82,0.2); color: var(--red); border: 1px solid rgba(224,82,82,0.3); }
+  .badge-high { background: rgba(232,184,76,0.15); color: var(--yellow); border: 1px solid rgba(232,184,76,0.3); }
+  .badge-med { background: rgba(76,130,201,0.15); color: var(--blue); border: 1px solid rgba(76,130,201,0.3); }
+  .badge-low { background: rgba(76,173,122,0.15); color: var(--green); border: 1px solid rgba(76,173,122,0.3); }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+    line-height: 1.4;
+  }
+  .card-body {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .card-page {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dim);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .card-page::before { content: '\2192'; color: var(--gold-dim); }
+
+  /* CONTENT AUDIT TABLE */
+  .audit-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 32px; }
+  .audit-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 80px 80px;
+    gap: 12px;
+    align-items: center;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 16px;
+  }
+  .audit-row.header-row {
+    background: var(--bg3);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 8px 16px;
+  }
+  .audit-page { font-weight: 600; font-size: 13px; color: var(--gold); }
+  .audit-issue { font-size: 12px; color: var(--text); line-height: 1.4; }
+  .audit-issue .issue-detail { color: var(--text-dim); font-size: 11px; margin-top: 3px; font-family: 'DM Mono', monospace; }
+  .status-ok { color: var(--green); font-size: 11px; font-weight: 700; }
+  .status-warn { color: var(--yellow); font-size: 11px; font-weight: 700; }
+  .status-bad { color: var(--red); font-size: 11px; font-weight: 700; }
+
+  /* VIDEO TRACKER */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .video-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .video-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold-dim);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .video-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .video-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px; }
+  .video-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .video-page {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dim);
+  }
+  .video-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .vs-pending { background: rgba(136,153,170,0.1); color: var(--text-dim); border: 1px solid rgba(136,153,170,0.2); }
+  .vs-filmed { background: rgba(232,184,76,0.15); color: var(--yellow); border: 1px solid rgba(232,184,76,0.3); }
+  .vs-uploaded { background: rgba(76,173,122,0.15); color: var(--green); border: 1px solid rgba(76,173,122,0.3); }
+  .vs-live { background: rgba(76,173,122,0.25); color: #5de8a0; border: 1px solid rgba(76,173,122,0.5); }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+  .cl-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .cl-item:hover { border-color: var(--border-strong); }
+  .cl-item.checked { background: rgba(76,173,122,0.05); border-color: rgba(76,173,122,0.2); }
+  .cl-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-strong);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--green);
+    transition: all 0.2s;
+  }
+  .cl-item.checked .cl-checkbox { background: rgba(76,173,122,0.2); border-color: var(--green); }
+  .cl-content { flex: 1; }
+  .cl-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .cl-item.checked .cl-title { color: var(--text-dim); text-decoration: line-through; }
+  .cl-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+  .cl-priority {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin-bottom: 28px; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 11px; color: var(--text-dim); font-weight: 500; letter-spacing: 0.5px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .kanban { grid-template-columns: repeat(2, 1fr); }
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
+    .main { padding: 20px 16px; }
+    .header { padding: 14px 16px; }
+    .tabs { padding: 0 16px; }
+    .audit-row { grid-template-columns: 1fr; }
+    .audit-row.header-row { display: none; }
+  }
+  @media (max-width: 600px) {
+    .kanban { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+  .sub-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+</style>
+<script src="/command-center/_finance_loader.js" defer></script>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">CRANEGENIUS</div>
+    <div class="header-tag">COMMAND CENTER v1.0</div>
+  </div>
+  <div class="header-date">GO-LIVE TRACKER &middot; March 30, 2026</div>
+</div>
+
+<div style="padding:20px 32px 0;">
+  <div style="display:flex;gap:0;background:#0d1525;border:1px solid rgba(201,168,76,0.15);border-radius:8px;overflow:hidden;margin-bottom:24px;">
+    <div style="padding:14px 24px;border-right:1px solid rgba(201,168,76,0.1);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Current MRR</div>
+      <div data-fin="mrr" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#4caf82;letter-spacing:1px;">--</div>
+    </div>
+    <div style="padding:14px 24px;border-right:1px solid rgba(201,168,76,0.1);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Pipeline MRR</div>
+      <div data-fin="pipeline_mrr" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#c9a84c;letter-spacing:1px;">--</div>
+    </div>
+    <div style="padding:14px 24px;border-right:1px solid rgba(201,168,76,0.1);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Monthly Burn</div>
+      <div data-fin="burn" style="font-family:'Bebas Neue',monospace;font-size:28px;color:#e05c5c;letter-spacing:1px;">--</div>
+    </div>
+    <div style="padding:14px 24px;border-right:1px solid rgba(201,168,76,0.1);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Net Margin</div>
+      <div data-fin="net_margin" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#c9a84c;letter-spacing:1px;">--</div>
+    </div>
+    <div style="padding:14px 24px;flex:1;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Clients</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#e8e4d8;letter-spacing:1px;">
+        <span data-fin="clients_live">-</span> Live / <span data-fin="clients_pending">-</span> Pending
+      </div>
+    </div>
+    <div style="padding:14px 20px;display:flex;align-items:center;">
+      <a href="/command-center/financials.html" style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:#c9a84c;text-decoration:none;border:1px solid rgba(201,168,76,0.3);padding:6px 14px;border-radius:4px;white-space:nowrap;">FULL P&amp;L</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('kanban',this)">🗂 Kanban Board</div>
+  <div class="tab" onclick="switchTab('audit',this)">🔍 Site Audit</div>
+  <div class="tab" onclick="switchTab('videos',this)">🎬 Video Tracker</div>
+  <div class="tab" onclick="switchTab('checklist',this)">✅ Go-Live Checklist</div>
+</div>
+
+<div class="main">
+
+  <!-- ======================================= KANBAN ======================================= -->
+  <div id="panel-kanban" class="panel active">
+
+    <div class="section-title">LAUNCH KANBAN</div>
+    <div class="section-sub">Four-column board. Drag mentally or update status as items move. Sorted by priority.</div>
+
+    <div class="alert-banner">
+      <div class="alert-icon">🚨</div>
+      <div class="alert-text">
+        <strong>CRITICAL &mdash; VISIBLE BEFORE LAUNCH:</strong> The Marketplace page is showing internal admin panel text to customers ("Go to formspree.io - New Form - copy the ID" and "Sheets - Extensions - Apps Script - Deploy as Web App"). This must be fixed before any traffic is sent.
+      </div>
+    </div>
+
+    <div class="kanban">
+
+      <!-- BLOCKERS -->
+      <div class="kanban-col col-blocker">
+        <div class="kanban-col-header">
+          <span class="kanban-col-title">🔴 Blockers</span>
+          <span class="col-count">3</span>
+        </div>
+        <div class="kanban-cards">
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-critical">CRITICAL</span></div>
+            <div class="card-title">Marketplace admin panel text visible to customers</div>
+            <div class="card-body">Two blocks of setup instructions are rendering in the live UI: "Go to formspree.io &mdash; New Form &mdash; copy the ID" and "Sheets &rarr; Extensions &rarr; Apps Script &rarr; Deploy as Web App." Customers can see this. Hide these panels &mdash; they should only show in logged-in admin mode or be removed entirely until configured.</div>
+            <div class="card-page">cranegenius.com/marketplace</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-critical">CRITICAL</span></div>
+            <div class="card-title">Formspree endpoint not confirmed end-to-end</div>
+            <div class="card-body">Lead capture forms on the estimator and marketplace reference Formspree (endpoint mgoldjjb) but end-to-end testing is unconfirmed. A broken lead form = zero inbound from any traffic the videos generate tomorrow.</div>
+            <div class="card-page">All pages with lead forms</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-critical">CRITICAL</span></div>
+            <div class="card-title">AI chatbot fix unconfirmed</div>
+            <div class="card-body">Marketplace bot CDN fix status is unconfirmed. Bot panel pre-loads context but the fix has not been verified live. Test before video goes up &mdash; if the bot 404s on camera the credibility hit is real.</div>
+            <div class="card-page">cranegenius.com/marketplace</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TO DO -->
+      <div class="kanban-col col-todo">
+        <div class="kanban-col-header">
+          <span class="kanban-col-title">🟡 To Do</span>
+          <span class="col-count">6</span>
+        </div>
+        <div class="kanban-cards">
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-high">HIGH</span></div>
+            <div class="card-title">Fix data centers page title rendering</div>
+            <div class="card-body">"Know EveryLift BeforeDay One." &mdash; missing spaces in the HTML title tag. Should read "Know Every Lift Before Day One." Fix in the &lt;title&gt; and the H1 if it matches.</div>
+            <div class="card-page">cranegenius.com/data-centers</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-high">HIGH</span></div>
+            <div class="card-title">Homepage: stat "204 // ACTIVE GC CONVERSATIONS" needs a label fix</div>
+            <div class="card-body">"204" is labeled "ACTIVE GC CONVERSATIONS" but that number is the contact queue count, not live conversations. This could be challenged. Relabel to "GC Contacts Queued" or "Verified GC Contacts" to stay defensible under the platform claims rule.</div>
+            <div class="card-page">cranegenius.com (homepage)</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-med">MED</span></div>
+            <div class="card-title">Opportunities page shows "Loading opportunities..." with no data</div>
+            <div class="card-body">The page renders a loading state that never resolves for visitors. Either load static sample data or change copy to "Request access to view live opportunities" with a CTA. A perpetual spinner on a public page destroys credibility.</div>
+            <div class="card-page">cranegenius.com/opportunities</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-med">MED</span></div>
+            <div class="card-title">Acquisitions page: "EXIT ONYOUR TERMS" missing space</div>
+            <div class="card-body">H1 or meta title reads "EXIT ONYOUR TERMS." &mdash; missing space between "ON" and "YOUR". Fix both the visible heading and the HTML title tag.</div>
+            <div class="card-page">cranegenius.com/acquisitions</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-med">MED</span></div>
+            <div class="card-title">Unify nav menus across all pages</div>
+            <div class="card-body">Homepage nav, partner page nav, data centers nav, and marketplace nav all show different items in different order. A buyer who lands on any page should see the same structure. Pick one nav and deploy it everywhere.</div>
+            <div class="card-page">All pages</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-med">MED</span></div>
+            <div class="card-title">Retainer client onboarding flow not built</div>
+            <div class="card-body">Erick at Leavitt is the primary close target. When he says yes, what happens? There's no intake form, no Notion board, no welcome sequence. Build a minimal onboarding flow (form &rarr; confirmation email &rarr; kickoff calendar link) before the pitch lands.</div>
+            <div class="card-page">Internal / /partner/activation</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- IN PROGRESS -->
+      <div class="kanban-col col-inprog">
+        <div class="kanban-col-header">
+          <span class="kanban-col-title">🔵 In Progress</span>
+          <span class="col-count">4</span>
+        </div>
+        <div class="kanban-cards">
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-high">ACTIVE</span></div>
+            <div class="card-title">Leavitt / Erick retainer pitch</div>
+            <div class="card-body">In progress. Targeting $5,000/mo Track 1 close. Pacific Northwest market. One partner per region &mdash; this slot is currently open. Blocking: no signed deal yet. Next: finalize one-pager, book the call, deploy the retainer close sequence.</div>
+            <div class="card-page">Sales / Erick conversation</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-high">ACTIVE</span></div>
+            <div class="card-title">PlusVibe outbound campaign (204 contacts)</div>
+            <div class="card-body">Campaign active on RISKCLARITY sender pool. 204 data center contacts queued. Manual import + manual Start button still required. Needs API trigger or Zapier hook for full automation. Monitor reply rate this week.</div>
+            <div class="card-page">PlusVibe / Outreach pipeline</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-med">ACTIVE</span></div>
+            <div class="card-title">Predictive analytics layer (Stage 3b) &mdash; Codex build</div>
+            <div class="card-body">Build brief delivered to Codex. Three modules: lift_timing_predictor.py, crane_class_predictor.py, outreach_scheduler.py. Slots between Stage 3 and Stage 4 in pipeline.py. Not yet confirmed complete.</div>
+            <div class="card-page">src/ &mdash; Codex lane</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-med">ACTIVE</span></div>
+            <div class="card-title">Video production &mdash; briefing + demo content</div>
+            <div class="card-body">Videos uploading tomorrow. Content needed: founder briefing video (homepage), platform demo walkthrough, possibly market intel explainer. See Video Tracker tab for full list.</div>
+            <div class="card-page">Homepage + partner page</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DONE -->
+      <div class="kanban-col col-done">
+        <div class="kanban-col-header">
+          <span class="kanban-col-title">🟢 Done</span>
+          <span class="col-count">8</span>
+        </div>
+        <div class="kanban-cards">
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-low">DONE</span></div>
+            <div class="card-title">/partner pricing aligned with homepage</div>
+            <div class="card-body">Partner page shows Tier 01&ndash;04: $2,500 / $5,000 / $10,000+ / Invite Only, matching cranegenius.com. Hero and meta updated. Monday brief video block, three-step process, Calendly CTAs, Former OE framing.</div>
+            <div class="card-page">cranegenius.com/partner</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-low">DONE</span></div>
+            <div class="card-title">Founder Briefing + Weekly Brief embeds live</div>
+            <div class="card-body">Homepage: FG-MKlBpExQ in &quot;Watch the Briefing &amp; Master Class.&quot; Weekly product walkthrough O93N76YA_fo on homepage, /partner, /demo, /opportunities, activation, crane-co LP.</div>
+            <div class="card-page">Multiple pages</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-low">DONE</span></div>
+            <div class="card-title">8-stage pipeline live &mdash; 13,460+ permit rows</div>
+            <div class="card-body">Pipeline running across 25+ US cities. SQLite DB live at ~/data_runtime/cranegenius_ci.db. 51+ signals, 1,561 scored opportunities.</div>
+            <div class="card-page">Backend / pipeline.py</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-low">DONE</span></div>
+            <div class="card-title">Lift cost estimator &mdash; 6-step wizard live</div>
+            <div class="card-body">Full 6-step flow: load type &rarr; site access &rarr; duration &rarr; specs &rarr; timeline &rarr; project status &rarr; lead capture. Live at /estimate/; homepage uses a GC bridge CTA.</div>
+            <div class="card-page">cranegenius.com/estimate/</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-low">DONE</span></div>
+            <div class="card-title">Data Center AI Planner &mdash; live with full lift matrix</div>
+            <div class="card-body">AI chatbot, 6 build types, 5 construction phases, full 23-equipment matrix, vendor matches. Content is solid. Title spacing fix still needed (see To Do).</div>
+            <div class="card-page">cranegenius.com/data-centers</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-low">DONE</span></div>
+            <div class="card-title">CapexLayer landing page &mdash; live and complete</div>
+            <div class="card-body">Full positioning page with platform architecture, 5-tier ICP list, Salesforce integration story, demo walkthrough. Content is clean &mdash; no weird characters found.</div>
+            <div class="card-page">cranegenius.com/capex-layer</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-low">DONE</span></div>
+            <div class="card-title">Acquisitions page &mdash; deal structure live</div>
+            <div class="card-body">3&ndash;5x EBITDA multiples, deal structure (50% seller note / 5&ndash;10% cash / SBA debt), intake form, Calendly link. Title spacing fix needed (see To Do).</div>
+            <div class="card-page">cranegenius.com/acquisitions</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label"><span class="badge badge-low">DONE</span></div>
+            <div class="card-title">Domain enrichment + contact verification pipeline</div>
+            <div class="card-body">SerpAPI + MillionVerifier integrated. 5,400+ verified contacts in DB. Runs as part of main pipeline. Low effort to schedule weekly cron.</div>
+            <div class="card-page">Backend / pipeline stages 4&ndash;6</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================= AUDIT ======================================= -->
+  <div id="panel-audit" class="panel">
+
+    <div class="section-title">SITE CONTENT AUDIT</div>
+    <div class="section-sub">Full pass across all customer-facing pages. Issues flagged by severity. March 30, 2026.</div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--red)">3</div>
+        <div class="stat-label">Critical Issues</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--yellow)">2</div>
+        <div class="stat-label">High Issues</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--blue)">4</div>
+        <div class="stat-label">Medium Issues</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--green)">4</div>
+        <div class="stat-label">Pages Clean</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">8</div>
+        <div class="stat-label">Pages Audited</div>
+      </div>
+    </div>
+
+    <div class="alert-banner">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-text">
+        No em dashes found sitewide ✓ &middot; No "leverage" or "seamlessly" found ✓ &middot; All Calendly links point to correct URL ✓ &middot; Phone number consistent (503-773-4659) ✓ &middot; Email consistent (<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fa9e9b8c939eba99889b949f9d9f94938f89d4999597">[email&#160;protected]</a> / <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4b22252d240b28392a252e2c2e25223e3865282426">[email&#160;protected]</a>) ✓
+      </div>
+    </div>
+
+    <div class="sub-title">PAGE-BY-PAGE FINDINGS</div>
+
+    <div class="audit-grid">
+      <div class="audit-row header-row">
+        <div>PAGE</div>
+        <div>ISSUE / NOTE</div>
+        <div>SEVERITY</div>
+        <div>STATUS</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">Homepage</div>
+        <div class="audit-issue">
+          Stat labeled "204 // ACTIVE GC CONVERSATIONS" &mdash; this number is the outreach queue, not active conversations. Misleading if challenged.
+          <div class="issue-detail">Fix: change label to "GC Contacts Queued" or "Verified GC Contacts"</div>
+        </div>
+        <div><span class="badge badge-high">HIGH</span></div>
+        <div class="status-warn">⚠ FIX</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">Homepage</div>
+        <div class="audit-issue">
+          Founder Briefing YouTube embed live in &quot;Watch the Briefing &amp; Master Class&quot; (#briefing). Video FG-MKlBpExQ. Weekly brief walkthrough O93N76YA_fo in a separate section.
+          <div class="issue-detail">Optional next: dedicated permit-to-lead screen demo on /partner; data-centers planner demo when ready</div>
+        </div>
+        <div><span class="badge badge-low">OK</span></div>
+        <div class="status-ok">&#x2713; LIVE</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">Homepage</div>
+        <div class="audit-issue">
+          Pricing tiers ($2,500 / $5,000 / $10,000+ / Invite) match /partner Tier 01&ndash;04 (March 2026). Canonical set.
+          <div class="issue-detail">Keep homepage and /partner in sync on future price changes</div>
+        </div>
+        <div><span class="badge badge-low">OK</span></div>
+        <div class="status-ok">&#x2713; ALIGNED</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">Homepage</div>
+        <div class="audit-issue">
+          Content is otherwise clean. No weird characters. Stats (13,460+, 36 cities, 5,400+ contacts) are defensible. Four-stage process copy is solid. Salesperson comparison table is strong.
+          <div class="issue-detail">No action needed on body copy</div>
+        </div>
+        <div><span class="badge badge-low">OK</span></div>
+        <div class="status-ok">✓ CLEAN</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/partner</div>
+        <div class="audit-issue">
+          Tier 01&ndash;04 pricing matches homepage; Monday brief video embedded; Calendly CTAs. Former Operating Engineer framing is strong.
+          <div class="issue-detail">Optional: add dedicated permit-to-lead screen-recording when ready</div>
+        </div>
+        <div><span class="badge badge-low">OK</span></div>
+        <div class="status-ok">&#x2713; ALIGNED</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/data-centers</div>
+        <div class="audit-issue">
+          HTML &lt;title&gt; tag renders as "Know EveryLift BeforeDay One." &mdash; missing spaces. Affects browser tab, SEO, and social share previews.
+          <div class="issue-detail">Fix: "Know Every Lift Before Day One."</div>
+        </div>
+        <div><span class="badge badge-high">HIGH</span></div>
+        <div class="status-bad">🔴 FIX</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/data-centers</div>
+        <div class="audit-issue">
+          Body content is excellent. Build type selector, 5 construction phases, 23-equipment matrix, weight specs, matched vendor section &mdash; all clean and credible. No weird characters found.
+          <div class="issue-detail">No action needed beyond title fix</div>
+        </div>
+        <div><span class="badge badge-low">OK</span></div>
+        <div class="status-ok">✓ CLEAN</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/marketplace</div>
+        <div class="audit-issue">
+          CRITICAL: Two internal admin setup instructions visible to all customers. Block 1: "EMAIL ALERTS × Go to formspree.io - New Form - copy the ID / Formspree Form ID / Alert Email / Save". Block 2: "GOOGLE SHEETS × Sheets - Extensions - Apps Script - Deploy as Web App / Apps Script Web App URL / Save"
+          <div class="issue-detail">Fix: hide these panels behind an admin auth gate or remove them entirely until configured</div>
+        </div>
+        <div><span class="badge badge-critical">CRITICAL</span></div>
+        <div class="status-bad">🔴 FIX NOW</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/marketplace</div>
+        <div class="audit-issue">
+          Stats show "0 Live, 247 Leads, 0 Listed, 4 Cities" &mdash; the "0 Live" and "0 Listed" are accurate but look like a broken page to visitors. Consider either populating with real listings or changing "0" to "&ndash;" or "Coming Soon."
+          <div class="issue-detail">Fix: add even one or two real listings, or change display to avoid double zeros</div>
+        </div>
+        <div><span class="badge badge-med">MED</span></div>
+        <div class="status-warn">⚠ FIX</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/opportunities</div>
+        <div class="audit-issue">
+          Page renders "Loading opportunities..." indefinitely. No data loads. This is a dead end for any visitor who clicks through &mdash; looks like a broken page.
+          <div class="issue-detail">Fix: load static sample data, or change to a gated "Request Access" page with a CTA</div>
+        </div>
+        <div><span class="badge badge-med">MED</span></div>
+        <div class="status-bad">🔴 FIX</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/acquisitions</div>
+        <div class="audit-issue">
+          Page &lt;title&gt; and/or H1 reads "EXIT ONYOUR TERMS." &mdash; missing space. Also shows up in browser tab.
+          <div class="issue-detail">Fix: "EXIT ON YOUR TERMS."</div>
+        </div>
+        <div><span class="badge badge-med">MED</span></div>
+        <div class="status-bad">🔴 FIX</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/acquisitions</div>
+        <div class="audit-issue">
+          Body content is strong. 3&ndash;5x EBITDA multiple, deal structure table, intake form, Calendly CTA &mdash; all clean. "No brokers. No games. No suit walking your shop floor." &mdash; solid voice. No weird characters.
+          <div class="issue-detail">No action needed beyond title fix</div>
+        </div>
+        <div><span class="badge badge-low">OK</span></div>
+        <div class="status-ok">✓ CLEAN</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">/capex-layer</div>
+        <div class="audit-issue">
+          Page is clean. Architecture is clearly explained. Signal &rarr; Account Intelligence &rarr; Salesforce activation flow is well structured. No weird characters, no broken links found. CTA emails point to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fe969b929291be9d8c9f909b999b90978b8dd09d9193">[email&#160;protected]</a> &mdash; confirm that inbox is monitored.
+          <div class="issue-detail">Confirm <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="81e9e4ededeec1e2f3e0efe4e6e4efe8f4f2afe2eeec">[email&#160;protected]</a> is active and forwarded</div>
+        </div>
+        <div><span class="badge badge-low">OK</span></div>
+        <div class="status-ok">✓ CLEAN</div>
+      </div>
+
+      <div class="audit-row">
+        <div class="audit-page">All pages &mdash; Nav</div>
+        <div class="audit-issue">
+          Navigation menus are inconsistent across pages. Homepage, /partner, /data-centers, and /marketplace all show different nav items in different order. Brand looks fragmented to a visitor who browses multiple pages.
+          <div class="issue-detail">Fix: standardize to one nav template and deploy across all pages</div>
+        </div>
+        <div><span class="badge badge-med">MED</span></div>
+        <div class="status-warn">⚠ ALIGN</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================= VIDEOS ======================================= -->
+  <div id="panel-videos" class="panel">
+
+    <div class="section-title">VIDEO TRACKER</div>
+    <div class="section-sub">All videos needed for launch. Upload tomorrow. Track status here. Click status badge to cycle through states.</div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="vs-total">6</div>
+        <div class="stat-label">Videos Planned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="vs-pending-count" style="color:var(--text-dim)">5</div>
+        <div class="stat-label">Pending Filming</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="vs-filmed-count" style="color:var(--yellow)">0</div>
+        <div class="stat-label">Filmed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="vs-uploaded-count" style="color:var(--green)">0</div>
+        <div class="stat-label">Uploaded</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="vs-live-count" style="color:#5de8a0">1</div>
+        <div class="stat-label">Live on Site</div>
+      </div>
+    </div>
+
+    <div class="video-grid" id="video-grid">
+
+      <div class="video-card" data-vid="1">
+        <div class="video-num">01</div>
+        <div class="video-title">Founder Briefing &mdash; Homepage Hero</div>
+        <div class="video-desc">2&ndash;3 min. David to camera. Explains why timing wins, what CraneGenius does, who it's for. This goes in the "Watch the Briefing" section on the homepage. This is the highest-priority video &mdash; it's the first thing a crane company owner sees.</div>
+        <div class="video-meta">
+          <span class="video-page">cranegenius.com (homepage)</span>
+          <span class="video-status vs-live" onclick="cycleStatus(this)">LIVE</span>
+        </div>
+      </div>
+
+      <div class="video-card" data-vid="2">
+        <div class="video-num">02</div>
+        <div class="video-title">Platform Demo &mdash; Permit to Lead Walkthrough</div>
+        <div class="video-desc">3&ndash;5 min. Screen share. Show a permit coming in, getting scored, contact getting verified, outreach going out. This is the proof-of-system video. Use on homepage stats section or /partner page. Strong conversion asset for Erick.</div>
+        <div class="video-meta">
+          <span class="video-page">cranegenius.com/partner</span>
+          <span class="video-status vs-pending" onclick="cycleStatus(this)">PENDING</span>
+        </div>
+      </div>
+
+      <div class="video-card" data-vid="3">
+        <div class="video-num">03</div>
+        <div class="video-title">Market Intel Report &mdash; Sample Walkthrough</div>
+        <div class="video-desc">1&ndash;2 min. Show a sample "Free Market Intel Report" &mdash; 12 active crane jobs in a market this month. This is the Funnel B lead magnet video. Goes on /partner page to support the retainer pitch. Makes the report tangible before Erick sees it.</div>
+        <div class="video-meta">
+          <span class="video-page">cranegenius.com/partner</span>
+          <span class="video-status vs-pending" onclick="cycleStatus(this)">PENDING</span>
+        </div>
+      </div>
+
+      <div class="video-card" data-vid="4">
+        <div class="video-num">04</div>
+        <div class="video-title">Data Center Lift Planner Demo</div>
+        <div class="video-desc">2&ndash;3 min. Screen share. Select a build type (Hyperscale), walk through the phase tabs, show the 23-equipment matrix, then click "Get My Lift Plan." Demonstrates the AI planner to hyperscaler buyers and GCs. Goes on /data-centers page.</div>
+        <div class="video-meta">
+          <span class="video-page">cranegenius.com/data-centers</span>
+          <span class="video-status vs-pending" onclick="cycleStatus(this)">PENDING</span>
+        </div>
+      </div>
+
+      <div class="video-card" data-vid="5">
+        <div class="video-num">05</div>
+        <div class="video-title">Lift Estimator Walkthrough &mdash; GC Use Case</div>
+        <div class="video-desc">90 sec. Screen share. Walk a GC through all 6 estimator steps: pick Transformer/UPS, outdoor site, 5 days, specs, ASAP timeline, job awarded. Show the report output and lead capture form. Film against /estimate/; homepage links via the bridge block.</div>
+        <div class="video-meta">
+          <span class="video-page">cranegenius.com/estimate/</span>
+          <span class="video-status vs-pending" onclick="cycleStatus(this)">PENDING</span>
+        </div>
+      </div>
+
+      <div class="video-card" data-vid="6">
+        <div class="video-num">06</div>
+        <div class="video-title">CapexLayer Explainer &mdash; Signal to Salesforce</div>
+        <div class="video-desc">3&ndash;4 min. Whiteboard or screen share. Explains the three-layer stack (Signal Engine &rarr; Account Intelligence &rarr; Salesforce activation). For the /capex-layer page. Targets Salesforce AEs and B2B companies selling into capital projects. Lower priority &mdash; do last.</div>
+        <div class="video-meta">
+          <span class="video-page">cranegenius.com/capex-layer</span>
+          <span class="video-status vs-pending" onclick="cycleStatus(this)">PENDING</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-title">VIDEO UPLOAD CHECKLIST</div>
+    <div style="font-size:13px; color:var(--text-dim); line-height:1.8;">
+      <p style="margin-bottom:8px; color:var(--text);">Before uploading tomorrow, confirm each of these:</p>
+      <p>□ &nbsp;Upload to YouTube as Unlisted first &mdash; test the embed before making public</p>
+      <p>□ &nbsp;Copy the YouTube embed URL (not the share link) for each video</p>
+      <p>□ &nbsp;Add captions/subtitles (YouTube auto-captions, then review)</p>
+      <p>□ &nbsp;Set thumbnail &mdash; use a custom frame, not YouTube's auto-select</p>
+      <p>□ &nbsp;Paste embed code into site where the video placeholder currently sits</p>
+      <p>□ &nbsp;Test embed on mobile &mdash; most buyers will watch on phone</p>
+      <p>□ &nbsp;After confirming embed works, set YouTube visibility to Public</p>
+      <p>□ &nbsp;Add video title and description to YouTube for SEO</p>
+    </div>
+  </div>
+
+  <!-- ======================================= CHECKLIST ======================================= -->
+  <div id="panel-checklist" class="panel">
+
+    <div class="section-title">GO-LIVE CHECKLIST</div>
+    <div class="section-sub">Everything that needs to be true before you drive traffic. Click items to check them off.</div>
+
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Launch Readiness</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="sub-title">🔴 MUST FIX BEFORE ANY TRAFFIC</div>
+    <div class="checklist" id="cl-critical">
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Hide / remove admin panel text from /marketplace</div>
+          <div class="cl-desc">The Formspree setup instructions and Google Sheets setup instructions are visible to all customers. This is the #1 priority fix before any video goes live.</div>
+        </div>
+        <span class="cl-priority badge badge-critical">BLOCKER</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Test Formspree lead capture end-to-end on all pages</div>
+          <div class="cl-desc">Submit a test lead from the estimator form, marketplace inquiry form, and partner application. Confirm you receive the email. Endpoint: mgoldjjb.</div>
+        </div>
+        <span class="cl-priority badge badge-critical">BLOCKER</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Confirm AI chatbot is live (not 404ing)</div>
+          <div class="cl-desc">Load /marketplace and /data-centers on incognito. Trigger the bot. Confirm it responds. If it 404s, the CDN push failed and needs a re-deploy.</div>
+        </div>
+        <span class="cl-priority badge badge-critical">BLOCKER</span>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-title">🟡 FIX BEFORE VIDEO UPLOADS (TOMORROW)</div>
+    <div class="checklist" id="cl-high">
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Fix title tag on /data-centers &mdash; add missing spaces</div>
+          <div class="cl-desc">Change "Know EveryLift BeforeDay One." to "Know Every Lift Before Day One." in both the &lt;title&gt; tag and the H1.</div>
+        </div>
+        <span class="cl-priority badge badge-high">HIGH</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Fix title tag on /acquisitions &mdash; add missing space</div>
+          <div class="cl-desc">Change "EXIT ONYOUR TERMS." to "EXIT ON YOUR TERMS." in both the &lt;title&gt; tag and the visible H1.</div>
+        </div>
+        <span class="cl-priority badge badge-high">HIGH</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Relabel "204 // ACTIVE GC CONVERSATIONS" on homepage</div>
+          <div class="cl-desc">Change to "GC Contacts Queued" or "Verified GC Contacts" &mdash; this is the outreach queue, not active conversations. Stay defensible.</div>
+        </div>
+        <span class="cl-priority badge badge-high">HIGH</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Fix /opportunities &mdash; replace infinite spinner</div>
+          <div class="cl-desc">Change "Loading opportunities..." to either: (a) static sample data with 3&ndash;5 real opportunities, or (b) a gated "Request Market Access" page with a Calendly CTA. No more dead-end spinners.</div>
+        </div>
+        <span class="cl-priority badge badge-high">HIGH</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Add video embeds to homepage and relevant pages</div>
+          <div class="cl-desc"><strong>Done:</strong> Founder briefing FG-MKlBpExQ (&quot;Watch the Briefing &amp; Master Class&quot;). Weekly brief O93N76YA_fo on multiple pages. <strong>Remaining:</strong> dedicated permit-to-lead demo on /partner; data-centers planner demo when ready.</div>
+        </div>
+        <span class="cl-priority badge badge-high">HIGH</span>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-title">🔵 THIS WEEK</div>
+    <div class="checklist" id="cl-med">
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Standardize navigation across all pages</div>
+          <div class="cl-desc">Every page should show the same nav in the same order. Pick the homepage nav as the master template and apply it to /partner, /data-centers, /marketplace, /acquisitions, /capex-layer.</div>
+        </div>
+        <span class="cl-priority badge badge-med">MED</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Fix marketplace "0 Live / 0 Listed" stats</div>
+          <div class="cl-desc">Either add real listings or change zeros to "&ndash;" or "Coming Soon" to avoid looking like a broken page. Even one or two test listings would help.</div>
+        </div>
+        <span class="cl-priority badge badge-med">MED</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Confirm <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="771f121b1b183714051619121012191e02045914181a">[email&#160;protected]</a> is active and monitored</div>
+          <div class="cl-desc">/capex-layer CTAs point to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e68e838a8a89a685948788838183888f9395c885898b">[email&#160;protected]</a>. Confirm this inbox is live and forwarding to your primary email. Missed inbound from Salesforce AEs is costly.</div>
+        </div>
+        <span class="cl-priority badge badge-med">MED</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Build minimal retainer client onboarding flow</div>
+          <div class="cl-desc">Before Erick says yes: have an intake form, a welcome email, and a kickoff call calendar link ready. The gap between "yes" and "we're rolling" should be under 24 hours.</div>
+        </div>
+        <span class="cl-priority badge badge-med">MED</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Automate PlusVibe campaign trigger</div>
+          <div class="cl-desc">Currently requires manual import + manual Start. Wire an API trigger or Zapier hook so new contacts from the pipeline automatically enter the outreach sequence without manual intervention.</div>
+        </div>
+        <span class="cl-priority badge badge-med">MED</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Schedule pipeline cron &mdash; weekly automated run</div>
+          <div class="cl-desc">Pipeline currently runs manually (~9 min). Low effort to schedule as a weekly cron job. Set it and forget it. Keeps permit data fresh without manual trigger.</div>
+        </div>
+        <span class="cl-priority badge badge-med">MED</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Confirm Codex predictive layer build complete</div>
+          <div class="cl-desc">Stage 3b: lift_timing_predictor.py, crane_class_predictor.py, outreach_scheduler.py. Run pytest &mdash; all 5 tests must pass. Check CHANGELOG_AGENT.md for Codex completion entry.</div>
+        </div>
+        <span class="cl-priority badge badge-med">MED</span>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-title">🟢 THIS MONTH</div>
+    <div class="checklist">
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Close Erick / Leavitt Cranes as first founding partner</div>
+          <div class="cl-desc">First MRR. Pacific Northwest market. $5,000/mo Track 1. One partner per region &mdash; slot is open. This is the entire near-term focus.</div>
+        </div>
+        <span class="cl-priority badge badge-low">MONTH 1</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Register Salesforce Partner Community</div>
+          <div class="cl-desc">Free. Do this week. Unlocks Salesforce AE referral network, AppExchange path, and co-sell motion. Required for CapexLayer distribution strategy.</div>
+        </div>
+        <span class="cl-priority badge badge-low">MONTH 1</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Buy capexlayer.com + capexlayer.io domains</div>
+          <div class="cl-desc">Both available as of March 2026. Purchase on first payment received. Do not wait &mdash; domains can be grabbed by anyone.</div>
+        </div>
+        <span class="cl-priority badge badge-low">MONTH 1</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">IUOE Local 701 card reinstatement</div>
+          <div class="cl-desc">High-priority BD move. Warm access to business managers nationwide. Opens the podcast guest / retainer sales pipeline through union relationships.</div>
+        </div>
+        <span class="cl-priority badge badge-low">MONTH 1</span>
+      </div>
+
+      <div class="cl-item" onclick="toggleCheck(this)">
+        <div class="cl-checkbox"></div>
+        <div class="cl-content">
+          <div class="cl-title">Close second crane company retainer (non-PNW market)</div>
+          <div class="cl-desc">After Leavitt closes, replicate the pitch in Dallas or Chicago. Use the Leavitt deal as a case study to accelerate close. Target: Month 2.</div>
+        </div>
+        <span class="cl-priority badge badge-low">MONTH 2</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(id, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+  }
+
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    if (el.classList.contains('checked')) {
+      el.querySelector('.cl-checkbox').textContent = '\u2713';
+    } else {
+      el.querySelector('.cl-checkbox').textContent = '';
+    }
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.cl-item');
+    const done = document.querySelectorAll('.cl-item.checked');
+    const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  const statusCycle = ['PENDING', 'FILMED', 'UPLOADED', 'LIVE'];
+  const statusClasses = ['vs-pending', 'vs-filmed', 'vs-uploaded', 'vs-live'];
+
+  function cycleStatus(el) {
+    let current = statusCycle.indexOf(el.textContent.trim());
+    if (current < 0) current = 0;
+    const next = (current + 1) % statusCycle.length;
+    el.textContent = statusCycle[next];
+    el.className = 'video-status ' + statusClasses[next];
+    updateVideoStats();
+  }
+
+  function updateVideoStats() {
+    const nodes = document.querySelectorAll('.video-status');
+    let p = 0, f = 0, u = 0, l = 0;
+    nodes.forEach(function (b) {
+      const t = b.textContent.trim();
+      if (t === 'PENDING') p++;
+      else if (t === 'FILMED') f++;
+      else if (t === 'UPLOADED') u++;
+      else if (t === 'LIVE') l++;
+    });
+    function set(id, v) {
+      const n = document.getElementById(id);
+      if (n) n.textContent = String(v);
+    }
+    set('vs-pending-count', p);
+    set('vs-filmed-count', f);
+    set('vs-uploaded-count', u);
+    set('vs-live-count', l);
+    set('vs-total', nodes.length);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    updateVideoStats();
+  });
+</script>
+</body>
+</html>

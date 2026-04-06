@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CraneGenius , Project Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080c14;--bg2:#0d1628;--bg3:#111e35;--gold:#F5A623;--gold-border:rgba(245,166,35,.22);--border:#1e3a5f;--text:#e8f0ff;--muted:#8899aa;--mono:'DM Mono',monospace;--p-ns:#1e1e2e;--p-ns-t:#6668aa;--p-sc:#0d2040;--p-sc-t:#4a9eff;--p-pt:#1a1a2e;--p-pt-t:#7F77DD;--p-dr:#1a2010;--p-dr-t:#8fbb3f;--p-rr:#0d2a1a;--p-rr-t:#22cc77;--p-pr:#1a1400;--p-pr-t:#F5A623}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:13px;line-height:1.5}
+.shell{max-width:1380px;margin:0 auto;padding:24px 20px 80px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--gold-border);flex-wrap:wrap;gap:8px}
+.wm{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--gold)}
+.tm{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em}
+.tm span{color:var(--gold)}
+.phase-legend{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;align-items:center}
+.pl-title{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;flex-shrink:0;margin-right:4px}
+.pl{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,255,255,.06)}
+.pl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pl-name{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.pl-sub{font-size:10px;color:var(--muted);margin-left:2px}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.fl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.fb{font-family:var(--mono);font-size:10px;padding:5px 12px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--muted);cursor:pointer;letter-spacing:.06em;text-transform:uppercase;transition:all .15s}
+.fb.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.fb:hover:not(.on){border-color:var(--gold-border);color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:20px}
+.sv{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;text-align:center}
+.sv-n{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1}
+.sv-l{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.board{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:start}
+@media(max-width:1100px){.board{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.board{grid-template-columns:repeat(2,1fr)}}
+.col-head{padding:9px 11px;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center}
+.ch-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.ch-cnt{font-family:var(--mono);font-size:10px;background:rgba(0,0,0,.3);padding:1px 7px;border-radius:8px}
+.col-ns .col-head{background:var(--p-ns);color:var(--p-ns-t)}
+.col-sc .col-head{background:var(--p-sc);color:var(--p-sc-t)}
+.col-pt .col-head{background:var(--p-pt);color:var(--p-pt-t)}
+.col-dr .col-head{background:var(--p-dr);color:var(--p-dr-t)}
+.col-rr .col-head{background:var(--p-rr);color:var(--p-rr-t)}
+.col-pr .col-head{background:var(--p-pr);color:var(--p-pr-t)}
+.col-body{background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;padding:8px;min-height:100px;display:flex;flex-direction:column;gap:7px}
+.card{border-radius:5px;padding:10px 11px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--gold-border)}
+.card-cat{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.ccd{width:5px;height:5px;border-radius:50%}
+.card-name{font-size:11px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.35}
+.card-desc{font-size:10px;color:var(--muted);line-height:1.45;margin-bottom:5px}
+.card-tags{display:flex;gap:3px;flex-wrap:wrap}
+.tag{font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase}
+.tc{background:rgba(127,119,221,.15);color:#9d96e8}
+.tx{background:rgba(55,138,221,.15);color:#5ca8e8}
+.td{background:rgba(245,166,35,.15);color:#d4951f}
+.ts{background:rgba(99,153,26,.15);color:#7ab830}
+.tb{background:rgba(226,75,74,.15);color:#e26060}
+.tu{background:rgba(99,153,26,.1);color:#5a9020}
+.card-bar{position:absolute;bottom:0;left:0;right:0;height:2px}
+.dp{display:none;position:fixed;top:0;right:0;width:360px;height:100vh;background:var(--bg2);border-left:1px solid var(--gold-border);z-index:200;overflow-y:auto;padding:22px}
+.dp.open{display:block}
+.dp-close{font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer;margin-bottom:18px;letter-spacing:.06em;display:inline-block}
+.dp-close:hover{color:var(--gold)}
+.dp-phase{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px}
+.dp-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.5px;color:var(--text);margin-bottom:4px;line-height:1.1}
+.dp-cat{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:12px;letter-spacing:.08em}
+.dp-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.dp-sec{margin-bottom:14px}
+.dp-sec-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:7px}
+.dp-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.dp-row:last-child{border-bottom:none}
+.dp-rl{color:var(--muted);flex-shrink:0}
+.dp-rv{color:var(--text);font-weight:500;text-align:right}
+.dp-text{font-size:11px;color:var(--muted);line-height:1.55}
+.dp-links{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.dp-link{color:var(--gold);font-family:var(--mono);font-size:10px;text-decoration:none;letter-spacing:.04em}
+.dp-link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="topbar">
+  <div class="wm">CraneGenius , Project Board</div>
+  <div class="tm">// <a href="index.html" style="color:var(--gold);text-decoration:none">Command Center</a> &nbsp;|&nbsp; <a href="dashboard.html" style="color:var(--gold);text-decoration:none">Dashboard</a> &nbsp;|&nbsp; <a href="signals-kanban.html" style="color:var(--gold);text-decoration:none">68 Signals</a> &nbsp;|&nbsp; <a href="pipeline.html" style="color:var(--gold);text-decoration:none">Pipeline</a> &nbsp;|&nbsp; <span>Project Board</span> &nbsp;|&nbsp; Dark 30 Ventures &nbsp;|&nbsp; <span id="ds"></span></div>
+</div>
+
+<div class="phase-legend">
+  <span class="pl-title">Phase scale →</span>
+  <div class="pl" style="background:var(--p-ns)"><div class="pl-dot" style="background:var(--p-ns-t)"></div><span class="pl-name" style="color:var(--p-ns-t)">Not Started</span><span class="pl-sub">Identified, not scoped</span></div>
+  <div class="pl" style="background:var(--p-sc)"><div class="pl-dot" style="background:var(--p-sc-t)"></div><span class="pl-name" style="color:var(--p-sc-t)">Scoped</span><span class="pl-sub">Requirements written, owner assigned</span></div>
+  <div class="pl" style="background:var(--p-pt)"><div class="pl-dot" style="background:var(--p-pt-t)"></div><span class="pl-name" style="color:var(--p-pt-t)">Prototype</span><span class="pl-sub">POC built, not wired to real data</span></div>
+  <div class="pl" style="background:var(--p-dr)"><div class="pl-dot" style="background:var(--p-dr-t)"></div><span class="pl-name" style="color:var(--p-dr-t)">Demo Ready</span><span class="pl-sub">Can show to prospect, may have manual steps</span></div>
+  <div class="pl" style="background:var(--p-rr)"><div class="pl-dot" style="background:var(--p-rr-t)"></div><span class="pl-name" style="color:var(--p-rr-t)">Revenue Ready</span><span class="pl-sub">Live, stable, generates consistent revenue</span></div>
+  <div class="pl" style="background:var(--p-pr)"><div class="pl-dot" style="background:var(--p-pr-t)"></div><span class="pl-name" style="color:var(--p-pr-t)">Production</span><span class="pl-sub">Scaled, automated, monitored , zero manual ops</span></div>
+</div>
+
+<div class="filter-bar">
+  <span class="fl">Filter:</span>
+  <button class="fb on" onclick="go('all',this)">All</button>
+  <button class="fb" onclick="go('platform',this)">Platform</button>
+  <button class="fb" onclick="go('intelligence',this)">Intelligence</button>
+  <button class="fb" onclick="go('revenue',this)">Revenue</button>
+  <button class="fb" onclick="go('content',this)">Content</button>
+  <button class="fb" onclick="go('autonomy',this)">Autonomy</button>
+  <button class="fb" onclick="go('acquisition',this)">Acquisition</button>
+</div>
+
+<div class="stats" id="stats"></div>
+<div class="board" id="board"></div>
+</div>
+
+<div class="dp" id="dp">
+  <span class="dp-close" onclick="document.getElementById('dp').classList.remove('open')">← Close</span>
+  <div id="dpc"></div>
+</div>
+
+<script>
+const PH={ns:{l:'Not Started',c:'#6668aa',bg:'var(--p-ns)'},sc:{l:'Scoped',c:'#4a9eff',bg:'var(--p-sc)'},pt:{l:'Prototype',c:'#7F77DD',bg:'var(--p-pt)'},dr:{l:'Demo Ready',c:'#8fbb3f',bg:'var(--p-dr)'},rr:{l:'Revenue Ready',c:'#22cc77',bg:'var(--p-rr)'},pr:{l:'Production',c:'#F5A623',bg:'var(--p-pr)'}};
+const CC={platform:'#378ADD',intelligence:'#9d96e8',revenue:'#F5A623',content:'#22cc77',autonomy:'#EF9F27',acquisition:'#E24B4A'};
+const PO=['ns','sc','pt','dr','rr','pr'];
+
+const P=[
+{id:'lift',name:'Lift Estimator Wizard',cat:'platform',phase:'dr',owner:'Claude',blocked:false,
+desc:'6-step wizard sizing crane type and access requirements. Core GC conversion tool at /estimate/ (homepage bridges GCs here).',
+works:'All 6 steps functional. Crane recommendation renders. Mobile responsive.',
+broken:'Bot handoff to Get Crane Availability unconfirmed. Formspree lead capture not tested end-to-end.',
+next:'Test Formspree firing end-to-end. Add social proof stat above fold. Confirm bot prefill.',
+rr:'Formspree confirmed. Bot integration live. Lead lands in CRM.',
+prod:'Analytics wired. A/B testing on CTAs. Automated lead routing to crane company retainers.',
+links:[{l:'Live',u:'https://cranegenius.com/'}]},
+
+{id:'opps',name:'Opportunity Intelligence Engine',cat:'intelligence',phase:'dr',owner:'Codex',blocked:false,
+desc:'524+ permit-sourced crane-ready projects across 5 markets. Powers the full lead gen funnel.',
+works:'524 entries rendering. Filters functional. Card layout with CTAs.',
+broken:'Non-crane permits surfacing. Design system mismatch. Beehiiv embed missing. Score badges missing.',
+next:'Codex B3: noise filter. Fix design system. Claude A3: add Beehiiv embed + score badges.',
+rr:'Noise filter live. Score badges render. Subscribe embed fires. GCs find projects before calling cranes.',
+prod:'Pipeline auto-refreshes weekly. Noise filter ML-tuned. Automated score recalculation.',
+links:[{l:'Live',u:'https://cranegenius.com/opportunities/'}]},
+
+{id:'pipeline',name:'Permit Data Pipeline',cat:'intelligence',phase:'rr',owner:'Codex',blocked:false,
+desc:'8-stage Python pipeline: Socrata → domain enrichment → MillionVerifier → CSV export. 13,460+ rows in ~9 min.',
+works:'Pipeline runs. Chicago, Dallas, NYC, Phoenix covered. SerpAPI enrichment ~30-50% yield.',
+broken:'Non-crane permits not filtered. Pre-bid signal missing. Firecrawl not replacing SerpAPI.',
+next:'B3 noise filter. B6 pre-bid collector. Firecrawl integration.',
+rr:'Currently revenue ready , feeds outreach pipeline.',
+prod:'Fully automated via GitHub Actions. Firecrawl live. Pre-bid signal live. 500 emails/day capacity.',
+links:[]},
+
+{id:'ci',name:'Contact Intelligence System',cat:'intelligence',phase:'rr',owner:'Codex',blocked:false,
+desc:'7,800+ contacts in SQLite. 5,400+ verified emails. Import, dedup, scoring, export, feedback loop.',
+works:'Import, dedup, scoring, export all functional. contacts_for_outreach.csv exports working.',
+broken:'Not integrated with opportunity builder. CRM module missing. Directory export not automated.',
+next:'B1: directory JSON export. CRM module. Integrate with opportunity builder.',
+rr:'Contact data feeds PlusVibe campaigns that generate retainer replies.',
+prod:'Auto-export to directory.json on pipeline run. CRM webhook. Confidence score auto-refresh.',
+links:[]},
+
+{id:'outreach',name:'Cold Outreach System',cat:'revenue',phase:'rr',owner:'David',blocked:false,
+desc:'PlusVibe + Instantly via RISKCLARITY 100-account sender pool. 204 data center contacts active.',
+works:'PlusVibe campaign live. 204 contacts active. Permit-referenced copy converts vs generic.',
+broken:'Campaign start still manual. No reply automation. No CRM handoff.',
+next:'Check PlusVibe for replies now. Import 700+ queued contacts. Build reply-to-call automation.',
+rr:'Currently revenue ready , active campaigns generating warm leads.',
+prod:'Zapier trigger on pipeline completion. Auto-import verified contacts. Reply → Calendly → CRM automation.',
+links:[]},
+
+{id:'retainer',name:'Retainer Sales , Crane Cos.',cat:'revenue',phase:'dr',owner:'David',blocked:false,
+desc:'Fractional remote sales retainer. $500 pilot / $1,500 standard / $2,500 full. First target: Erick at Leavitt Cranes.',
+works:'/partner/ page live. Calendly linked. 3 tiers defined. Pitch language written.',
+broken:'No signed clients. No onboarding process. No retainer contract template.',
+next:'Send Erick cranegenius.com/partner today. Book call. Close pilot.',
+rr:'First retainer signed. Monthly payment received. GC outreach running on their behalf.',
+prod:'5+ active retainers. Onboarding automated. Reporting dashboard per client. Commission tracking live.',
+links:[{l:'Partner Page',u:'https://cranegenius.com/partner/'}]},
+
+{id:'ironsheet',name:'The Ironsheet Newsletter',cat:'content',phase:'dr',owner:'Shared',blocked:false,
+desc:'Weekly construction market intel. 3 audiences: workers, contractors, developers. Beehiiv free tier.',
+works:'theironsheet.beehiiv.com live. /ironsheet/ subscribe page live. Issue structure defined. Monday posts drafted.',
+broken:'0 subscribers. Buffer not set up. GitHub Action not built. No issues sent yet.',
+next:'Create Buffer account Sunday. Schedule Monday posts. Write Issue 1 by Friday.',
+rr:'500+ subscribers. Issues driving retainer inquiries or site traffic.',
+prod:'Pipeline auto-generates issue draft weekly. Buffer auto-schedules social. 10%+ weekly subscriber growth.',
+links:[{l:'Subscribe',u:'https://theironsheet.beehiiv.com'},{l:'Page',u:'https://cranegenius.com/ironsheet/'}]},
+
+{id:'wom',name:'Word of Mouth Intel Feed',cat:'content',phase:'dr',owner:'Claude',blocked:false,
+desc:'Crowdsourced pre-permit field intel. Section 02 of The Ironsheet. Submitted via /tip/ form.',
+works:'/tip/ page live. Formspree wired. 6 example categories. Success/error states.',
+broken:'0 submissions. No moderation queue. No Beehiiv auto-insert.',
+next:'Seed first tip manually. Build moderation queue. Wire tips into Beehiiv issue template.',
+rr:'10+ weekly submissions. Intel surfaces pre-permit projects not in pipeline.',
+prod:'Moderation UI in command center. Auto-scoring of tip quality. Top tips auto-inserted into issue draft.',
+links:[{l:'Submit',u:'https://cranegenius.com/tip/'}]},
+
+{id:'social',name:'Social Content Machine',cat:'content',phase:'sc',owner:'Codex',blocked:true,
+desc:'GitHub Action: reads top 5 scored opps weekly → formats 4 platform posts → fires to Buffer API → drafts Beehiiv issue.',
+works:'Post templates written. Beehiiv pub ID confirmed. Buffer account structure defined.',
+broken:'Buffer account not created. Buffer API token missing. GitHub Action not built.',
+next:'David creates Buffer account Sunday. Provides token. Codex builds content-pipeline.yml.',
+rr:'Posts auto-publish weekly with zero manual effort. Subscriber growth driven by social.',
+prod:'Performance analytics feed back into template optimization. A/B testing on hook lines.',
+links:[]},
+
+{id:'marketplace',name:'Crane Equipment Marketplace',cat:'platform',phase:'pt',owner:'Claude',blocked:false,
+desc:'Marketplace for crane equipment. AI bot pre-loads context. Formspree inquiry. Ascentium Capital financing CTA.',
+works:'Marketplace page exists. 10 listings (4 with real imagery). AI bot panel exists.',
+broken:'Bot CDN fix unconfirmed. 0 live inquiry flow tested. No commission tracking.',
+next:'Confirm bot CDN fix live. Add 3 real listings. Test inquiry → Formspree end-to-end.',
+rr:'Bot fires on inquiry. Formspree confirmed. First brokered equipment deal closes.',
+prod:'Listings auto-populated from seller intake. Commission tracking dashboard. Financing referral integrated.',
+links:[{l:'Live',u:'https://cranegenius.com/marketplace/'}]},
+
+{id:'directory',name:'Crane Company Directory',cat:'platform',phase:'sc',owner:'Shared',blocked:false,
+desc:'Searchable directory of crane operators by market. SEO moat , hundreds of indexed city+state pages.',
+works:'directory/ folder exists. Schema defined in TASK.md.',
+broken:'HTML shell not built. directory.json not exported from SQLite.',
+next:'Claude A4: build HTML shell. Codex B1: export directory.json.',
+rr:'Directory drives organic inbound from crane companies searching their own market.',
+prod:'Auto-refreshes from pipeline. Each company page SEO-optimized. Contact form per listing.',
+links:[]},
+
+{id:'jobs',name:'Permit-Sourced Jobs Board',cat:'platform',phase:'sc',owner:'Shared',blocked:false,
+desc:'Active crane and construction jobs sourced from permit data. SEO traffic from workers and operators.',
+works:'jobs/ folder exists. Schema defined. Existing jobs/index.html has basic structure.',
+broken:'HTML shell not updated to new design system. jobs.json not generated.',
+next:'Claude A5: rebuild shell. Codex B2: generate jobs.json.',
+rr:'Jobs board drives operator subscriptions to The Ironsheet.',
+prod:'Auto-refreshes weekly. Job alerts via email for subscribers. Employer posting fee viable.',
+links:[]},
+
+{id:'education',name:'Lift Intelligence Library',cat:'platform',phase:'sc',owner:'Shared',blocked:false,
+desc:'Agent-written guides: crane selection, lift planning, permit requirements. Long-tail SEO. Each ends with Lift Estimator CTA.',
+works:'education/ folder exists. Article schema defined. 5 article titles scoped.',
+broken:'HTML shell not built. articles.json not generated. No articles written yet.',
+next:'Claude A6: build shell. Codex B4: generate first 5 articles via Claude API.',
+rr:'Education articles drive GC traffic to Lift Estimator → Formspree lead.',
+prod:'30+ articles live. New article per permit type cluster weekly. Schema.org for Featured Snippets.',
+links:[]},
+
+{id:'datacenter',name:'Data Center AI Lift Planner',cat:'platform',phase:'dr',owner:'Claude',blocked:false,
+desc:'AI crane planning for data center builds. MW + footprint → crane matrix, vendor shortlist, access plan. CAA inquiry funnel.',
+works:'AI Planner page live. Lift Matrix page live. Bot interface exists.',
+broken:'Missing auth header for AI calls. Filter UI bugs. Add-to-Plan button not wired.',
+next:'Fix auth header. Wire Add-to-Plan. Wire CAA Request Quote intake form.',
+rr:'Generates CAA inquiry leads. Pre-construction assessment sold ($2K-$5K).',
+prod:'CAA contract auto-generated. DocuSign integration. SLA-backed fleet allocation.',
+links:[{l:'Live',u:'https://cranegenius.com/data-centers/'}]},
+
+{id:'caa',name:'Crane Access Agreement (CAA)',cat:'revenue',phase:'sc',owner:'David',blocked:false,
+desc:'SLA-backed crane availability product. 3 tiers: Starter $5K-$25K/mo, Enterprise $50K-$150K/mo.',
+works:'Product defined. Pricing tiers set. Data Center Planner is the entry funnel.',
+broken:'Contract template not built. No intake form. No crane supply locked. No SLA metrics.',
+next:'Draft CAA contract template. Build intake form. Lock first crane supply relationship.',
+rr:'First CAA signed. Monthly payment received. Crane availability SLA delivered.',
+prod:'DocuSign auto-generation. Fleet dashboard per client. SLA monitoring automated.',
+links:[]},
+
+{id:'autonomy',name:'Autonomy Layer',cat:'autonomy',phase:'pt',owner:'Codex',blocked:false,
+desc:'Agent-driven automation: launchd controller, signal expansion loop, repair agent, watchdog. Runs every 15 min.',
+works:'agents/, autonomy/, agent_controller.py, watchdog.py all exist on codex/repo-recon branch.',
+broken:'Not merged to main yet. Sandbox execution fails on macOS. RepairAgent queue not tested at scale.',
+next:'Merge codex/repo-recon → main. Fix sandbox permissions. Document cron reliability.',
+rr:'Pipeline runs automatically. No manual pipeline triggers needed.',
+prod:'Full CI/CD on GitHub Actions. Schema drift auto-repaired. Alerting on failures. 99% uptime.',
+links:[]},
+
+{id:'signals',name:'Signal Collection Engine',cat:'intelligence',phase:'pt',owner:'Codex',blocked:false,
+desc:'13/20 signal families live. Permits, equipment rentals, subcontractors, procurement, utility infrastructure, capex, heavy transport.',
+works:'13 collectors operational. Scoring fields: crane_relevance, buyer_value, project_reality, overall_priority.',
+broken:'Pre-bid attendance (highest-value) not built. 7 signal families missing. Non-crane permits surfacing.',
+next:'B6: pre-bid attendance collector. B3: noise filter on scoring stage.',
+rr:'Signal quality high enough that permit-referenced outreach gets consistent replies.',
+prod:'All 20 signal families live. ML scoring. Real-time signal ingestion. No human curation.',
+links:[]},
+
+{id:'pmg',name:'Project Memory Graph',cat:'intelligence',phase:'pt',owner:'Codex',blocked:false,
+desc:'Graph tracking project lifecycle. Node types: projects, contractors, signals, equipment, relationships. 70% built.',
+works:'Graph architecture defined. Node types implemented. Stage tracking working.',
+broken:'Live contractor graph not populated. Outreach trigger integration missing.',
+next:'Integrate contractor graph into opportunities builder. Wire outreach triggers.',
+rr:'Graph surfaces warm intro paths between GCs and crane companies.',
+prod:'Real-time graph updates. Relationship intelligence feeds outreach personalization.',
+links:[]},
+
+{id:'acqfunnel',name:'Acquisition Funnel',cat:'acquisition',phase:'pt',owner:'Shared',blocked:false,
+desc:'Funnel for owner-operators considering exit. EBITDA valuation. No-obligation conversation. Structured deal.',
+works:'/sell-your-company/ page exists. Basic content live.',
+broken:'Intake form incomplete. No CRM. No confidentiality process. No EDGAR engine.',
+next:'Complete intake form. Wire to CRM. Build EDGAR NLP engine for outbound.',
+rr:'First acquisition LOI signed. Deal flow consistent.',
+prod:'EDGAR engine runs weekly. Outbound automated. CRM tracks deal pipeline.',
+links:[{l:'Page',u:'https://cranegenius.com/sell-your-company/'}]},
+
+{id:'rollup',name:'Acquisition Roll-Up Program',cat:'acquisition',phase:'ns',owner:'David',blocked:false,
+desc:'Target 30-50 owner-operated crane companies at 3-5x EBITDA. Exit at 8-15x via strategic sale or recapitalization.',
+works:'Deal structure defined. Ghost equity concept documented. Roll-up thesis written.',
+broken:'No acquisition targets. No sponsor cash. No SBA relationship. No first deal.',
+next:'Start after first retainer close. Build EDGAR engine. Identify first 3 targets.',
+rr:'First acquisition closed. Operator retained as GM. Revenue from combined entity.',
+prod:'Portfolio of 10+ companies. Centralized back-office. Combined revenue $5M+.',
+links:[]},
+
+{id:'edgar',name:'EDGAR NLP Prospecting Engine',cat:'intelligence',phase:'ns',owner:'Codex',blocked:false,
+desc:'NLP engine scraping SEC EDGAR capex filings to identify data center developers and crane company acquisition targets.',
+works:'Concept defined. Used as acquisition outreach and CAA enterprise sales tool.',
+broken:'Not built. No code. No API integration.',
+next:'Build after core pipeline stabilizes. Target Month 4.',
+rr:'EDGAR engine identifies 3 CAA prospects that convert to paid contracts.',
+prod:'Weekly EDGAR scan. Auto-qualified leads routed to outreach. PlusVibe integration.',
+links:[]},
+
+{id:'cmdcenter',name:'Command Center Dashboard',cat:'platform',phase:'dr',owner:'Claude',blocked:false,
+desc:'Internal ops dashboard. Kanban, funnel status, page tracker, revenue gate, Ironsheet intel. Password-protected.',
+works:'dashboard.html live. projects.html (this board) live. 5-tab interface.',
+broken:'Not wired to live data. Metrics are static. No auth gate.',
+next:'Wire opportunity count from live JSON. Add auth gate. Link metric cards to live sources.',
+rr:'Not a revenue project , ops tooling.',
+prod:'All metrics pull live. Auto-refresh every 15 min. Mobile responsive. GitHub Pages auth gate.',
+links:[{l:'Dashboard',u:'https://cranegenius.com/command-center/dashboard.html'},{l:'Projects',u:'https://cranegenius.com/command-center/projects.html'}]}
+];
+
+function renderBoard(f){
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  const counts={};
+  PO.forEach(p=>{counts[p]=0;});
+  const cols={};
+  PO.forEach(p=>{
+    const col=document.createElement('div');
+    col.className='col col-'+p;
+    col.innerHTML='<div class="col-head"><span class="ch-title">'+PH[p].l+'</span><span class="ch-cnt" id="c'+p+'">0</span></div><div class="col-body" id="b'+p+'"></div>';
+    cols[p]=col;board.appendChild(col);
+  });
+  P.forEach(proj=>{
+    if(f!=='all'&&proj.cat!==f)return;
+    counts[proj.phase]++;
+    const catC=CC[proj.cat]||'#888';
+    const card=document.createElement('div');
+    card.className='card';
+    card.onclick=()=>openDP(proj);
+    card.innerHTML=
+      '<div class="card-cat"><div class="ccd" style="background:'+catC+'"></div><span style="color:'+catC+'">'+proj.cat+'</span></div>'+
+      '<div class="card-name">'+proj.name+'</div>'+
+      '<div class="card-desc">'+proj.desc.substring(0,75)+'...</div>'+
+      '<div class="card-tags">'+
+        '<span class="tag '+(proj.owner==='Claude'?'tc':proj.owner==='Codex'?'tx':proj.owner==='David'?'td':'ts')+'">'+proj.owner+'</span>'+
+        '<span class="tag '+(proj.blocked?'tb':'tu')+'">'+(proj.blocked?'Blocked':'Unblocked')+'</span>'+
+      '</div>'+
+      '<div class="card-bar" style="background:'+PH[proj.phase].c+'"></div>';
+    document.getElementById('b'+proj.phase).appendChild(card);
+  });
+  PO.forEach(p=>{document.getElementById('c'+p).textContent=counts[p];});
+  renderStats(f);
+}
+
+function renderStats(f){
+  const s=document.getElementById('stats');s.innerHTML='';
+  const filt=f==='all'?P:P.filter(p=>p.cat===f);
+  const counts={};PO.forEach(p=>counts[p]=0);
+  filt.forEach(p=>counts[p.phase]++);
+  [{l:'Total projects',v:filt.length,c:'#e8f0ff'},...PO.map(p=>({l:PH[p].l,v:counts[p],c:PH[p].c}))].forEach(s2=>{
+    const el=document.createElement('div');
+    el.className='sv';
+    el.innerHTML='<div class="sv-n" style="color:'+s2.c+'">'+s2.v+'</div><div class="sv-l">'+s2.l+'</div>';
+    s.appendChild(el);
+  });
+}
+
+function openDP(proj){
+  const catC=CC[proj.cat]||'#888';
+  const ph=PH[proj.phase];
+  const links=proj.links&&proj.links.length?'<div class="dp-links">'+proj.links.map(l=>'<a class="dp-link" href="'+l.u+'" target="_blank">→ '+l.l+'</a>').join('')+'</div>':'';
+  document.getElementById('dpc').innerHTML=
+    '<div class="dp-phase" style="color:'+ph.c+'">'+ph.l+'</div>'+
+    '<div class="dp-name">'+proj.name+'</div>'+
+    '<div class="dp-cat" style="color:'+catC+'">'+proj.cat.toUpperCase()+' // '+proj.owner+'</div>'+
+    links+
+    '<div class="dp-desc">'+proj.desc+'</div>'+
+    '<div class="dp-sec"><div class="dp-sec-title">Current state</div>'+
+      '<div class="dp-row"><span class="dp-rl">Phase</span><span class="dp-rv" style="color:'+ph.c+'">'+ph.l+'</span></div>'+
+      '<div class="dp-row"><span class="dp-rl">Blocked</span><span class="dp-rv" style="color:'+(proj.blocked?'#E24B4A':'#22cc77')+'">'+(proj.blocked?'Yes':'No')+'</span></div>'+
+      '<div class="dp-row"><span class="dp-rl">What works</span><span class="dp-rv">'+proj.works+'</span></div>'+
+      '<div class="dp-row"><span class="dp-rl">What's broken</span><span class="dp-rv" style="color:#EF9F27">'+proj.broken+'</span></div>'+
+    '</div>'+
+    '<div class="dp-sec"><div class="dp-sec-title">Next action</div><div class="dp-text">'+proj.next+'</div></div>'+
+    '<div class="dp-sec"><div class="dp-sec-title">Revenue ready , exit criteria</div><div class="dp-text">'+proj.rr+'</div></div>'+
+    '<div class="dp-sec"><div class="dp-sec-title">Production , exit criteria</div><div class="dp-text">'+proj.prod+'</div></div>';
+  document.getElementById('dp').classList.add('open');
+}
+
+function go(f,btn){
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderBoard(f);
+}
+
+document.getElementById('ds').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+renderBoard('all');
+</script>
+</body>
+</html>

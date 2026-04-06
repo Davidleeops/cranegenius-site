@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelo de Brief Semanal &mdash; CraneGenius</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080e1a;--bg2:#0b1220;--bg3:#0f1a2e;--gold:#c9a84c;--border:#1a2540;--text:#fff;--muted:#8899aa}
+body{background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;padding:32px 20px 48px}
+.wrap{max-width:720px;margin:0 auto;border:1px solid var(--border);background:var(--bg2);padding:28px 24px;border-radius:6px}
+.brief-header{text-align:center;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.brief-brand{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.12em;color:var(--gold)}
+.brief-tagline{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.08em;margin-top:8px;text-transform:uppercase}
+.subject-line{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:16px}
+.brief-hook{font-size:15px;color:var(--text);line-height:1.65;margin-bottom:20px}
+.brief-hook strong{color:var(--gold)}
+.brief-table{width:100%;border-collapse:collapse;font-size:12px;margin:16px 0}
+.brief-table th,.brief-table td{border:1px solid var(--border);padding:8px 10px;text-align:left}
+.brief-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);background:var(--bg3)}
+.brief-free-line{font-size:13px;color:var(--muted);padding:14px;background:var(--bg3);border-left:3px solid var(--gold);margin:20px 0}
+.brief-cta{font-size:15px;color:var(--text);margin-top:20px;font-weight:500}
+.note{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="subject-line">Assunto: Relat&oacute;rio Semanal de Obras &mdash; [Cidade] &mdash; [Data]</p>
+  <div class="brief-header">
+    <div class="brief-brand">CRANEGENIUS</div>
+    <div class="brief-tagline">
+      Intelig&ecirc;ncia de Obras &mdash; Edi&ccedil;&atilde;o Semanal
+    </div>
+  </div>
+
+  <div class="brief-hook">
+    Identificamos [N] alvar&aacute;s com alta probabilidade de demanda por
+    guindaste em [Cidade] esta semana. O mais relevante:
+    <strong>[ENDERE&Ccedil;O DO ALVAR&Aacute;]</strong>.
+  </div>
+
+  <table class="brief-table" aria-label="Resumo dos alvar&aacute;s">
+    <thead>
+      <tr>
+        <th>Endere&ccedil;o</th>
+        <th>Tipo de Obra</th>
+        <th>Janela Estimada</th>
+        <th>Classe</th>
+        <th>Confian&ccedil;a</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5" style="color:var(--muted);font-style:italic">[Linhas geradas pela pipeline]</td></tr>
+    </tbody>
+  </table>
+
+  <div class="brief-free-line">
+    Somos pagos pelas empresas de loca&ccedil;&atilde;o de guindastes,
+    n&atilde;o pelas construtoras. Voc&ecirc; n&atilde;o paga nada.
+  </div>
+
+  <div class="brief-cta">
+    Quer a lista completa desta semana na sua cidade?
+    Responda &ldquo;sim&rdquo;.
+  </div>
+
+  <p class="note">Modelo interno. Mesma estrutura do brief em ingl&ecirc;s; apenas texto trocado. Design system: #080e1a / #c9a84c.</p>
+</div>
+</body>
+</html>

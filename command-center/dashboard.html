@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CraneGenius Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080c14;--bg2:#0d1628;--bg3:#111e35;--gold:#F5A623;--gold-border:rgba(245,166,35,.22);--border:#1e3a5f;--text:#e8f0ff;--muted:#8899aa;--mono:'DM Mono',monospace;--red:#E24B4A;--red-bg:rgba(226,75,74,.12);--amber:#EF9F27;--amber-bg:rgba(239,159,39,.12);--green:#63991A;--green-bg:rgba(99,153,26,.12);--blue:#378ADD;--blue-bg:rgba(55,138,221,.12);--purple:#7F77DD;--purple-bg:rgba(127,119,221,.12)}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.5;font-size:14px}
+.shell{max-width:1140px;margin:0 auto;padding:28px 20px 64px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--gold-border)}
+.wordmark{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold)}
+.top-meta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+.top-meta span{color:var(--gold)}
+.section-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:28px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.metric-val{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1}
+.metric-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.metric-crit .metric-val{color:var(--red)}
+.tab-row{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.tab{font-family:var(--mono);font-size:11px;padding:6px 14px;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--muted);background:transparent;letter-spacing:.06em;text-transform:uppercase;transition:all .15s}
+.tab.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.tab:hover:not(.active){color:var(--text);border-color:var(--gold-border)}
+.panel{display:none}.panel.active{display:block}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:760px){.kanban{grid-template-columns:repeat(2,1fr)}}
+.col-head{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:8px 10px;border-radius:6px 6px 0 0;font-weight:700}
+.col-progress .col-head{background:rgba(55,138,221,.15);color:var(--blue)}
+.col-queued .col-head{background:rgba(239,159,39,.1);color:var(--amber)}
+.col-blocked .col-head{background:rgba(226,75,74,.12);color:var(--red)}
+.col-done .col-head{background:rgba(99,153,26,.12);color:var(--green)}
+.col-body{background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;padding:10px;min-height:180px;display:flex;flex-direction:column;gap:8px}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.card-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.card-meta{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.card-footer{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.badge{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:.06em;text-transform:uppercase}
+.b-claude{background:var(--purple-bg);color:var(--purple)}
+.b-codex{background:var(--blue-bg);color:var(--blue)}
+.b-david{background:var(--amber-bg);color:var(--amber)}
+.b-critical{background:var(--red-bg);color:var(--red)}
+.b-high{background:var(--amber-bg);color:var(--amber)}
+.b-medium{background:var(--blue-bg);color:var(--blue)}
+.b-done{background:var(--green-bg);color:var(--green)}
+.b-blocked{background:var(--red-bg);color:var(--red)}
+.funnel-wrap{display:flex;flex-direction:column;gap:8px;max-width:900px}
+.funnel-persona{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.1em;margin:10px 0 4px;text-transform:uppercase}
+.f-row{display:grid;grid-template-columns:170px 1fr 90px;gap:12px;align-items:center;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px}
+.f-name{font-size:12px;font-weight:500;color:var(--text)}
+.f-url{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.f-path{font-size:11px;color:var(--muted);margin-bottom:4px}
+.bar-wrap{background:var(--bg3);border-radius:4px;height:8px;overflow:hidden}
+.bar{height:100%;border-radius:4px}
+.f-status{font-family:var(--mono);font-size:10px;text-align:right;letter-spacing:.04em;text-transform:uppercase}
+.s-live{color:var(--green)}.s-partial{color:var(--amber)}.s-blocked{color:var(--red)}.s-building{color:var(--blue)}
+.page-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.pc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;transition:border-color .15s}
+.pc:hover{border-color:var(--gold-border)}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.pc-name{font-size:13px;font-weight:500;color:var(--text)}
+.pc-url{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:6px}
+.pc-next{font-size:11px;color:var(--muted);line-height:1.45}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.d-g{background:var(--green)}.d-a{background:var(--amber)}.d-r{background:var(--red)}.d-b{background:var(--blue)}
+/* Page status inventory , 5-level Kanban */
+.inv-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:6px}
+.inv-legend span{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.inv-legend .inv-d{width:10px;height:10px;border-radius:2px}
+.inv-d1{background:var(--green)}.inv-d2{background:#63991A}.inv-d3{background:var(--amber)}.inv-d4{background:var(--red)}.inv-d5{background:var(--blue)}
+.inv-kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px}
+@media(max-width:900px){.inv-kanban{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.inv-kanban{grid-template-columns:1fr}}
+.inv-col{background:var(--bg2);border:1px solid var(--border);border-radius:8px;min-height:80px}
+.inv-col-head{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0;font-weight:700}
+.inv-col-1 .inv-col-head{background:rgba(99,153,26,.15);color:var(--green)}
+.inv-col-2 .inv-col-head{background:rgba(99,153,26,.08);color:#8fbc8f}
+.inv-col-3 .inv-col-head{background:rgba(239,159,39,.12);color:var(--amber)}
+.inv-col-4 .inv-col-head{background:rgba(226,75,74,.12);color:var(--red)}
+.inv-col-5 .inv-col-head{background:rgba(55,138,221,.12);color:var(--blue)}
+.inv-col-body{padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.inv-card{font-size:11px;color:var(--text);padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:4px}
+.inv-card a{color:var(--gold);text-decoration:none}
+.inv-card a:hover{text-decoration:underline}
+.inv-note{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4}
+.divider{margin:20px 0}
+.rg{background:var(--bg2);border:1px solid var(--gold-border);border-radius:8px;padding:20px 22px;margin-bottom:12px}
+.rg h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.5px;color:var(--text);margin-bottom:4px}
+.rg p{font-size:12px;color:var(--muted);margin-bottom:12px}
+.a-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px}
+.a-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.a-text{flex:1;font-size:12px;color:var(--text)}
+.a-who{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.intel-grid{grid-template-columns:1fr}}
+.ic{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px}
+.ic h4{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.5px;color:var(--gold);margin-bottom:10px}
+.i-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.i-row:last-child{border-bottom:none}
+.i-label{color:var(--muted)}.i-val{color:var(--text);font-weight:500}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.li{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.ld{width:8px;height:8px;border-radius:2px}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.ph2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--text);margin-bottom:4px}
+.ph2-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.rc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.rc-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.rc-amt{font-family:var(--mono);font-size:11px;color:var(--amber);margin-bottom:6px}
+.rc-note{font-size:11px;color:var(--muted);line-height:1.45}
+</style>
+<script src="/command-center/_finance_loader.js" defer></script>
+</head>
+<body>
+<div class="shell">
+
+<div class="top-bar">
+  <div class="wordmark"><a href="index.html" style="color:inherit;text-decoration:none">CraneGenius</a></div>
+  <div class="top-meta"><a href="index.html" style="color:var(--gold);text-decoration:none">Command Center</a> &nbsp;&nbsp; <span id="dateStr">March 2026</span> &nbsp;&nbsp; <a href="signals-kanban.html" style="color:var(--gold);text-decoration:none">68 Signals</a> &nbsp;&nbsp; <a href="pipeline.html" style="color:var(--gold);text-decoration:none">Pipeline</a> &nbsp;&nbsp; <a href="financials.html" style="color:var(--gold);text-decoration:none">Financials</a> &nbsp;&nbsp; <a href="projects.html" style="color:var(--gold);text-decoration:none">Project Board</a> &nbsp;&nbsp; Dark 30 Ventures</div>
+</div>
+
+<div class="section-label">// Executive summary</div>
+<div class="metric-grid">
+  <div class="metric metric-crit">
+    <div class="metric-val" data-fin="mrr">--</div>
+    <div class="metric-label">Live MRR</div>
+    <div class="metric-sub">RiseWell GTM retainer active</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" data-fin="pipeline_mrr">--</div>
+    <div class="metric-label">Pipeline MRR</div>
+    <div class="metric-sub">$5K Leavitt + $5K Smartlift</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" data-fin="burn">--</div>
+    <div class="metric-label">Monthly Burn</div>
+    <div class="metric-sub">Tools + infra (from financials.json)</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" id="oppCount">524+</div>
+    <div class="metric-label">Active opportunities</div>
+    <div class="metric-sub">5 markets tracked</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val">7,800+</div>
+    <div class="metric-label">GC contacts</div>
+    <div class="metric-sub">5,400+ verified emails</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val">204</div>
+    <div class="metric-label">Active outreach</div>
+    <div class="metric-sub">PlusVibe campaign live</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val">7</div>
+    <div class="metric-label">New pages live</div>
+    <div class="metric-sub">/directory /jobs /education /onboarding + ironsheet partner tip</div>
+  </div>
+  <a href="signals-kanban.html" style="text-decoration:none;color:inherit">
+  <div class="metric">
+    <div class="metric-val">36/68</div>
+    <div class="metric-label">Signals built</div>
+    <div class="metric-sub">Kanban → 68 Signals</div>
+  </div>
+  </a>
+</div>
+
+<div class="tab-row">
+  <button class="tab active" onclick="switchTab('kanban',this)">Kanban</button>
+  <a href="signals-kanban.html" class="tab" style="text-decoration:none;color:inherit;display:inline-block">68 Signals</a>
+  <button class="tab" onclick="switchTab('funnel',this)">Site funnel</button>
+  <button class="tab" onclick="switchTab('pages',this)">Pages</button>
+  <button class="tab" onclick="switchTab('revenue',this)">Revenue gate</button>
+  <button class="tab" onclick="switchTab('ironsheet',this)">Ironsheet</button>
+  <button class="tab" onclick="switchTab('assessment',this)">Full Assessment</button>
+</div>
+
+<!-- KANBAN -->
+<div id="kanban" class="panel active">
+<div class="legend">
+  <div class="li"><div class="ld" style="background:var(--purple)"></div>Claude</div>
+  <div class="li"><div class="ld" style="background:var(--blue)"></div>Codex</div>
+  <div class="li"><div class="ld" style="background:var(--amber)"></div>David</div>
+</div>
+<div class="kanban">
+  <div class="col-progress">
+    <div class="col-head">In Progress</div>
+    <div class="col-body">
+      <div class="card"><div class="card-title">codex/repo-recon → main merge</div><div class="card-meta">Autonomy layer + 12 signal collectors</div><div class="card-footer"><span class="badge b-codex">Codex</span><span class="badge b-critical">Critical</span></div></div>
+      <div class="card"><div class="card-title">Erick / Leavitt retainer pitch</div><div class="card-meta">cranegenius.com/partner , send today</div><div class="card-footer"><span class="badge b-david">David</span><span class="badge b-critical">Critical</span></div></div>
+      <div class="card"><div class="card-title">Weekly pipeline GitHub Action</div><div class="card-meta">.github/workflows/pipeline-weekly.yml</div><div class="card-footer"><span class="badge b-codex">Codex</span><span class="badge b-high">High</span></div></div>
+    </div>
+  </div>
+  <div class="col-queued">
+    <div class="col-head">Queued</div>
+    <div class="col-body">
+      <div class="card"><div class="card-title">CAA page at /caa/</div><div class="card-meta">Intake + tier comparison + contract generator</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-high">High</span></div></div>
+      <div class="card"><div class="card-title">Directory JSON export (B1)</div><div class="card-meta">SQLite → data/directory/directory.json</div><div class="card-footer"><span class="badge b-codex">Codex</span><span class="badge b-high">High</span></div></div>
+      <div class="card"><div class="card-title">Run education article generator</div><div class="card-meta">ANTHROPIC_API_KEY=key node scripts/generate_education_articles.js</div><div class="card-footer"><span class="badge b-david">David</span><span class="badge b-high">High</span></div></div>
+      <div class="card"><div class="card-title">Pre-bid attendance collector (B6)</div><div class="card-meta">Highest-value missing signal class</div><div class="card-footer"><span class="badge b-codex">Codex</span><span class="badge b-medium">Medium</span></div></div>
+    </div>
+  </div>
+  <div class="col-blocked">
+    <div class="col-head">Blocked</div>
+    <div class="col-body">
+      <div class="card"><div class="card-title">Social content machine (B5)</div><div class="card-meta">GitHub Action: Buffer API + Beehiiv draft</div><div class="card-footer"><span class="badge b-codex">Codex</span><span class="badge b-blocked">Needs: Buffer token + Beehiiv API key</span></div></div>
+    </div>
+  </div>
+  <div class="col-done">
+    <div class="col-head">Done , Cursor build 2026-03-15</div>
+    <div class="col-body">
+      <div class="card"><div class="card-title">Homepage , live opp count</div><div class="card-meta">Live #proofStat fetches from JSON on load</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Lead capture modal</div><div class="card-meta">Get Crane Availability → Formspree fallback</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Opportunities , Beehiiv + noise filter + badges</div><div class="card-meta">Embed, filter, FORGED THIS WEEK, score bars</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Marketplace inline bot</div><div class="card-meta">openBotWithPrefill defined, Formspree wired</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Data Centers , auth + Add-to-Plan + CAA modal</div><div class="card-meta">AI fallback, localStorage plan, CAA Formspree</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Nav standardized , all pages</div><div class="card-meta">8-link nav, gold Ironsheet pill, active states</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Directory page</div><div class="card-meta">Searchable, SEO-grouped, Beehiiv embed</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Jobs board</div><div class="card-meta">Permit-sourced, filters, score bars</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Education library + article script</div><div class="card-meta">generate_education_articles.js ready to run</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Retainer onboarding intake</div><div class="card-meta">/onboarding/ , Formspree retainer-onboarding</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Acquisition EBITDA calculator + intake</div><div class="card-meta">3x-5x valuation tool + full intake form</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Command center live data</div><div class="card-meta">oppCount + dynamic date from JSON</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">/ironsheet/ page</div><div class="card-meta">Beehiiv wired, new nav</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">/partner/ page</div><div class="card-meta">Calendly, 3 tiers, live stats</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">/tip/ page</div><div class="card-meta">Word of Mouth, Formspree</div><div class="card-footer"><span class="badge b-claude">Claude</span><span class="badge b-done">Done</span></div></div>
+      <div class="card"><div class="card-title">Beehiiv account + X account</div><div class="card-meta">theironsheet.beehiiv.com , @TheCraneGenius</div><div class="card-footer"><span class="badge b-david">David</span><span class="badge b-done">Done</span></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SITE FUNNEL -->
+<div id="funnel" class="panel">
+<div class="ph2">Site funnel , IA coherence</div>
+<div class="ph2-sub">Every page maps to a persona and ends at a capture point.</div>
+<div class="funnel-wrap">
+  <div class="funnel-persona">// Persona A , GC / Project Manager</div>
+  <div class="f-row"><div><div class="f-name">Lift Estimator</div><div class="f-url">/</div></div><div><div class="f-path">Live opp count + Wizard → Get Crane Availability → lead modal fallback → Formspree</div><div class="bar-wrap"><div class="bar" style="width:90%;background:var(--green)"></div></div></div><div class="f-status s-live">Live</div></div>
+  <div class="f-row"><div><div class="f-name">Bot → Lead Capture</div><div class="f-url">/ → Formspree</div></div><div><div class="f-path">Bot prefill or fallback modal → Formspree mgoldjjb → lead logged</div><div class="bar-wrap"><div class="bar" style="width:70%;background:var(--amber)"></div></div></div><div class="f-status s-partial">Fallback live</div></div>
+  <div class="funnel-persona">// Persona B , Crane Company</div>
+  <div class="f-row"><div><div class="f-name">Partner page</div><div class="f-url">/partner/</div></div><div><div class="f-path">Cold email → Partner → Calendly → Call → Close</div><div class="bar-wrap"><div class="bar" style="width:90%;background:var(--green)"></div></div></div><div class="f-status s-live">Live</div></div>
+  <div class="f-row"><div><div class="f-name">Opportunities</div><div class="f-url">/opportunities/</div></div><div><div class="f-path">Beehiiv embed + noise filter + score bars + FORGED badges</div><div class="bar-wrap"><div class="bar" style="width:90%;background:var(--green)"></div></div></div><div class="f-status s-live">Live</div></div>
+  <div class="funnel-persona">// Persona C , Data Center Developer</div>
+  <div class="f-row"><div><div class="f-name">Data Centers</div><div class="f-url">/data-centers/</div></div><div><div class="f-path">AI Planner + auth fallback + Add-to-Plan localStorage + CAA modal → Formspree</div><div class="bar-wrap"><div class="bar" style="width:88%;background:var(--green)"></div></div></div><div class="f-status s-live">Live</div></div>
+  <div class="funnel-persona">// Content flywheel</div>
+  <div class="f-row"><div><div class="f-name">The Ironsheet</div><div class="f-url">/ironsheet/</div></div><div><div class="f-path">Social → Subscribe → Weekly nurture → Any funnel</div><div class="bar-wrap"><div class="bar" style="width:88%;background:var(--green)"></div></div></div><div class="f-status s-live">Live</div></div>
+  <div class="f-row"><div><div class="f-name">Word of Mouth</div><div class="f-url">/tip/</div></div><div><div class="f-path">Ironsheet → Tip submit → Moderation → Intel</div><div class="bar-wrap"><div class="bar" style="width:85%;background:var(--green)"></div></div></div><div class="f-status s-live">Live</div></div>
+  <div class="funnel-persona">// SEO authority</div>
+  <div class="f-row"><div><div class="f-name">Directory</div><div class="f-url">/directory/</div></div><div><div class="f-path">Searchable, SEO h2s per state, Beehiiv embed, confidence score bars</div><div class="bar-wrap"><div class="bar" style="width:82%;background:var(--green)"></div></div></div><div class="f-status s-live">Live</div></div>
+  <div class="f-row"><div><div class="f-name">Jobs Board</div><div class="f-url">/jobs/</div></div><div><div class="f-path">Permit-sourced, city/type filters, score bars, Get Crane Availability CTA</div><div class="bar-wrap"><div class="bar" style="width:82%;background:var(--green)"></div></div></div><div class="f-status s-live">Live</div></div>
+  <div class="f-row"><div><div class="f-name">Education</div><div class="f-url">/education/</div></div><div><div class="f-path">Category tabs → article cards → Read Guide → Lift Estimator CTA</div><div class="bar-wrap"><div class="bar" style="width:80%;background:var(--green)"></div></div></div><div class="f-status s-live">Live , run article script to populate</div></div>
+</div>
+</div>
+
+<!-- PAGES -->
+<div id="pages" class="panel">
+<div class="ph2">Page status , situational awareness</div>
+<div class="ph2-sub">All 17+ site pages and investor surfaces. Status as of 2026-03-17. Last fix: acquisitions mobile header (min-height).</div>
+
+<div class="section-label" style="margin-top:16px">// Status scale (1–5)</div>
+<div class="inv-legend">
+  <span><div class="inv-d inv-d1"></div>1 Fixed</span>
+  <span><div class="inv-d inv-d2"></div>2 Normal operation</span>
+  <span><div class="inv-d inv-d3"></div>3 Reduced functionality</span>
+  <span><div class="inv-d inv-d4"></div>4 Broken</span>
+  <span><div class="inv-d inv-d5"></div>5 Technical debt / other</span>
+</div>
+
+<div class="section-label">// Page inventory , Kanban by status</div>
+<div class="inv-kanban">
+  <div class="inv-col inv-col-1">
+    <div class="inv-col-head">1 , Fixed</div>
+    <div class="inv-col-body">
+      <div class="inv-card"><a href="/acquisitions/">Acquisitions</a><div class="inv-note">Mobile header overlap fixed (min-height). Label + Ironsheet + hero stack correctly.</div></div>
+      <div class="inv-card"><a href="/capex-layer/">CapexLayer</a><div class="inv-note">Audience bar wrap, demo-panel grids, signal-rail hidden on mobile, ticker/footer overflow fixed.</div></div>
+      <div class="inv-card"><a href="/capex-layer/investor-one/">CapexLayer Investor One</a><div class="inv-note">Overflow-wrap and mobile polish.</div></div>
+    </div>
+  </div>
+  <div class="inv-col inv-col-2">
+    <div class="inv-col-head">2 , Normal operation</div>
+    <div class="inv-col-body">
+      <div class="inv-card"><a href="/">Lift Estimator</a></div>
+      <div class="inv-card"><a href="/dark30/">Dark 30</a></div>
+      <div class="inv-card"><a href="/investor-brief.html">Investor Brief</a></div>
+      <div class="inv-card"><a href="/newsletter/">Newsletter</a></div>
+      <div class="inv-card"><a href="/opportunities/">Opportunities</a></div>
+      <div class="inv-card"><a href="/marketplace/">Marketplace</a></div>
+      <div class="inv-card"><a href="/data-centers/">Data Centers</a></div>
+      <div class="inv-card"><a href="/partner/">Partner</a></div>
+      <div class="inv-card"><a href="/directory/">Directory</a></div>
+      <div class="inv-card"><a href="/jobs/">Jobs</a></div>
+      <div class="inv-card"><a href="/education/">Education</a></div>
+      <div class="inv-card"><a href="/sell-your-company/">Sell Your Company</a></div>
+      <div class="inv-card"><a href="/onboarding/">Onboarding</a></div>
+      <div class="inv-card"><a href="/ironsheet/">Ironsheet</a></div>
+      <div class="inv-card"><a href="/tip/">Word of Mouth /tip/</a></div>
+      <div class="inv-card"><a href="index.html">Command Center</a></div>
+    </div>
+  </div>
+  <div class="inv-col inv-col-3">
+    <div class="inv-col-head">3 , Reduced functionality</div>
+    <div class="inv-col-body">
+      <div class="inv-card">, <div class="inv-note">None. Directory uses placeholder data until B1; Education needs article script run.</div></div>
+    </div>
+  </div>
+  <div class="inv-col inv-col-4">
+    <div class="inv-col-head">4 , Broken</div>
+    <div class="inv-col-body"><div class="inv-card">, </div></div>
+  </div>
+  <div class="inv-col inv-col-5">
+    <div class="inv-col-head">5 , Technical debt / other</div>
+    <div class="inv-col-body">
+      <div class="inv-card"><a href="/caa/">CAA</a><div class="inv-note">Not built. Queued: intake + tier comparison + contract generator.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="ph2">Page detail , next steps</div>
+<div class="legend" style="margin-bottom:14px">
+  <div class="li"><div class="ld" style="background:var(--green);border-radius:50%"></div>Live</div>
+  <div class="li"><div class="ld" style="background:var(--amber);border-radius:50%"></div>Partial</div>
+  <div class="li"><div class="ld" style="background:var(--blue);border-radius:50%"></div>Building</div>
+</div>
+<div class="page-grid">
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Lift Estimator</div><div class="pc-url">/</div></div><div class="dot d-g"></div></div><div class="pc-next">Live opp stat, wizard, lead modal fallback wired. Confirm Formspree is firing.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Opportunities</div><div class="pc-url">/opportunities/</div></div><div class="dot d-g"></div></div><div class="pc-next">Beehiiv embed, noise filter, FORGED badges, priority score bars all live.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">The Ironsheet</div><div class="pc-url">/ironsheet/</div></div><div class="dot d-g"></div></div><div class="pc-next">Live. Beehiiv wired. Monitor subscriber count weekly.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Partner</div><div class="pc-url">/partner/</div></div><div class="dot d-g"></div></div><div class="pc-next">Live. Calendly wired. Send to Erick today.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Word of Mouth</div><div class="pc-url">/tip/</div></div><div class="dot d-g"></div></div><div class="pc-next">Live. Formspree wired. Seed first tip manually.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Data Centers</div><div class="pc-url">/data-centers/</div></div><div class="dot d-g"></div></div><div class="pc-next">AI fallback live, Add-to-Plan localStorage, CAA modal Formspree wired.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Marketplace</div><div class="pc-url">/marketplace/</div></div><div class="dot d-g"></div></div><div class="pc-next">Inline bot panel live, openBotWithPrefill defined, inquiry form Formspree wired.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Directory</div><div class="pc-url">/directory/</div></div><div class="dot d-g"></div></div><div class="pc-next">Live with placeholder data. Codex B1: export real directory.json from SQLite.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Jobs Board</div><div class="pc-url">/jobs/</div></div><div class="dot d-g"></div></div><div class="pc-next">Live. Filtered from opportunities JSON. Codex B2 for dedicated jobs export.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Education</div><div class="pc-url">/education/</div></div><div class="dot d-g"></div></div><div class="pc-next">Shell live. Run: ANTHROPIC_API_KEY=key node scripts/generate_education_articles.js</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Sell Your Company</div><div class="pc-url">/sell-your-company/</div></div><div class="dot d-g"></div></div><div class="pc-next">EBITDA calculator + intake form live. Confidentiality statement added.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Onboarding</div><div class="pc-url">/onboarding/</div></div><div class="dot d-g"></div></div><div class="pc-next">Live. Send to Erick after retainer closes. Formspree retainer-onboarding.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">CAA</div><div class="pc-url">/caa/</div></div><div class="dot d-b"></div></div><div class="pc-next">Not yet built. Queued: intake form + tier comparison + contract generator script.</div></div>
+  <div class="pc"><div class="pc-top"><div><div class="pc-name">Command Center</div><div class="pc-url">/command-center/</div></div><div class="dot d-g"></div></div><div class="pc-next">Dashboard + Projects + Execution Plan all live. Live opp count wired.</div></div>
+</div>
+</div>
+
+<!-- REVENUE GATE -->
+<div id="revenue" class="panel">
+<div class="ph2">Revenue gate</div>
+<div class="ph2-sub">Two actions stand between current state and first dollar.</div>
+<div class="rg">
+  <h3>Gate 1 , Close Erick at Leavitt Cranes</h3>
+  <p>Pacific Northwest GM. First retainer client. Target: $500 pilot or $1,500 standard.</p>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text">Send Erick: cranegenius.com/partner , "15 min this week?"</div><div class="a-who">David , today</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Book call: calendly.com/lemuel-lee-jr/15min</div><div class="a-who">This week</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Close on pilot: $500/mo, 30 days, 50 GC contacts, no close = no renewal</div><div class="a-who">On the call</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--green)"></div><div class="a-text">After close: send cranegenius.com/onboarding/ for intake</div><div class="a-who">Same day</div></div>
+</div>
+<div class="rg">
+  <h3>Gate 2 , Check PlusVibe for replies</h3>
+  <p>204 data center contacts in active campaign (ID: 69ab12e0cd4741629f3cd112).</p>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text">Open PlusVibe dashboard , check for replies now</div><div class="a-who">David , today</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Positive reply: respond within 2 hours, offer Calendly link</div><div class="a-who">Ongoing</div></div>
+</div>
+<div class="divider"></div>
+<div class="section-label">// Revenue model</div>
+<div class="rev-grid">
+  <div class="rc"><div class="rc-name">Retainer , crane co.</div><div class="rc-amt">$1,500–$2,500/mo</div><div class="rc-note">First close: Leavitt. Replicate after case study.</div></div>
+  <div class="rc"><div class="rc-name">Deal brokerage</div><div class="rc-amt">3–5% per deal</div><div class="rc-note">Marketplace bot live. Needs real listings.</div></div>
+  <div class="rc"><div class="rc-name">CAA Starter</div><div class="rc-amt">$5K–$25K/mo</div><div class="rc-note">Data Center modal live. /caa/ page queued.</div></div>
+  <div class="rc"><div class="rc-name">Acquisition roll-up</div><div class="rc-amt">Month 4+</div><div class="rc-note">EBITDA calc live. EDGAR engine: Month 4.</div></div>
+</div>
+</div>
+
+<!-- IRONSHEET -->
+<div id="ironsheet" class="panel">
+<div class="ph2">The Ironsheet , content machine</div>
+<div class="intel-grid">
+  <div class="ic"><h4>Publication</h4>
+    <div class="i-row"><span class="i-label">Platform</span><span class="i-val">Beehiiv , free tier</span></div>
+    <div class="i-row"><span class="i-label">Subdomain</span><span class="i-val">theironsheet.beehiiv.com</span></div>
+    <div class="i-row"><span class="i-label">Pub ID</span><span class="i-val" style="font-family:var(--mono);font-size:10px">pub_f56762cf…</span></div>
+    <div class="i-row"><span class="i-label">X account</span><span class="i-val">@TheCraneGenius</span></div>
+    <div class="i-row"><span class="i-label">Cadence</span><span class="i-val">Weekly , Friday</span></div>
+    <div class="i-row"><span class="i-label">Issue 1 target</span><span class="i-val">Friday Mar 21</span></div>
+  </div>
+  <div class="ic"><h4>Launch status</h4>
+    <div class="i-row"><span class="i-label">Posts drafted</span><span class="i-val" style="color:var(--green)">All 4 platforms ready</span></div>
+    <div class="i-row"><span class="i-label">Buffer account</span><span class="i-val" style="color:var(--red)">Not yet , create Sunday</span></div>
+    <div class="i-row"><span class="i-label">X , Mon 8:00am PT</span><span class="i-val" style="color:var(--amber)">Schedule Sunday night</span></div>
+    <div class="i-row"><span class="i-label">LinkedIn , Mon 8:30am PT</span><span class="i-val" style="color:var(--amber)">Schedule Sunday night</span></div>
+    <div class="i-row"><span class="i-label">Facebook , Mon 9:00am PT</span><span class="i-val" style="color:var(--amber)">Schedule Sunday night</span></div>
+  </div>
+  <div class="ic"><h4>Issue structure</h4>
+    <div class="i-row"><span class="i-label">01 Forged This Week</span><span class="i-val" style="color:var(--amber)">Manual until B5 live</span></div>
+    <div class="i-row"><span class="i-label">02 Word of Mouth</span><span class="i-val" style="color:var(--amber)">Seed via /tip/ manually</span></div>
+    <div class="i-row"><span class="i-label">03 The Scuttlebutt</span><span class="i-val" style="color:var(--amber)">David writes , data centers angle</span></div>
+    <div class="i-row"><span class="i-label">04 Equipment Watch</span><span class="i-val" style="color:var(--amber)">Pull /marketplace/ manually</span></div>
+    <div class="i-row"><span class="i-label">05 Who's Hiring</span><span class="i-val" style="color:var(--amber)">Pull /jobs/ manually</span></div>
+  </div>
+  <div class="ic"><h4>Automation status</h4>
+    <div class="i-row"><span class="i-label">Buffer API (B5)</span><span class="i-val" style="color:var(--red)">Blocked , needs token</span></div>
+    <div class="i-row"><span class="i-label">Beehiiv API (B5)</span><span class="i-val" style="color:var(--red)">Blocked , needs API key</span></div>
+    <div class="i-row"><span class="i-label">GitHub Action</span><span class="i-val" style="color:var(--red)">Not built , Codex B5</span></div>
+    <div class="i-row"><span class="i-label">Opportunity feed</span><span class="i-val" style="color:var(--green)">Live JSON , auto via pipeline</span></div>
+    <div class="i-row"><span class="i-label">Education articles</span><span class="i-val" style="color:var(--amber)">Run generate script to populate</span></div>
+  </div>
+</div>
+</div>
+
+<!-- FULL ASSESSMENT -->
+<div id="assessment" class="panel">
+
+<!-- Readiness Scores -->
+<div class="ph2">Technical & Commercial Readiness</div>
+<div class="ph2-sub">VERIFIED audit — April 4, 2026. Corrected after running actual code, checking databases, and reading error logs. Previous scores were based on reading code only.</div>
+
+<div class="metric-grid" style="margin-bottom:12px">
+  <div class="metric">
+    <div class="metric-val" style="color:var(--amber)">70%</div>
+    <div class="metric-label">Technical Completeness</div>
+    <div class="metric-sub">Code exists but sync broken, edge funcs not deployed, 23 signals missing</div>
+  </div>
+  <div class="metric metric-crit">
+    <div class="metric-val">50%</div>
+    <div class="metric-label">Production Readiness</div>
+    <div class="metric-sub">Sync failing hourly, path mismatch in crons, pytest missing</div>
+  </div>
+  <div class="metric metric-crit">
+    <div class="metric-val">20%</div>
+    <div class="metric-label">Revenue Readiness</div>
+    <div class="metric-sub">No brief, no billing webhooks, no onboarding, opps are DEMO_ONLY</div>
+  </div>
+  <div class="metric metric-crit">
+    <div class="metric-val">15%</div>
+    <div class="metric-label">Commercial Readiness</div>
+    <div class="metric-sub">No closer tools, no community, no international, no content automation</div>
+  </div>
+</div>
+<div style="background:var(--red-bg);border:1px solid var(--red);border-radius:6px;padding:10px 14px;margin-bottom:24px">
+  <div style="font-family:var(--mono);font-size:10px;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">4 Critical Bugs Blocking Everything</div>
+  <div style="font-size:11px;color:var(--text);line-height:1.6">
+    1. Supabase hourly sync sends "" for timestamps — every sync fails (100KB error log)<br>
+    2. python-dotenv not installed for system Python — env vars never load, scripts silently fail<br>
+    3. Cron/launchd paths point to wrong directory — jobs may run against stale code<br>
+    4. All 4 edge functions return 404 — never deployed to Supabase
+  </div>
+</div>
+
+<!-- System-by-System -->
+<div class="section-label">// System completion — what's built vs. what's needed</div>
+<div style="overflow-x:auto;margin-bottom:28px">
+<table style="width:100%;border-collapse:collapse;font-size:12px">
+<thead>
+<tr style="border-bottom:2px solid var(--gold-border)">
+  <th style="text-align:left;padding:8px 10px;font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">System</th>
+  <th style="text-align:center;padding:8px 6px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em">Built</th>
+  <th style="text-align:center;padding:8px 6px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em">Functional</th>
+  <th style="text-align:center;padding:8px 6px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em">Rev-Ready</th>
+  <th style="text-align:left;padding:8px 10px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em">Missing to 100%</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Pipeline Engine</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">95%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">80%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">40%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">No email verify key, no delivery platform, no auto schedule, contact DB missing</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Supabase Backend</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">90%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">40%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">20%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">Sync broken (timestamp bug), edge funcs 404, signal tables empty, needs commercial tables</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Signal Intelligence</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">65%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">50%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">30%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">3 stubs, 23 not started, 5 intel scrapers have seed data only, 16 unverified</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">AI Enrichment</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">100%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">100%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">90%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">Working — 19MB output verified. Cost optimization only remaining.</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Contact Intelligence</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">70%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">20%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">10%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">CI database never generated, no Apollo/Hunter keys, only 4 emails in 11K deal briefs</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Outreach Generation</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">95%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">70%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">10%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">AI copy works (144 rows), but no delivery platform, PlusVibe not integrated in code</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Frontend (customer)</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">80%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">50%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">15%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">Opps are DEMO_ONLY, buyer dash is static JSON, onboarding is shell, no billing webhooks</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Frontend (internal)</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">85%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">70%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">60%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">Financials.json works. Predictive analytics + signals kanban are skeletons</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Equipment Verticals</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">60%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--amber);font-weight:700">50%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">20%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">Template stubs, no differentiated content</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">International</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--green);font-weight:700">100% plan</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">0%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">0%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">Everything: configs, scrapers, keywords, pages</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Sales Infrastructure</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">30%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">20%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">10%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">No billing, closer program, or sales CRM</td>
+</tr>
+<tr>
+  <td style="padding:8px 10px;color:var(--text)">Content / Community</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">15%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">10%</td>
+  <td style="text-align:center;padding:8px 6px;color:var(--red);font-weight:700">5%</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">No podcast, community platform, or brief automation</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Pipeline Engine Detail -->
+<div class="section-label">// Pipeline engine — 10 stages, all live (last run Apr 2)</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:28px">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 12px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Stage 0b-1</div>
+    <div style="font-size:12px;color:var(--text);margin-top:2px">Ingest 20+ permit sources</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Socrata, ArcGIS, CSV, custom scrapers</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 12px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Stage 2-3</div>
+    <div style="font-size:12px;color:var(--text);margin-top:2px">Normalize + Score (14 rules)</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Hot 7+ / Warm 4-6 / Cold &lt;4</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 12px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Stage 3b</div>
+    <div style="font-size:12px;color:var(--text);margin-top:2px">Predict timing + crane class</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Lag rules + tonnage classification</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 12px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Stage 3c</div>
+    <div style="font-size:12px;color:var(--text);margin-top:2px">Signal intelligence to Supabase</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Events + convergence + training</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 12px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Stage 3d-3e</div>
+    <div style="font-size:12px;color:var(--text);margin-top:2px">AI enrichment + outreach copy</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Haiku 4.5 analysis, Sonnet 4.6 emails</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 12px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Stage 4-5</div>
+    <div style="font-size:12px;color:var(--text);margin-top:2px">Domain resolution + contact mining</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Multi-strategy + web scraping</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 12px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Stage 6-7</div>
+    <div style="font-size:12px;color:var(--text);margin-top:2px">Candidates + email verification</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">MillionVerifier batch validation</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 12px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Stage 8-10</div>
+    <div style="font-size:12px;color:var(--text);margin-top:2px">Export + QA + deal briefs</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">Hot/warm/catchall lists + full briefs</div>
+  </div>
+</div>
+
+<!-- Supabase -->
+<div class="section-label">// Supabase — 19 tables, 4 domains, 4 edge functions</div>
+<div class="intel-grid" style="margin-bottom:28px">
+  <div class="ic"><h4>Ops Platform (9 tables)</h4>
+    <div class="i-row"><span class="i-label">accounts</span><span class="i-val" style="color:var(--green)">13 rows</span></div>
+    <div class="i-row"><span class="i-label">contacts</span><span class="i-val" style="color:var(--red)">0 rows — EMPTY</span></div>
+    <div class="i-row"><span class="i-label">projects</span><span class="i-val" style="color:var(--green)">44 rows</span></div>
+    <div class="i-row"><span class="i-label">signals</span><span class="i-val" style="color:var(--amber)">31 rows — STALE (sync broken)</span></div>
+    <div class="i-row"><span class="i-label">opportunities</span><span class="i-val" style="color:var(--green)">13 rows</span></div>
+    <div class="i-row"><span class="i-label">opportunity_events</span><span class="i-val" style="color:var(--muted)">Unknown</span></div>
+    <div class="i-row"><span class="i-label">task_queue</span><span class="i-val" style="color:var(--red)">No worker built</span></div>
+    <div class="i-row"><span class="i-label">export_jobs</span><span class="i-val" style="color:var(--muted)">Unknown</span></div>
+    <div class="i-row"><span class="i-label">audit_log</span><span class="i-val" style="color:var(--green)">Has data</span></div>
+  </div>
+  <div class="ic"><h4>Signal Intelligence (4 tables)</h4>
+    <div class="i-row"><span class="i-label">signal_events</span><span class="i-val" style="color:var(--red)">0 rows — EMPTY</span></div>
+    <div class="i-row"><span class="i-label">opportunity_intelligence</span><span class="i-val" style="color:var(--red)">ERROR on query</span></div>
+    <div class="i-row"><span class="i-label">signal_convergence</span><span class="i-val" style="color:var(--red)">0 rows — EMPTY</span></div>
+    <div class="i-row"><span class="i-label">predictive_model_training</span><span class="i-val" style="color:var(--muted)">Likely empty</span></div>
+    <div class="i-row" style="border-bottom:none;margin-top:8px"><span class="i-label" style="font-size:10px">Cause</span><span class="i-val" style="font-size:10px;color:var(--red)">Stage 3c never ran successfully to Supabase</span></div>
+  </div>
+  <div class="ic"><h4>Outcome Learning (3 tables)</h4>
+    <div class="i-row"><span class="i-label">opportunity_feedback</span><span class="i-val" style="color:var(--red)">0 rows — EMPTY</span></div>
+    <div class="i-row"><span class="i-label">opportunity_outcomes</span><span class="i-val" style="color:var(--muted)">Likely empty</span></div>
+    <div class="i-row"><span class="i-label">reward_events</span><span class="i-val" style="color:var(--muted)">Likely empty</span></div>
+    <div class="i-row" style="border-bottom:none;margin-top:8px"><span class="i-label" style="font-size:10px">Gap</span><span class="i-val" style="font-size:10px;color:var(--red)">No customers, no outcomes, no feedback loop</span></div>
+  </div>
+  <div class="ic"><h4>Agent Context (3 tables)</h4>
+    <div class="i-row"><span class="i-label">agent_sessions</span><span class="i-val" style="color:var(--green)">Has data</span></div>
+    <div class="i-row"><span class="i-label">agent_context</span><span class="i-val" style="color:var(--green)">6 keys stored</span></div>
+    <div class="i-row"><span class="i-label">system_health</span><span class="i-val" style="color:var(--red)">0 rows — EMPTY</span></div>
+    <div class="i-row" style="border-bottom:none;margin-top:8px"><span class="i-label" style="font-size:10px">Edge functions</span><span class="i-val" style="font-size:10px;color:var(--red)">ALL 4 return 404 — never deployed</span></div>
+  </div>
+</div>
+
+<!-- Supabase Expansion Needed -->
+<div class="section-label">// Supabase expansion needed for commercial ops</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:28px">
+  <div style="background:var(--bg2);border:1px solid var(--red);border-radius:6px;padding:12px 14px">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">subscribers</div>
+    <div style="font-size:11px;color:var(--muted)">Track paying customers, markets, billing status</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--red);margin-top:6px">NEEDED: Phase 1</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--red);border-radius:6px;padding:12px 14px">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">brief_deliveries</div>
+    <div style="font-size:11px;color:var(--muted)">Log what was sent to whom and when</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--red);margin-top:6px">NEEDED: Phase 1</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--red);border-radius:6px;padding:12px 14px">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">billing_events</div>
+    <div style="font-size:11px;color:var(--muted)">Stripe webhook events (pay/fail/churn)</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--red);margin-top:6px">NEEDED: Phase 1</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--amber);border-radius:6px;padding:12px 14px">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">closer_dashboard view</div>
+    <div style="font-size:11px;color:var(--muted)">Commission tracking, lead assignments, rates</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-top:6px">NEEDED: Phase 3</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--amber);border-radius:6px;padding:12px 14px">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">international_sources</div>
+    <div style="font-size:11px;color:var(--muted)">Per-country data source configuration</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-top:6px">NEEDED: Phase 4</div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--blue);border-radius:6px;padding:12px 14px">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">RLS for customer access</div>
+    <div style="font-size:11px;color:var(--muted)">Customers see only their market's data</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--blue);margin-top:6px">NEEDED: Phase 1-2</div>
+  </div>
+</div>
+
+<!-- Revenue vs Production Gap -->
+<div class="section-label">// Revenue-ready vs production-ready gap</div>
+<div style="overflow-x:auto;margin-bottom:28px">
+<table style="width:100%;border-collapse:collapse;font-size:12px">
+<thead>
+<tr style="border-bottom:2px solid var(--gold-border)">
+  <th style="text-align:left;padding:8px 10px;font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">Layer</th>
+  <th style="text-align:center;padding:8px 6px;font-family:var(--mono);font-size:10px;color:var(--muted)">Prod-Ready?</th>
+  <th style="text-align:center;padding:8px 6px;font-family:var(--mono);font-size:10px;color:var(--muted)">Rev-Ready?</th>
+  <th style="text-align:left;padding:8px 10px;font-family:var(--mono);font-size:10px;color:var(--muted)">The Gap</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Pipeline (data generation)</td>
+  <td style="text-align:center;color:var(--green);font-weight:700">YES</td>
+  <td style="text-align:center;color:var(--amber);font-weight:700">PARTIAL</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">44K scored records but only 4 have email. Data exists, not deliverable.</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Supabase (storage/API)</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">BROKEN</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">Sync fails hourly (timestamp bug). Signal tables empty. Edge funcs 404.</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Outreach (email copy)</td>
+  <td style="text-align:center;color:var(--amber);font-weight:700">PARTIAL</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">144 rows of AI copy generated. PlusVibe is docs-only, zero code integration.</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Weekly Brief</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">Core $2,500/mo deliverable. No script, no template, no schedule.</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Billing</td>
+  <td style="text-align:center;color:var(--amber);font-weight:700">LINKS ONLY</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">3 Stripe payment links exist in config.js. No webhook, no subscriber tracking.</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Onboarding</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">122-line HTML shell. Formspree wired but no backend, no subscriber creation.</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:8px 10px;color:var(--text)">Contact Pipeline</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">BROKEN</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">cranegenius_ci.db never generated. No MillionVerifier/Hunter/Apollo keys in .env.</td>
+</tr>
+<tr>
+  <td style="padding:8px 10px;color:var(--text)">Closer Tools</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="text-align:center;color:var(--red);font-weight:700">NO</td>
+  <td style="padding:8px 10px;color:var(--muted);font-size:11px">commission_ledger.json is empty []. No UI. No closer portal.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Things to Revenue -->
+<div class="section-label">// 11 things between you and revenue (verified blockers)</div>
+<div style="margin-bottom:28px">
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>1. Fix Supabase sync</strong> — Timestamp bug kills every hourly sync. 30 min fix.</div><div class="a-who">BUG-001</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>2. Fix python-dotenv</strong> — Scripts silently fail to load env vars. 15 min fix.</div><div class="a-who">BUG-002</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>3. Fix cron path mismatch</strong> — Jobs point to wrong directory. 30 min fix.</div><div class="a-who">BUG-003</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>4. Deploy edge functions</strong> — All 4 return 404, never pushed to Supabase. 1 hour.</div><div class="a-who">BUG-004</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>5. Replace DEMO_ONLY opportunities</strong> — All 12 opps are synthetic with example.com URLs</div><div class="a-who">2 hours</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>6. Build weekly brief generator</strong> — Core $2,500/mo deliverable does not exist yet</div><div class="a-who">2-3 days</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>7. Wire email delivery</strong> — PlusVibe is docs-only, no code integration exists</div><div class="a-who">1-2 days</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>8. Wire Stripe webhooks</strong> — Payment links exist but no server-side handling</div><div class="a-who">1-2 days</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text"><strong>9. Build onboarding flow</strong> — Current page is 122-line shell with no backend</div><div class="a-who">2-3 days</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text"><strong>10. Fix contact pipeline</strong> — 11K briefs but only 4 have email. No MillionVerifier key.</div><div class="a-who">David: API key</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text"><strong>11. David closes first deal</strong> — Everything above is infrastructure. This is revenue.</div><div class="a-who">David: sales</div></div>
+</div>
+
+<!-- ROADMAP -->
+<div class="section-label">// Roadmap — 5 phases to exit-ready</div>
+
+<div class="rg">
+  <h3>Phase 1: First Dollar (Weeks 1-2)</h3>
+  <p>Target: One customer paying $2,500/mo receiving weekly brief automatically.</p>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text">Build weekly brief generator from pipeline output</div><div class="a-who">Critical</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text">Connect email delivery (PlusVibe/SendGrid/Mailgun)</div><div class="a-who">Critical</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text">Set up Stripe billing — $2,500/mo Tier 1 product</div><div class="a-who">Critical</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Wire buyer dashboard to live Supabase data</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Build basic onboarding flow (post-payment)</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Fix Supabase sync errors (100KB error log)</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--red)"></div><div class="a-text">David closes Leavitt or one warm prospect</div><div class="a-who">Critical</div></div>
+</div>
+
+<div class="rg">
+  <h3>Phase 2: Productize & Stabilize (Weeks 3-6)</h3>
+  <p>Target: 5-10 paying customers. System runs without daily manual intervention.</p>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Automate pipeline runs (cron/scheduler per market)</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Multi-market brief generation (multiple cities simultaneously)</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Customer portal v2 — opps, contacts, timeline, AI copy</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Fix 4 broken scrapers: EPA, job posting, equipment, utility</div><div class="a-who">Medium</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Signal registry audit — honest status for all 50 signals</div><div class="a-who">Medium</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Upgrade auth — replace localStorage/hardcoded passwords</div><div class="a-who">Medium</div></div>
+</div>
+
+<div class="rg">
+  <h3>Phase 3: Scale Revenue (Weeks 7-16)</h3>
+  <p>Target: 20-30 US customers. Closer program live. Community launched.</p>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Launch closer program — training materials + commission dashboard</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Build Tier 2 delivery ($5,000/mo remote sales arm)</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Launch community — Skool/Circle, free + $497/mo tiers</div><div class="a-who">Medium</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Content engine — podcast, weekly brief lead magnet</div><div class="a-who">Medium</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Activate outcome learning loop with real customer data</div><div class="a-who">High</div></div>
+</div>
+
+<div class="rg">
+  <h3>Phase 4: Go International (Weeks 17-30)</h3>
+  <p>Target: 6 international markets live. 50-80 total clients. $125K+ MRR.</p>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Canada — Toronto, Vancouver, Calgary, Montreal</div><div class="a-who">1 week</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Australia — NSW API, Sydney + Melbourne + Brisbane</div><div class="a-who">1 week</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Mexico — CKAN data, Mexico City + Monterrey + Guadalajara</div><div class="a-who">1 week</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Brazil — CKAN data, Sao Paulo + Rio + Belo Horizonte</div><div class="a-who">1 week</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">UAE — Dubai Pulse API + Singapore URA API</div><div class="a-who">1 week</div></div>
+</div>
+
+<div class="rg">
+  <h3>Phase 5: Exit Preparation (Weeks 31-52)</h3>
+  <p>Target: $420K+ MRR. Clean financials. Buyer-ready documentation. $61M-$103M exit.</p>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Launch remaining 5 markets (Ireland, NZ, India, Chile, Colombia)</div><div class="a-who">5 weeks</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--blue)"></div><div class="a-text">Equipment expansion — 5 categories (rigging, haul, telehandler, excavator, generator)</div><div class="a-who">3-4 weeks</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">CapexLayer IP separation — clean documentation</div><div class="a-who">High</div></div>
+  <div class="a-row"><div class="a-dot" style="background:var(--amber)"></div><div class="a-text">Financial audit prep — clean P&L, cohort data, margins</div><div class="a-who">High</div></div>
+</div>
+
+<!-- Expansion Plans Status -->
+<div class="section-label">// Strategic expansion — 100% documented, 0% executed</div>
+<div class="intel-grid" style="margin-bottom:24px">
+  <div class="ic"><h4>International (11 markets)</h4>
+    <div class="i-row"><span class="i-label">Revenue target</span><span class="i-val">+$720K MRR</span></div>
+    <div class="i-row"><span class="i-label">Client target</span><span class="i-val">306 clients</span></div>
+    <div class="i-row"><span class="i-label">Exit impact</span><span class="i-val">$103M at 12x</span></div>
+    <div class="i-row"><span class="i-label">Execution</span><span class="i-val" style="color:var(--red)">NOT STARTED</span></div>
+  </div>
+  <div class="ic"><h4>Equipment Expansion (5 types)</h4>
+    <div class="i-row"><span class="i-label">Types</span><span class="i-val">Rigging, haul, telehandler, excavator, generator</span></div>
+    <div class="i-row"><span class="i-label">Impact</span><span class="i-val">Higher value per opp</span></div>
+    <div class="i-row"><span class="i-label">Execution</span><span class="i-val" style="color:var(--red)">NOT STARTED</span></div>
+  </div>
+  <div class="ic"><h4>Outcome Learning Loop</h4>
+    <div class="i-row"><span class="i-label">Tables</span><span class="i-val" style="color:var(--green)">Built (3 tables)</span></div>
+    <div class="i-row"><span class="i-label">Code</span><span class="i-val" style="color:var(--green)">Built (65KB module)</span></div>
+    <div class="i-row"><span class="i-label">Active</span><span class="i-val" style="color:var(--amber)">Needs customer data</span></div>
+  </div>
+  <div class="ic"><h4>Closer Program</h4>
+    <div class="i-row"><span class="i-label">Target</span><span class="i-val">3-5 closers, 6-15 new/mo</span></div>
+    <div class="i-row"><span class="i-label">Commission</span><span class="i-val">15-20% of 12-mo MRR</span></div>
+    <div class="i-row"><span class="i-label">Execution</span><span class="i-val" style="color:var(--red)">NOT STARTED</span></div>
+  </div>
+</div>
+
+<!-- Data Outputs -->
+<div class="section-label">// Pipeline output reality (apr 2 run — verified)</div>
+<div class="metric-grid">
+  <div class="metric">
+    <div class="metric-val" style="font-size:22px;color:var(--green)">44,494</div>
+    <div class="metric-label">Raw Records</div>
+    <div class="metric-sub">raw_records.csv (22MB)</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" style="font-size:22px;color:var(--green)">40,062</div>
+    <div class="metric-label">Scored Records</div>
+    <div class="metric-sub">scored_records.csv (18MB)</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" style="font-size:22px;color:var(--green)">11,575</div>
+    <div class="metric-label">Deal Briefs</div>
+    <div class="metric-sub">deal_briefs.csv (6.3MB)</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" style="font-size:22px;color:var(--amber)">144</div>
+    <div class="metric-label">Hot Leads w/ Outreach</div>
+    <div class="metric-sub">hot_leads_with_outreach.csv</div>
+  </div>
+  <div class="metric metric-crit">
+    <div class="metric-val" style="font-size:22px">4</div>
+    <div class="metric-label">Briefs with Email</div>
+    <div class="metric-sub">Out of 11,575 — contact pipeline broken</div>
+  </div>
+  <div class="metric metric-crit">
+    <div class="metric-val" style="font-size:22px">0</div>
+    <div class="metric-label">Revenue-Ready Leads</div>
+    <div class="metric-sub">No verified email + outreach + contact combo</div>
+  </div>
+</div>
+
+<div class="section-label" style="margin-top:20px">// Missing API keys (David must provide)</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:24px">
+  <div style="background:var(--red-bg);border:1px solid var(--red);border-radius:6px;padding:10px 12px">
+    <div style="font-size:12px;font-weight:600;color:var(--text)">MILLIONVERIFIER</div>
+    <div style="font-size:10px;color:var(--muted)">Email verification — blocks contact pipeline</div>
+  </div>
+  <div style="background:var(--red-bg);border:1px solid var(--red);border-radius:6px;padding:10px 12px">
+    <div style="font-size:12px;font-weight:600;color:var(--text)">HUNTER / APOLLO</div>
+    <div style="font-size:10px;color:var(--muted)">Contact enrichment — blocks contact resolution</div>
+  </div>
+  <div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:6px;padding:10px 12px">
+    <div style="font-size:12px;font-weight:600;color:var(--text)">SAM.gov API Key</div>
+    <div style="font-size:10px;color:var(--muted)">Pre-bid attendance signal</div>
+  </div>
+  <div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:6px;padding:10px 12px">
+    <div style="font-size:12px;font-weight:600;color:var(--text)">SendGrid / Mailgun</div>
+    <div style="font-size:10px;color:var(--muted)">Brief delivery — David decides which platform</div>
+  </div>
+</div>
+
+<div style="background:var(--bg2);border:1px solid var(--gold-border);border-radius:8px;padding:16px 20px;margin-bottom:24px">
+  <div style="font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">Full build spec</div>
+  <div style="font-size:12px;color:var(--text);line-height:1.6">
+    Complete task list with acceptance criteria for every gap:<br>
+    <code style="font-family:var(--mono);font-size:11px;color:var(--gold)">CRANEGENIUS_BUILD_SPEC.md</code> — 4 critical bugs, 22 tasks, 5 phases, specific checkboxes for each
+  </div>
+</div>
+
+<div style="text-align:center;padding:20px;margin-top:16px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em">
+  VERIFIED AUDIT: APRIL 4, 2026 — CORRECTED FROM CODE-ONLY READ TO LIVE TESTING — CONFIDENTIAL
+</div>
+
+</div>
+
+</div>
+<script src="/config.js" defer></script>
+<script src="supabase-loader.js" defer></script>
+<script>
+function switchTab(id,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById(id).classList.add('active');}
+(async function(){
+  var count = null;
+  // Try Supabase first
+  if (window.cgSupabase && cgSupabase.isConfigured()) {
+    var rows = await cgSupabase.query('opportunities', { select: 'id', limit: 1000 });
+    if (rows) count = rows.length;
+  }
+  // Fallback to static JSON
+  if (count === null) {
+    try {
+      var r = await fetch('/data/opportunities/opportunities.json');
+      var d = await r.json();
+      count = (d.opportunities || []).length;
+    } catch(e) {}
+  }
+  if (count > 0) document.querySelectorAll('#oppCount').forEach(function(el){ el.textContent = count + '+'; });
+})();
+document.getElementById('dateStr').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+</script>
+</body>
+</html>

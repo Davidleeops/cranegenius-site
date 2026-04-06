@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Ironsheet — Where Capital Moves, Equipment Follows</title>
+<meta name="description" content="The Ironsheet — weekly capital flow intelligence for anyone whose business runs on where money moves. Geopolitics, infrastructure, energy, defense. First 10 subscribers free.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="/config.js" defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080e1a;--bg2:#0d1628;--bg3:#111e35;--gold:#c9a84c;--border:#1e3a5f;--text:#e8f0ff;--muted:#97a8c2;--green:#22c55e;--red:#ef4444}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh}
+.tag{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.hero{max-width:960px;margin:0 auto;padding:72px 24px 56px}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,88px);line-height:.95;letter-spacing:.02em;margin-bottom:20px}
+.hero h1 span{color:var(--gold)}
+.hero-sub{font-size:17px;color:var(--muted);max-width:620px;line-height:1.65;margin-bottom:36px}
+.hero-sub strong{color:var(--text)}
+.stat-row{display:flex;gap:32px;flex-wrap:wrap;margin-bottom:40px}
+.stat{display:flex;flex-direction:column}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1}
+.stat-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.section{max-width:960px;margin:0 auto;padding:56px 24px}
+.section-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.divider{border:none;border-top:1px solid var(--border);margin:0}
+.pricing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:32px}
+.pricing-grid-top{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+.pricing-card{background:var(--bg3);border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;position:relative}
+.pricing-card.featured{border-color:var(--gold)}
+.pricing-card.advisory{border-color:rgba(201,168,76,.4);background:linear-gradient(135deg,var(--bg3) 0%,rgba(201,168,76,.04) 100%)}
+.popular-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--bg);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;white-space:nowrap}
+.advisory-badge{position:absolute;top:-1px;right:24px;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;white-space:nowrap}
+.card-tier{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.card-price{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--text);line-height:1;margin-bottom:4px}
+.card-price span{font-size:22px;color:var(--muted)}
+.card-period{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.card-features{display:flex;flex-direction:column;gap:10px;flex:1;margin-bottom:24px}
+.feature{font-size:14px;color:var(--muted);line-height:1.5;padding-left:14px;position:relative}
+.feature::before{content:'-';position:absolute;left:0;color:var(--gold)}
+.card-cta{padding:12px;background:transparent;border:1px solid var(--border);color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em;cursor:pointer;text-decoration:none;display:block;text-align:center;transition:background .15s,border-color .15s}
+.card-cta:hover{border-color:var(--gold);background:rgba(201,168,76,.1)}
+.pricing-card.featured .card-cta{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.pricing-card.featured .card-cta:hover{opacity:.85}
+.pricing-card.advisory .card-cta{background:transparent;border-color:var(--gold);color:var(--gold)}
+.pricing-card.advisory .card-cta:hover{background:rgba(201,168,76,.1)}
+.callout{background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--gold);padding:24px 28px}
+.callout-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.callout p{font-size:14px;color:var(--muted);line-height:1.65}
+.callout p strong{color:var(--text)}
+.faq-list{display:flex;flex-direction:column;gap:0;margin-top:24px;border:1px solid var(--border)}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 24px}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text);margin-bottom:8px}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.65}
+.faq-a a{color:var(--gold);text-decoration:none}
+.form-wrap{background:var(--bg2);border:1px solid var(--border);padding:40px;max-width:640px;margin:32px auto 0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus{border-color:var(--gold)}
+.field select option{background:var(--bg3)}
+.tier-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.tier-option{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;transition:border-color .15s;text-align:center}
+.tier-option input{display:none}
+.tier-option:has(input:checked){border-color:var(--gold);background:rgba(201,168,76,.1)}
+.tier-name{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tier-price{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold)}
+.submit-btn{margin-top:6px;width:100%;padding:16px;background:var(--gold);color:var(--bg);border:none;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;transition:opacity .15s}
+.submit-btn:hover{opacity:.85}
+.form-note{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:.04em;text-align:center}
+.feedback{margin-top:12px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.04em;text-align:center;display:none}
+.feedback.ok{color:var(--green);display:block}
+.feedback.err{color:var(--red);display:block}
+.thanks-banner{display:none;background:linear-gradient(135deg,var(--bg2) 0%,rgba(34,197,94,.06) 100%);border:1px solid var(--border);border-left:4px solid var(--green);padding:32px 28px;margin:0 24px 28px;max-width:960px;margin-left:auto;margin-right:auto}
+.thanks-banner.show{display:block}
+.thanks-banner h2{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:.02em;color:var(--text);margin-bottom:12px}
+.thanks-banner p{font-size:15px;color:var(--muted);line-height:1.6;margin:0 0 8px}
+.thanks-banner .next{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-top:16px}
+.webinar-cta{background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--gold);padding:40px;max-width:960px;margin:0 auto 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.webinar-option{display:flex;flex-direction:column;gap:10px}
+.webinar-option-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.webinar-option-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);line-height:1.1}
+.webinar-option-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.webinar-option-btn{display:inline-block;padding:10px 16px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.06em;text-decoration:none;text-align:center;transition:all .15s}
+.webinar-option-btn.outline{border:1px solid var(--border);color:var(--text)}
+.webinar-option-btn.outline:hover{border-color:var(--gold);color:var(--gold)}
+.webinar-option-btn.gold{background:var(--gold);color:var(--bg)}
+.webinar-option-btn.gold:hover{opacity:.85}
+@media(max-width:768px){.pricing-grid{grid-template-columns:1fr}.pricing-grid-top{grid-template-columns:1fr}.tier-options{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.stat-row{gap:20px}.webinar-cta{grid-template-columns:1fr}}
+</style>
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+
+<nav id="cg-nav" style="position:sticky;top:0;z-index:9999;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;border-bottom:1px solid rgba(245,166,35,.22);background:rgba(8,12,20,.95);backdrop-filter:blur(12px);flex-wrap:wrap;gap:8px">
+  <a href="/" style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#F5A623;text-decoration:none;flex-shrink:0">CraneGenius</a>
+  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+    <a href="/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#F5A623;text-decoration:none;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px">Lift Estimator</a>
+    <a href="/opportunities/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px">Opportunities</a>
+    <a href="/marketplace/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px">Marketplace</a>
+    <a href="/data-centers/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px">Data Centers</a>
+    <div class="cg-dropdown" style="position:relative">
+      <button onclick="this.parentElement.classList.toggle('open')" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#8899aa;background:none;border:none;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;display:flex;align-items:center;gap:4px">Partner <span style="font-size:8px;opacity:.7">&#9660;</span></button>
+      <div class="cg-drop-menu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;background:#0d1526;border:0.5px solid rgba(245,166,35,.25);border-radius:5px;min-width:180px;padding:6px 0;z-index:9999">
+        <a href="/partner/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#c8bfa8;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Crane Companies</a>
+        <a href="/directory/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#8899aa;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Directory</a>
+        <a href="/jobs/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#8899aa;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Jobs</a>
+        <a href="/manpower/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#8899aa;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Manpower</a>
+        <a href="/newsletter/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#F5A623;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Intelligence Brief</a>
+        <a href="/sell-your-company/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#8899aa;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Sell Your Company</a>
+        <a href="/education/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#8899aa;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Education</a>
+      </div>
+    </div>
+    <div class="cg-dropdown" style="position:relative">
+      <button onclick="this.parentElement.classList.toggle('open')" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#c9a84c;background:none;border:0.5px solid rgba(201,168,76,.35);border-radius:3px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;display:flex;align-items:center;gap:4px">Investors <span style="font-size:8px;opacity:.7">&#9660;</span></button>
+      <div class="cg-drop-menu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:#0d1526;border:0.5px solid rgba(201,168,76,.35);border-radius:5px;min-width:210px;padding:6px 0;z-index:9999">
+        <a href="/capex-layer/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#c8bfa8;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">CapexLayer</a>
+        <a href="/investor-brief.html" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#8899aa;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Investor Brief</a>
+        <a href="/dark30/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#8899aa;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Dark 30 Ventures</a>
+        <a href="/acquisitions/" style="display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:#8899aa;text-decoration:none;padding:7px 14px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Acquisitions</a>
+      </div>
+    </div>
+    <a href="/ironsheet/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#000;background:#F5A623;border-radius:3px;padding:4px 12px;text-decoration:none;letter-spacing:.05em;text-transform:uppercase">Ironsheet</a>
+  </div>
+</nav>
+<style>.cg-dropdown.open .cg-drop-menu{display:block!important}.cg-drop-menu a:hover{color:#F5A623!important;background:rgba(245,166,35,.06)}</style>
+<script>document.addEventListener('click',function(e){document.querySelectorAll('.cg-dropdown').forEach(function(d){if(!d.contains(e.target))d.classList.remove('open');});});</script>
+
+<div id="thanks-banner" class="thanks-banner" role="status" aria-live="polite">
+  <h2>You are on the list.</h2>
+  <p>You locked in your rate. The first issue of The Ironsheet hits your inbox Monday morning.</p>
+  <p>Founding members shape the product. Reply to any issue with what matters most to your business — we build the brief around real operators, not guesses.</p>
+  <p class="next">Next: Monday morning. Capital flows, geopolitics, permits, and what it all means for your bottom line.</p>
+</div>
+
+<div class="hero">
+  <div class="tag">// The Ironsheet</div>
+  <h1>Where Capital Moves, <span>Equipment Follows.</span></h1>
+  <p class="hero-sub">Weekly intelligence on the money flows that drive real-world demand. Government spending, infrastructure bills, energy policy, defense budgets, CHIPS Act fabs, LNG terminals, rate decisions — <strong>and what they mean for the companies that build, move, and lift the physical world.</strong> If your business runs on capital expenditure, this is your edge. First 10 subscribers get in free.</p>
+  <div class="stat-row">
+    <div class="stat"><span class="stat-num">$1.2T+</span><span class="stat-label">Infrastructure spend tracked</span></div>
+    <div class="stat"><span class="stat-num">68</span><span class="stat-label">Demand signals monitored</span></div>
+    <div class="stat"><span class="stat-num">26+</span><span class="stat-label">US metro markets</span></div>
+    <div class="stat"><span class="stat-num">12</span><span class="stat-label">International markets coming</span></div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- WEBINAR CTA BLOCK -->
+<div style="max-width:960px;margin:0 auto;padding:40px 24px 0">
+  <div class="tag">// What you get every week</div>
+  <div class="webinar-cta">
+    <div class="webinar-option">
+      <div class="webinar-option-label">The Macro Read</div>
+      <div class="webinar-option-title">Capital Flow Analysis</div>
+      <div class="webinar-option-desc">Government spending, infrastructure bills, energy policy, defense budgets, trade shifts — broken down into what matters for CapEx-dependent businesses. No fluff. Just the money trail.</div>
+      <a href="#signup" class="webinar-option-btn gold">Join Free</a>
+    </div>
+    <div class="webinar-option">
+      <div class="webinar-option-label">The Ground Truth</div>
+      <div class="webinar-option-title">Permit-Level Signals</div>
+      <div class="webinar-option-desc">Where macro policy turns into real projects. Active permits, timing windows, and demand signals across 26+ US metros. The data behind the headlines.</div>
+      <a href="#signup" class="webinar-option-btn outline">Join Free</a>
+    </div>
+    <div class="webinar-option">
+      <div class="webinar-option-label">The Edge</div>
+      <div class="webinar-option-title">What It Means For You</div>
+      <div class="webinar-option-desc">Every issue connects the dots: this policy shift means this equipment demand in these markets in this timeframe. Geopolitics to jobsite in one read.</div>
+      <a href="#signup" class="webinar-option-btn outline">Join Free</a>
+    </div>
+  </div>
+</div>
+
+<hr class="divider" style="margin-top:40px">
+
+<div class="section">
+  <div class="section-label">// Launch Pricing — It Only Goes Up From Here</div>
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,52px);color:var(--text);margin-bottom:8px">GET IN EARLY. <span style="color:var(--gold)">YOUR PRICE NEVER GOES UP.</span></h2>
+  <p style="color:var(--muted);font-size:15px;max-width:620px;line-height:1.65;margin-bottom:12px">The Ironsheet covers the full stack: geopolitics, federal spending, energy transitions, trade policy, rate decisions — and connects every headline to real equipment demand signals on the ground. The earlier you subscribe, the less you pay, and your rate is locked for life.</p>
+
+  <!-- LAUNCH COUNTER -->
+  <div id="launch-counter" style="background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--gold);padding:20px 24px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">// Current Waitlist Position</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--text);line-height:1"><span id="sub-count">0</span> <span style="font-size:18px;color:var(--muted)">of 10 founding spots claimed</span></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">Founding members</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);line-height:1">FREE</div>
+    </div>
+  </div>
+
+  <!-- PRICING LADDER -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-bottom:32px;border:1px solid var(--border);overflow:hidden">
+    <div id="tier-founding" class="launch-tier" style="background:rgba(34,197,94,.08);border-right:1px solid var(--border);padding:20px 16px;text-align:center;position:relative">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px">Founding 10</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--green);line-height:1">FREE</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">Spots 1–10</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-top:6px;font-weight:700">OPEN NOW</div>
+    </div>
+    <div id="tier-early" style="background:var(--bg3);border-right:1px solid var(--border);padding:20px 16px;text-align:center;position:relative;opacity:.7">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold)"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Early Access</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--text);line-height:1">$19<span style="font-size:16px;color:var(--muted)">/mo</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">Spots 11–50</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px">LOCKED</div>
+    </div>
+    <div id="tier-launch" style="background:var(--bg3);border-right:1px solid var(--border);padding:20px 16px;text-align:center;position:relative;opacity:.5">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:rgba(201,168,76,.4)"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Launch</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--text);line-height:1">$29<span style="font-size:16px;color:var(--muted)">/mo</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">Spots 51–150</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px">LOCKED</div>
+    </div>
+    <div id="tier-growth" style="background:var(--bg3);border-right:1px solid var(--border);padding:20px 16px;text-align:center;position:relative;opacity:.4">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:rgba(201,168,76,.2)"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Growth</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--text);line-height:1">$39<span style="font-size:16px;color:var(--muted)">/mo</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">Spots 151–500</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px">LOCKED</div>
+    </div>
+    <div id="tier-full" style="background:var(--bg3);padding:20px 16px;text-align:center;position:relative;opacity:.35">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:rgba(201,168,76,.1)"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Full Price</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--text);line-height:1">$49<span style="font-size:16px;color:var(--muted)">/mo</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">500+</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px">STANDARD</div>
+    </div>
+  </div>
+
+  <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-bottom:32px;letter-spacing:.04em">Your price is <strong style="color:var(--gold)">grandfathered for life</strong>. Join at $19 — you pay $19 forever, even when full price hits $49.</div>
+
+  <!-- WHAT EVERY SUBSCRIBER GETS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px">
+    <div class="pricing-card" style="border-color:var(--green)">
+      <div class="card-tier" style="color:var(--green)">Every Issue — The Ironsheet</div>
+      <div class="card-features" style="margin-bottom:0">
+        <div class="feature"><strong style="color:var(--text)">The Macro Read</strong> — capital flow analysis: infrastructure bills, defense budgets, energy policy, trade shifts, rate decisions, and what moved this week</div>
+        <div class="feature"><strong style="color:var(--text)">The Geopolitical Angle</strong> — tariffs, sanctions, supply chain shifts, OPEC moves, and how global policy creates domestic equipment demand</div>
+        <div class="feature"><strong style="color:var(--text)">The Ground Truth</strong> — permit-level signals: which metros are heating up, which projects just filed, where the cranes and equipment go next</div>
+        <div class="feature"><strong style="color:var(--text)">The So-What</strong> — every headline connected to real demand: "this policy means this equipment in these markets in this timeframe"</div>
+        <div class="feature">Delivered Monday mornings. 5-minute read.</div>
+      </div>
+    </div>
+    <div class="pricing-card">
+      <div class="card-tier">Upgrade Anytime — Actionable Intel Add-On</div>
+      <div class="card-price" style="font-size:36px">+$99<span>/mo</span></div>
+      <div class="card-period">Add to any tier — available after launch</div>
+      <div class="card-features" style="margin-bottom:0">
+        <div class="feature">Verified GC contacts per active project (name, email, company)</div>
+        <div class="feature">Job-specific strategy guide and outreach template</div>
+        <div class="feature">Timing window predictions — when equipment demand opens</div>
+        <div class="feature">Regional deep-dives for your specific market(s)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIGGER TIERS CALLOUT -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+    <div class="pricing-card advisory">
+      <div class="card-tier">Territory Coverage</div>
+      <div class="card-price" style="font-size:36px">$249<span>/mo</span></div>
+      <div class="card-period">CraneGenius outbounds in your territory using your company name</div>
+      <div class="card-features" style="margin-bottom:12px">
+        <div class="feature">Everything in Bid Intel</div>
+        <div class="feature">We contact GCs on your behalf as your preferred supplier</div>
+        <div class="feature">Natural step toward full market coverage at $2,500/mo</div>
+      </div>
+      <a href="/partner/" class="card-cta" style="border-color:var(--gold);color:var(--gold)">View Full Engagement</a>
+    </div>
+    <div class="pricing-card advisory">
+      <div class="advisory-badge">One-Time</div>
+      <div class="card-tier">Market Intelligence Session</div>
+      <div class="card-price" style="font-size:36px">$500<span> flat</span></div>
+      <div class="card-period">90 minutes with David Lee — former Operating Engineer</div>
+      <div class="card-features" style="margin-bottom:12px">
+        <div class="feature">Live permit data pull for your specific market</div>
+        <div class="feature">Walk away with a target list and 30-day outreach sequence</div>
+        <div class="feature">Counts as credit toward any subscription</div>
+      </div>
+      <a href="https://calendly.com/lemuel-lee-jr/15min" target="_blank" class="card-cta" style="border-color:var(--gold);color:var(--gold)">Book the Session</a>
+    </div>
+  </div>
+
+  <div style="margin-top:24px">
+    <div class="callout">
+      <div class="callout-title">// What a typical issue looks like</div>
+      <p><strong>The Macro:</strong> CHIPS Act just released $6.4B for semiconductor fabs in Arizona and Ohio. DOE conditionally committed $2.2B in loan guarantees for two battery plants. FERC approved 3 new LNG export terminals.</p>
+      <p style="margin-top:10px"><strong>The Geopolitical:</strong> China tariff response shifts rare earth supply chains. EU carbon border tax accelerates US green energy CapEx. OPEC cut signals upstream activity spike in Permian Basin.</p>
+      <p style="margin-top:10px"><strong>The Ground Truth:</strong> Phoenix data center permits up 340% YoY. Chicago structural steel permits at 18-month high. Houston refinery turnaround season opening — 14 facilities filing EPA Title V notices.</p>
+      <p style="margin-top:10px"><strong>The So-What:</strong> If you move cranes, haul steel, rent generators, or build infrastructure — these are the demand signals that tell you where to be in 6-12 weeks.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section" style="background:var(--bg2);max-width:100%;padding:56px 24px">
+  <div style="max-width:960px;margin:0 auto">
+    <div class="section-label">// Common Questions</div>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,48px);color:var(--text);margin-bottom:24px">WHAT YOU<br><span style="color:var(--gold)">NEED TO KNOW.</span></h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">Who is The Ironsheet for?</div>
+        <div class="faq-a">Anyone whose revenue depends on capital expenditure flows: crane and equipment rental companies, heavy haul operators, rigging firms, construction equipment dealers, industrial contractors, energy sector companies, infrastructure investors, government contractors. If big capital projects drive your business, this is for you.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What makes this different from other industry newsletters?</div>
+        <div class="faq-a">We connect the full stack. Most newsletters cover either macro (policy, markets) or micro (permits, local projects) — never both. The Ironsheet traces the money from a Congressional vote or OPEC decision all the way down to which metro markets heat up and when equipment demand opens. Geopolitics to jobsite in one read.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Who writes this?</div>
+        <div class="faq-a">David Lee — former Operating Engineer, founder of CraneGenius, and the person who built a 68-signal demand intelligence platform tracking permits, federal spending, energy policy, and capital project timelines across 26+ US markets. Not a journalist covering the industry from the outside. Someone who has actually done the work.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How is the data sourced?</div>
+        <div class="faq-a">Federal Register filings, municipal permit APIs, SEC EDGAR, EIA energy data, FERC filings, Baker Hughes rig counts, DOE loan programs, CHIPS Act tracking, PHMSA safety data, and 68 other signal sources — all processed through the CraneGenius intelligence pipeline. The same data that powers our $2,500/mo and $5,000/mo engagement programs.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How does the waitlist pricing work?</div>
+        <div class="faq-a">The first 10 subscribers get The Ironsheet free — forever. After that, the price goes up as the list grows: $19/mo for spots 11–50, $29/mo for 51–150, $39/mo for 151–500, then $49/mo standard. Whatever price you join at is your price for life. It never goes up for you.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">I want more than the newsletter — can you run outreach for my company?</div>
+        <div class="faq-a">Yes. <a href="/partner/">CraneGenius Full Engagement</a> starts at $2,500/mo — we run outbound prospecting, lead qualification, and deal support in your market using the same intelligence that powers The Ironsheet. One company per region.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I cancel?</div>
+        <div class="faq-a">Cancel anytime. No long-term commitment. Founding members can rejoin free if they come back within 30 days.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section" id="signup">
+  <div class="section-label">// Join the Waitlist</div>
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,52px);color:var(--text);margin-bottom:10px">CLAIM YOUR SPOT.<br><span style="color:var(--gold)">LOCK YOUR PRICE.</span></h2>
+  <p style="color:var(--muted);font-size:15px;line-height:1.65;max-width:560px">If your business depends on where capital flows — construction, energy, equipment, infrastructure, industrial services — this is the brief that connects the headlines to the jobsite. First 10 subscribers get in <strong style="color:var(--green)">free — forever</strong>.</p>
+
+  <div class="form-wrap">
+    <div id="waitlist-tier-display" style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.25);padding:14px 18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:2px">Your price if you join now</div>
+        <div id="current-price-display" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);line-height:1">FREE</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Founding spots remaining</div>
+        <div id="spots-remaining" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);line-height:1">10</div>
+      </div>
+    </div>
+    <form id="newsletterForm" action="https://formspree.io/f/mgoldjjb" method="POST">
+      <div class="form-grid">
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" name="email" required placeholder="you@company.com">
+        </div>
+        <div class="field">
+          <label>Company Name</label>
+          <input type="text" name="company_name" required placeholder="Smith Crane Co.">
+        </div>
+        <div class="field full">
+          <label>Your Market</label>
+          <select name="region" required>
+            <option value="">Select your market...</option>
+            <option value="chicago_midwest">Chicago / Midwest</option>
+            <option value="dallas_south_central">Dallas / South Central</option>
+            <option value="nyc_northeast">NYC / Northeast</option>
+            <option value="phoenix_southwest">Phoenix / Southwest</option>
+            <option value="seattle_pnw">Seattle / Pacific Northwest</option>
+            <option value="other_nationwide">Other / Nationwide</option>
+            <option value="multiple">Multiple Regions</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Industry / Business Type</label>
+          <select name="industry_type">
+            <option value="">Select your sector...</option>
+            <option value="crane_equipment_rental">Crane / Equipment Rental</option>
+            <option value="rigging_heavy_lift">Rigging / Heavy Lift Services</option>
+            <option value="heavy_haul_transport">Heavy Haul / Specialized Transport</option>
+            <option value="general_contractor">General Contractor</option>
+            <option value="industrial_contractor">Industrial / EPC Contractor</option>
+            <option value="energy_oil_gas">Energy / Oil & Gas</option>
+            <option value="infrastructure_civil">Infrastructure / Civil Construction</option>
+            <option value="equipment_dealer">Equipment Dealer / Manufacturer</option>
+            <option value="government_contractor">Government / Defense Contractor</option>
+            <option value="investor_finance">Investor / Finance / PE</option>
+            <option value="other">Other CapEx-Dependent Business</option>
+          </select>
+        </div>
+      </div>
+      <input type="hidden" name="form_type" value="waitlist_signup">
+      <input type="hidden" name="source" value="cranegenius_newsletter_waitlist">
+      <input type="hidden" id="pricing_tier_hidden" name="pricing_tier" value="founding_free">
+      <button type="submit" class="submit-btn" style="background:var(--green)">CLAIM MY FOUNDING SPOT</button>
+      <p class="form-note">Founding members: free for life. No credit card required. First brief arrives within 24 hours of launch.</p>
+      <div class="feedback" id="newsletterFeedback"></div>
+    </form>
+  </div>
+</div>
+
+<footer style="background:#04080f;border-top:0.5px solid rgba(245,166,35,.18);margin-top:4rem;padding:2.5rem 24px 1.5rem;font-family:'DM Sans',sans-serif">
+  <div style="max-width:960px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2rem">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#F5A623;letter-spacing:.06em;margin-bottom:.4rem">CraneGenius</div>
+        <div style="font-size:11px;color:rgba(232,226,212,.45);line-height:1.7;max-width:260px">AI-native intelligence for crane companies, capital projects, and industrial acquisitions. Built by a former Operating Engineer and Industrial Sales Executive.</div>
+        <div style="margin-top:.85rem"><a href="https://calendly.com/lemuel-lee-jr/15min" target="_blank" style="font-size:11px;color:#F5A623;text-decoration:none;font-weight:600;letter-spacing:.04em">Book a call with the founder &rarr;</a></div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:#F5A623;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.75rem">For GCs &amp; PMs</div>
+        <div style="display:flex;flex-direction:column;gap:.45rem">
+          <a href="/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Lift Estimator</a>
+          <a href="/opportunities/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Opportunities</a>
+          <a href="/data-centers/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Data Centers</a>
+          <a href="/marketplace/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Marketplace</a>
+          <a href="/caa/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Crane Access Agreement</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:#F5A623;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.75rem">For Crane Companies</div>
+        <div style="display:flex;flex-direction:column;gap:.45rem">
+          <a href="/partner/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Become a Partner</a>
+          <a href="/newsletter/" style="font-size:11px;color:#F5A623;text-decoration:none">Intelligence Brief</a>
+          <a href="/directory/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Directory</a>
+          <a href="/jobs/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Jobs</a>
+          <a href="/education/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Education</a>
+          <a href="/sell-your-company/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Sell Your Company</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:#F5A623;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.75rem">Investors</div>
+        <div style="display:flex;flex-direction:column;gap:.45rem">
+          <a href="/capex-layer/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">CapexLayer</a>
+          <a href="/investor-brief.html" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Investor Brief</a>
+          <a href="/dark30/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Dark 30 Ventures</a>
+          <a href="/acquisitions/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Acquisitions</a>
+        </div>
+        <div style="margin-top:1rem">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:#F5A623;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.75rem">Resources</div>
+          <div style="display:flex;flex-direction:column;gap:.45rem">
+            <a href="/ironsheet/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">The Ironsheet</a>
+            <a href="/routing/" style="font-size:11px;color:rgba(232,226,212,.55);text-decoration:none">Routing</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:0.5px solid rgba(245,166,35,.12);padding-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,226,212,.3);letter-spacing:.06em">CraneGenius &middot; Dark 30 Ventures &middot; &copy; 2026</div>
+      <div style="display:flex;gap:1.25rem;flex-wrap:wrap">
+        <a href="/partner/" style="font-size:10px;color:rgba(232,226,212,.35);text-decoration:none">Full Engagement</a>
+        <a href="/partner/activation/" style="font-size:10px;color:rgba(232,226,212,.35);text-decoration:none">Partner Activation</a>
+        <a href="/demo/" style="font-size:10px;color:rgba(232,226,212,.35);text-decoration:none">Weekly Brief Demo</a>
+        <a href="/opportunities/" style="font-size:10px;color:rgba(232,226,212,.35);text-decoration:none">Free Preview</a>
+        <a href="mailto:david@capexlayer.com" style="font-size:10px;color:rgba(232,226,212,.35);text-decoration:none">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/js/page_ai_context.js" onerror="void 0"></script>
+<script>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('thanks') === '1') {
+    var el = document.getElementById('thanks-banner');
+    if (el) el.classList.add('show');
+  }
+
+  var stripeUrls = {
+    job_alerts: window.__CG_STRIPE_JOB_ALERTS_URL__,
+    bid_intel: window.__CG_STRIPE_BID_INTEL_URL__,
+    territory_partner: window.__CG_STRIPE_TERRITORY_PARTNER_URL__
+  };
+  document.querySelectorAll('.card-cta[data-tier]').forEach(function(a){
+    var url = stripeUrls[a.getAttribute('data-tier')];
+    if (url && typeof url === 'string' && url.length > 0) {
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+    }
+  });
+
+  var form = document.getElementById('newsletterForm');
+  var fb = document.getElementById('newsletterFeedback');
+  if (!form) return;
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var data = {};
+    new FormData(form).forEach(function(v,k){data[k]=v;});
+    var btn = form.querySelector('.submit-btn');
+    btn.textContent = 'SENDING...';
+    btn.disabled = true;
+    try {
+      var res = await fetch('https://formspree.io/f/mgoldjjb',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify(data)
+      });
+      if (res.ok) {
+        fb.className = 'feedback ok';
+        fb.textContent = 'You are in. Confirmation and first report arriving within 24 hours.';
+        form.reset();
+        btn.textContent = 'GET STARTED';
+        btn.disabled = false;
+      } else { throw new Error(); }
+    } catch(err) {
+      fb.className = 'feedback err';
+      fb.textContent = 'Submission failed. Email david@capexlayer.com directly.';
+      btn.textContent = 'GET STARTED';
+      btn.disabled = false;
+    }
+  });
+
+  document.querySelectorAll('.tier-option').forEach(function(opt){
+    opt.addEventListener('click', function(){
+      document.querySelectorAll('.tier-option').forEach(function(o){ o.style.borderColor=''; o.style.background=''; });
+      opt.style.borderColor = '#c9a84c';
+      opt.style.background = 'rgba(201,168,76,.1)';
+    });
+  });
+})();
+</script>
+</body>
+</html>

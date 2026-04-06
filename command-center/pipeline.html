@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pipeline dashboard , CraneGenius Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080c14;--bg2:#0d1628;--bg3:#111e35;--gold:#F5A623;--gold-border:rgba(245,166,35,.22);--border:#1e3a5f;--text:#e8f0ff;--muted:#8899aa;--mono:'DM Mono',monospace;--red:#E24B4A;--red-bg:rgba(226,75,74,.12);--amber:#EF9F27;--amber-bg:rgba(239,159,39,.12);--green:#63991A;--green-bg:rgba(99,153,26,.12)}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.5;font-size:14px}
+.shell{max-width:1140px;margin:0 auto;padding:28px 20px 64px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--gold-border)}
+.wordmark{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold)}
+.top-meta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+.section-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.metric-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);line-height:1}
+.metric-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.m-succ .metric-val{color:var(--green)}
+.m-fail .metric-val{color:var(--red)}
+.m-deg .metric-val{color:var(--amber)}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:20px}
+.panel h3{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.5px;color:var(--text);margin-bottom:12px}
+.status-badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em}
+.status-success{background:var(--green-bg);color:var(--green)}
+.status-failed{background:var(--red-bg);color:var(--red)}
+.status-degraded{background:var(--amber-bg);color:var(--amber)}
+.sig-table{width:100%;border-collapse:collapse;font-size:12px}
+.sig-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.sig-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
+.sig-table tr:hover td{background:var(--bg3)}
+.sig-zero{color:var(--muted)}
+.sig-ok{color:var(--green)}
+.help{font-size:11px;color:var(--muted);margin-top:16px;padding:12px;background:var(--bg3);border-radius:6px;border:1px solid var(--border)}
+</style>
+<script src="/command-center/_finance_loader.js" defer></script>
+</head>
+<body>
+<div class="shell">
+<div class="top-bar">
+  <div class="wordmark"><a href="index.html" style="color:inherit;text-decoration:none">CraneGenius</a></div>
+  <div class="top-meta"><a href="index.html" style="color:var(--gold);text-decoration:none">Command Center</a> &nbsp;&nbsp; <a href="dashboard.html" style="color:var(--gold);text-decoration:none">Dashboard</a> &nbsp;&nbsp; <a href="signals-kanban.html" style="color:var(--gold);text-decoration:none">68 Signals</a> &nbsp;&nbsp; <a href="projects.html" style="color:var(--gold);text-decoration:none">Project Board</a> &nbsp;&nbsp; <a href="financials.html" style="color:var(--gold);text-decoration:none">Financials</a> &nbsp;&nbsp; <span>Pipeline</span></div>
+</div>
+
+<!-- Finance summary widget -->
+<div style="display:flex;gap:0;background:#0d1525;border:1px solid rgba(201,168,76,0.15);border-radius:8px;overflow:hidden;margin:0 0 24px;">
+  <div style="padding:14px 24px;border-right:1px solid rgba(201,168,76,0.1);">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Current MRR</div>
+    <div data-fin="mrr" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#4caf82;letter-spacing:1px;">--</div>
+  </div>
+  <div style="padding:14px 24px;border-right:1px solid rgba(201,168,76,0.1);">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Pipeline MRR</div>
+    <div data-fin="pipeline_mrr" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#c9a84c;letter-spacing:1px;">--</div>
+  </div>
+  <div style="padding:14px 24px;border-right:1px solid rgba(201,168,76,0.1);">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Monthly Burn</div>
+    <div data-fin="burn" style="font-family:'Bebas Neue',monospace;font-size:28px;color:#e05c5c;letter-spacing:1px;">--</div>
+  </div>
+  <div style="padding:14px 24px;border-right:1px solid rgba(201,168,76,0.1);">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Net Margin</div>
+    <div data-fin="net_margin" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#c9a84c;letter-spacing:1px;">--</div>
+  </div>
+  <div style="padding:14px 24px;flex:1;">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(232,228,216,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Clients</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#e8e4d8;letter-spacing:1px;">
+      <span data-fin="clients_live">-</span> Live / <span data-fin="clients_pending">-</span> Pending
+    </div>
+  </div>
+  <div style="padding:14px 20px;display:flex;align-items:center;">
+    <a href="/command-center/financials.html" style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:#c9a84c;text-decoration:none;border:1px solid rgba(201,168,76,0.3);padding:6px 14px;border-radius:4px;white-space:nowrap;">FULL P&amp;L</a>
+  </div>
+</div>
+
+<div class="section-label">// Pipeline status</div>
+<div id="digest" class="metric-grid"></div>
+
+<div id="lastRun" class="panel">
+  <h3>Last run</h3>
+  <div id="lastRunContent"></div>
+</div>
+
+<div id="perSignal" class="panel">
+  <h3>Per-signal record counts</h3>
+  <div id="perSignalContent"></div>
+</div>
+
+<div id="runbook" class="panel" style="margin-top:24px">
+  <h3>Runbook &amp; schedule</h3>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Run from repo root. Full runbook: <code>docs/mvp_pipeline_runbook.md</code>. Cron example: <code>docs/cron_mvp_pipeline.example</code>.</p>
+  <div style="display:grid;gap:12px;font-size:12px">
+    <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px">
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Run pipeline</span><br>
+      <code style="color:var(--text)">python3 scripts/run_mvp_pipeline.py</code>
+    </div>
+    <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px">
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Refresh this dashboard</span><br>
+      <code style="color:var(--text)">python3 scripts/write_pipeline_dashboard_data.py</code>
+    </div>
+    <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px">
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Schedule daily (cron)</span><br>
+      <code style="color:var(--text);word-break:break-all">0 6 * * * cd /path/to/cranegenius_repo && python3 scripts/run_mvp_pipeline.py >> runs/mvp_pipeline/cron.log 2>&1</code><br>
+      <span style="font-size:11px;color:var(--muted)">Edit path, then <code>crontab -e</code> and paste the line.</span>
+    </div>
+    <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px">
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Slack digest</span><br>
+      Set <code>ACTIONABLE_DIGEST_WEBHOOK_URL</code> in <code>.env</code>; pipeline stage <code>send_actionable_digest</code> posts after each run.
+    </div>
+  </div>
+</div>
+
+<div class="help" id="help">
+  Data is loaded from <code>../runs/mvp_pipeline/dashboard_data.json</code>. Generate it with:<br>
+  <code>python3 scripts/write_pipeline_dashboard_data.py</code><br>
+  If viewing as file://, serve the repo root (e.g. <code>python3 -m http.server 8080</code>) and open <code>http://localhost:8080/command-center/pipeline.html</code>.
+</div>
+</div>
+
+<script src="/config.js" defer></script>
+<script src="supabase-loader.js" defer></script>
+<script>
+(function(){
+  var dataUrl = '../runs/mvp_pipeline/dashboard_data.json';
+  function byId(id){ return document.getElementById(id); }
+
+  function renderSignalTable(sig) {
+    if (!sig || sig.length === 0) {
+      byId('perSignalContent').innerHTML = '<p style="color:var(--muted);font-size:12px">No per-signal data.</p>';
+      return;
+    }
+    var tbl = '<table class="sig-table"><thead><tr><th>Source</th><th>Records</th><th>Empty</th></tr></thead><tbody>';
+    sig.forEach(function(s){
+      var cls = (s.records_returned || 0) > 0 ? 'sig-ok' : 'sig-zero';
+      tbl += '<tr><td>' + (s.source || '') + '</td><td class="' + cls + '">' + (s.records_returned || 0) + '</td><td>' + (s.empty_feed ? 'Yes' : 'No') + '</td></tr>';
+    });
+    tbl += '</tbody></table>';
+    byId('perSignalContent').innerHTML = tbl;
+  }
+
+  function render(data){
+    if (!data || !data.digest) return;
+    var d = data.digest;
+    var c = d.counts || {};
+    var html = '';
+    html += '<div class="metric m-succ"><div class="metric-val">' + (c.success || 0) + '</div><div class="metric-label">Success</div><div class="metric-sub">last ' + (d.n || 7) + ' runs</div></div>';
+    html += '<div class="metric m-fail"><div class="metric-val">' + (c.failed || 0) + '</div><div class="metric-label">Failed</div></div>';
+    html += '<div class="metric m-deg"><div class="metric-val">' + (c.degraded || 0) + '</div><div class="metric-label">Degraded</div></div>';
+    byId('digest').innerHTML = html;
+
+    var lr = data.last_run || {};
+    var status = (lr.status || 'unknown').toLowerCase();
+    var statusCls = status === 'success' ? 'status-success' : (status === 'degraded' ? 'status-degraded' : 'status-failed');
+    var th = lr.signal_threshold || {};
+    byId('lastRunContent').innerHTML =
+      '<p><span class="status-badge ' + statusCls + '">' + status + '</span> &nbsp; <span class="mono">' + (lr.run_id || ', ') + '</span></p>' +
+      '<p style="font-size:11px;color:var(--muted);margin-top:8px">' + (lr.generated_at || '') + '</p>' +
+      (th.reason && th.reason !== 'ok' ? '<p style="font-size:11px;margin-top:6px">Threshold: ' + th.reason + '</p>' : '');
+
+    renderSignalTable(data.per_signal);
+    byId('help').style.display = 'none';
+  }
+
+  // Try Supabase for live signal counts, then fall back to static JSON for everything
+  async function loadLiveSignals() {
+    if (!window.cgSupabase || !cgSupabase.isConfigured()) return null;
+    var rows = await cgSupabase.query('signal_events', { select: 'signal_source' });
+    if (!rows) return null;
+    var counts = {};
+    rows.forEach(function(r) {
+      var src = r.signal_source || 'unknown';
+      counts[src] = (counts[src] || 0) + 1;
+    });
+    return Object.keys(counts).sort().map(function(source) {
+      return { source: source, records_returned: counts[source], empty_feed: false };
+    });
+  }
+
+  (async function() {
+    // Always try static JSON for digest/last_run metrics
+    var staticData = null;
+    try {
+      var r = await fetch(dataUrl);
+      if (r.ok) staticData = await r.json();
+    } catch(e) {}
+
+    if (staticData) {
+      render(staticData);
+    } else {
+      byId('digest').innerHTML = '<div class="metric"><div class="metric-val">, </div><div class="metric-label">No data</div><div class="metric-sub">Run write_pipeline_dashboard_data.py</div></div>';
+      byId('lastRunContent').innerHTML = '<p style="color:var(--muted)">No run summary.</p>';
+    }
+
+    // Overlay live Supabase signal counts if available
+    var liveSignals = await loadLiveSignals();
+    if (liveSignals && liveSignals.length > 0) {
+      renderSignalTable(liveSignals);
+    }
+  })();
+})();
+</script>
+</body>
+</html>

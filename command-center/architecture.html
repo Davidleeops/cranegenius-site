@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraneGenius , System Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080e1a;--bg2:#0d1628;--bg3:#111e35;
+  --gold:#c9a84c;--gold2:#e8c96a;
+  --border:#1e3a5f;--text:#e8f0ff;--muted:#97a8c2;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;--purple:#a855f7;--cyan:#06b6d4;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+.hdr{background:rgba(8,14,26,.97);border-bottom:1px solid var(--border);padding:0 32px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em}
+.hdr-logo span{color:var(--gold)}
+.hdr-nav{display:flex;gap:16px}
+.hdr-nav a{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:color .15s}
+.hdr-nav a:hover{color:var(--gold)}
+
+/* PAGE */
+.page{max-width:1400px;margin:0 auto;padding:40px 32px 80px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:3px;color:var(--text);margin-bottom:6px}
+.page-title span{color:var(--gold)}
+.page-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:40px}
+
+/* SECTION LABEL */
+.sec{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;margin-top:40px;display:flex;align-items:center;gap:10px}
+.sec::before{content:'//';opacity:.4}
+
+/* LAYER DIAGRAM */
+.layers{display:flex;flex-direction:column;gap:3px;margin-bottom:40px}
+.layer{display:grid;align-items:stretch;border:1px solid var(--border);background:var(--bg2);position:relative;transition:border-color .2s}
+.layer:hover{border-color:var(--gold)}
+.layer-num{width:52px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:28px;border-right:1px solid var(--border);flex-shrink:0}
+.layer-body{padding:16px 20px;flex:1}
+.layer-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:4px}
+.layer-desc{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.layer-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:'DM Mono',monospace;font-size:10px;padding:3px 10px;border:1px solid;letter-spacing:.06em}
+.chip.live{border-color:var(--green);color:var(--green)}
+.chip.wip{border-color:var(--gold);color:var(--gold)}
+.chip.blocked{border-color:var(--red);color:var(--red)}
+.chip.data{border-color:var(--blue);color:var(--blue)}
+.chip.ai{border-color:var(--purple);color:var(--purple)}
+.chip.infra{border-color:var(--cyan);color:var(--cyan)}
+.layer-arrow{text-align:center;color:var(--gold);font-size:18px;padding:2px 0;opacity:.5;font-family:'DM Mono',monospace}
+
+/* DATA FLOW GRID */
+.flow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+.flow-box{background:var(--bg2);border:1px solid var(--border);padding:16px}
+.flow-box-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;margin-bottom:8px}
+.flow-box-items{list-style:none}
+.flow-box-items li{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);letter-spacing:.04em}
+.flow-box-items li::before{content:'→ ';color:var(--gold)}
+.flow-box-items li.live::before{color:var(--green);content:'✓ '}
+.flow-box-items li.blocked::before{color:var(--red);content:'✗ '}
+
+/* FUNNEL */
+.funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:32px}
+.funnel-step{background:var(--bg2);padding:20px 16px;text-align:center;position:relative}
+.funnel-step::after{content:'▶';position:absolute;right:-9px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:12px;z-index:2}
+.funnel-step:last-child::after{display:none}
+.f-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);line-height:1}
+.f-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.f-detail{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--text);margin-top:8px;line-height:1.4}
+
+/* TECH STACK TABLE */
+.stack{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.stack-col{background:var(--bg2);border:1px solid var(--border);padding:16px}
+.stack-col-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.stack-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.stack-item-name{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);letter-spacing:.04em}
+.stack-item-role{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)}
+
+/* REVENUE MODEL */
+.rev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+.rev-card{background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--gold);padding:16px}
+.rev-card-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;margin-bottom:4px}
+.rev-card-price{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);line-height:1;margin-bottom:8px}
+.rev-card-desc{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);line-height:1.5}
+.rev-card-status{font-family:'DM Mono',monospace;font-size:9px;margin-top:10px;padding:2px 8px;display:inline-block;border:1px solid}
+
+/* SIGNAL MAP */
+.sig-map{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:32px}
+.sig-node{background:var(--bg2);border:1px solid var(--border);padding:12px;text-align:center}
+.sig-node.live{border-color:var(--green)}
+.sig-node.blocked{border-color:rgba(239,68,68,.3)}
+.sig-city{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px}
+.sig-count{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);line-height:1}
+.sig-status{font-family:'DM Mono',monospace;font-size:9px;margin-top:4px}
+.sig-status.ok{color:var(--green)}
+.sig-status.fail{color:var(--red)}
+
+/* EMAIL PLAN */
+.email-plan{background:var(--bg2);border:1px solid var(--border);padding:24px;margin-bottom:32px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+.ep-col-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.ep-item{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ep-item span{color:var(--text)}
+
+/* WIRING DIAGRAM */
+.wire{display:grid;grid-template-columns:200px 1fr 200px;gap:0;border:1px solid var(--border);margin-bottom:32px;background:var(--border)}
+.wire-col{background:var(--bg2);padding:16px}
+.wire-center{background:var(--bg3);padding:16px;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.wire-col-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--gold);margin-bottom:10px}
+.wire-item{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);padding:3px 0;letter-spacing:.04em}
+.wire-item.active{color:var(--green)}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .hdr{padding:0 16px}
+  .hdr-nav{gap:10px}
+  .page{padding:20px 16px 60px}
+  .page-title{font-size:32px}
+
+  .layers .layer{grid-template-columns:40px 1fr !important}
+  .layer-num{width:40px;font-size:20px}
+  .layer-body{padding:12px}
+  .layer-title{font-size:15px}
+  .layer-desc{font-size:12px}
+  .layer-chips{gap:4px}
+  .chip{font-size:9px;padding:2px 7px}
+
+  .funnel{grid-template-columns:1fr 1fr;gap:1px}
+  .funnel-step::after{display:none}
+  .f-num{font-size:24px}
+  .f-label{font-size:9px}
+  .f-detail{font-size:10px}
+
+  .sig-map{grid-template-columns:repeat(2,1fr);gap:6px}
+  .sig-count{font-size:22px}
+
+  .stack{grid-template-columns:1fr}
+
+  .rev-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .rev-card-price{font-size:22px}
+
+  .email-plan{grid-template-columns:1fr;gap:16px}
+
+  .wire{grid-template-columns:1fr !important;gap:0}
+  .wire-center{border-left:none;border-right:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .wire-center > div > div{grid-template-columns:1fr !important}
+
+  .flow-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .flow-box-title{font-size:13px}
+
+  .sec{font-size:9px}
+}
+@media(max-width:480px){
+  .rev-grid{grid-template-columns:1fr}
+  .flow-grid{grid-template-columns:1fr}
+  .funnel{grid-template-columns:1fr}
+  .sig-map{grid-template-columns:repeat(2,1fr)}
+  .hdr-nav a:not(:first-child){display:none}
+  .page-title{font-size:26px;letter-spacing:1px}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">Crane<span>Genius</span></div>
+  <nav class="hdr-nav">
+    <a href="index.html">← Command Center</a>
+    <a href="pipeline.html">Pipeline</a>
+    <a href="predictive-analytics.html">Predictive</a>
+  </nav>
+</div>
+
+<div class="page">
+  <div class="page-title">System <span>Architecture</span></div>
+  <div class="page-sub">How CraneGenius works , full stack · data flow · revenue model · outreach plan</div>
+
+  <!-- LAYER DIAGRAM -->
+  <div class="sec">The 6-Layer Stack</div>
+  <div class="layers">
+
+    <div class="layer" style="grid-template-columns:52px 1fr">
+      <div class="layer-num" style="color:var(--blue)">1</div>
+      <div class="layer-body">
+        <div class="layer-title" style="color:var(--blue)">Data Ingestion , Public Signal Sources</div>
+        <div class="layer-desc">We pull from 68+ public data sources every weekday. Permit filings, EDGAR 10-K filings, BLM mining claims, utility interconnection queues, WSDOT/Caltrans infrastructure projects, zoning variances, pre-bid attendance rosters, federal earmarks. Every row becomes a signal candidate.</div>
+        <div class="layer-chips">
+          <span class="chip live">NYC Socrata</span>
+          <span class="chip live">SF Socrata</span>
+          <span class="chip live">Seattle Socrata</span>
+          <span class="chip live">EDGAR SEC</span>
+          <span class="chip live">BLM Mining</span>
+          <span class="chip live">WSDOT/Caltrans</span>
+          <span class="chip live">Vancouver BC</span>
+          <span class="chip live">NOAA Weather</span>
+          <span class="chip live">Utility IRP</span>
+          <span class="chip wip">LA (403 fix pending)</span>
+          <span class="chip wip">Portland (DNS fix pending)</span>
+          <span class="chip wip">Las Vegas (DNS fix pending)</span>
+        </div>
+      </div>
+    </div>
+    <div class="layer-arrow">↓ 1,336 raw signals →</div>
+
+    <div class="layer" style="grid-template-columns:52px 1fr">
+      <div class="layer-num" style="color:var(--purple)">2</div>
+      <div class="layer-body">
+        <div class="layer-title" style="color:var(--purple)">AI Normalization + Scoring</div>
+        <div class="layer-desc">Python pipeline normalizes every signal into a canonical schema. Claude API resolves ambiguous company domains. A scoring agent assigns delay_pressure, constraint_score, and probability scores. Residential noise is filtered. Only commercial/industrial permits with crane potential pass through.</div>
+        <div class="layer-chips">
+          <span class="chip ai">Claude API , domain resolution</span>
+          <span class="chip ai">Claude API , email writing</span>
+          <span class="chip live">Python 8-stage pipeline</span>
+          <span class="chip live">SQLite database</span>
+          <span class="chip live">Crane relevance filter</span>
+          <span class="chip live">Value threshold ($500K+ CA / $1M+ WA)</span>
+          <span class="chip live">MillionVerifier email check</span>
+        </div>
+      </div>
+    </div>
+    <div class="layer-arrow">↓ scored + filtered →</div>
+
+    <div class="layer" style="grid-template-columns:52px 1fr">
+      <div class="layer-num" style="color:var(--cyan)">3</div>
+      <div class="layer-body">
+        <div class="layer-title" style="color:var(--cyan)">Contact Enrichment</div>
+        <div class="layer-desc">From permit address → contractor company name → domain guess → contact page scrape → email pattern generation → MillionVerifier. Currently 367 companies with names, 74 verified emails from 50-company sample. Google CSE people search (blocked) would add person names + titles.</div>
+        <div class="layer-chips">
+          <span class="chip live">Socrata contractor lookup</span>
+          <span class="chip live">Domain slug resolver</span>
+          <span class="chip live">Contact page scraper</span>
+          <span class="chip live">Email pattern generator</span>
+          <span class="chip live">MillionVerifier API</span>
+          <span class="chip blocked">Google CSE (403 , fix needed)</span>
+          <span class="chip wip">Apollo API (key needed)</span>
+        </div>
+      </div>
+    </div>
+    <div class="layer-arrow">↓ verified contacts →</div>
+
+    <div class="layer" style="grid-template-columns:52px 1fr">
+      <div class="layer-num" style="color:var(--gold)">4</div>
+      <div class="layer-body">
+        <div class="layer-title" style="color:var(--gold)">Predictive Analytics , Catch-Up Radar</div>
+        <div class="layer-desc">GitHub Actions runs twice daily. Signals are ranked by delay_pressure + constraint_score + weather enrichment + inspection backlog. Top projects go to Google Sheets (3 tabs: Merged, EarlySignals, Call_List) and a Slack digest to #catch-up-radar. This is the daily intel product.</div>
+        <div class="layer-chips">
+          <span class="chip live">GitHub Actions (auto-trigger on push)</span>
+          <span class="chip live">Google Sheets , Catch-Up Radar</span>
+          <span class="chip live">Slack #catch-up-radar digest</span>
+          <span class="chip live">NOAA weather enrichment</span>
+          <span class="chip live">Inspection backlog scoring</span>
+          <span class="chip live">6am + 6pm UTC weekday schedule</span>
+        </div>
+      </div>
+    </div>
+    <div class="layer-arrow">↓ ranked leads →</div>
+
+    <div class="layer" style="grid-template-columns:52px 1fr">
+      <div class="layer-num" style="color:var(--green)">5</div>
+      <div class="layer-body">
+        <div class="layer-title" style="color:var(--green)">Outreach Engine</div>
+        <div class="layer-desc">Permit-referenced cold email: hook with exact permit address → pain point → crane shortlist offer → free line explaining model → binary CTA. PlusVibe runs the sequences. RISKCLARITY sender pool has 100 rotating accounts. Infrastructure already warmed , ready for 1,000/day Monday.</div>
+        <div class="layer-chips">
+          <span class="chip live">PlusVibe sequences</span>
+          <span class="chip live">RISKCLARITY 100-account sender pool</span>
+          <span class="chip live">204 data center contacts active</span>
+          <span class="chip live">Permit-address email templates</span>
+          <span class="chip wip">Full contractor list (run this week)</span>
+          <span class="chip wip">5,000 target list (build Monday)</span>
+        </div>
+      </div>
+    </div>
+    <div class="layer-arrow">↓ replies + leads →</div>
+
+    <div class="layer" style="grid-template-columns:52px 1fr">
+      <div class="layer-num" style="color:var(--red)">6</div>
+      <div class="layer-body">
+        <div class="layer-title" style="color:var(--red)">Revenue Conversion</div>
+        <div class="layer-desc">Crane companies pay retainer for fractional remote sales. GCs pay per-deal brokerage commission. Data centers sign CAA subscriptions. Acquisitions targets exit via structured seller note + ghost equity. First close: Leavitt Cranes (Erick) , $2,500/mo retainer. Call not yet booked.</div>
+        <div class="layer-chips">
+          <span class="chip wip">Retainer , $2,500/mo (Leavitt target)</span>
+          <span class="chip wip">Deal brokerage , 3–5% commission</span>
+          <span class="chip blocked">CAA subscription (contract not built)</span>
+          <span class="chip blocked">Acquisition roll-up (Month 4+)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FUNNEL -->
+  <div class="sec">Revenue Funnel by Buyer</div>
+  <div class="funnel">
+    <div class="funnel-step">
+      <div class="f-num">1,336</div>
+      <div class="f-label">Signals</div>
+      <div class="f-detail">Active permits + projects across WA, CA, NV, NY, BC</div>
+    </div>
+    <div class="funnel-step">
+      <div class="f-num">367</div>
+      <div class="f-label">Companies</div>
+      <div class="f-detail">Contractor names matched to permit addresses</div>
+    </div>
+    <div class="funnel-step">
+      <div class="f-num">74+</div>
+      <div class="f-label">Verified Emails</div>
+      <div class="f-detail">Valid + catchall from 50-company sample. Full run = ~1,500 est.</div>
+    </div>
+    <div class="funnel-step">
+      <div class="f-num">1,000</div>
+      <div class="f-label">Outreach/Day</div>
+      <div class="f-detail">RISKCLARITY infrastructure warmed. Starts Monday.</div>
+    </div>
+    <div class="funnel-step">
+      <div class="f-num">$2,500</div>
+      <div class="f-label">First MRR</div>
+      <div class="f-detail">Leavitt Cranes retainer. One call away.</div>
+    </div>
+  </div>
+
+  <!-- SIGNAL MAP -->
+  <div class="sec">Signal Coverage Map</div>
+  <div class="sig-map">
+    <div class="sig-node live"><div class="sig-city">New York</div><div class="sig-count">475</div><div class="sig-status ok">✓ LIVE + CONTRACTORS</div></div>
+    <div class="sig-node live"><div class="sig-city">San Francisco</div><div class="sig-count">96</div><div class="sig-status ok">✓ LIVE + CONTRACTORS</div></div>
+    <div class="sig-node live"><div class="sig-city">Seattle</div><div class="sig-count">130</div><div class="sig-status ok">✓ LIVE + VALUES</div></div>
+    <div class="sig-node live"><div class="sig-city">Vancouver BC</div><div class="sig-count">74</div><div class="sig-status ok">✓ $145M TOWER</div></div>
+    <div class="sig-node live"><div class="sig-city">BC Infrastructure</div><div class="sig-count">200</div><div class="sig-status ok">✓ $50M+ PROJECTS</div></div>
+    <div class="sig-node live"><div class="sig-city">Nevada</div><div class="sig-count">12</div><div class="sig-status ok">✓ GOOGLE/SWITCH DC</div></div>
+    <div class="sig-node live"><div class="sig-city">Virginia/NC</div><div class="sig-count">251</div><div class="sig-status ok">✓ DATA CENTERS</div></div>
+    <div class="sig-node live"><div class="sig-city">BLM Mining</div><div class="sig-count">16</div><div class="sig-status ok">✓ BARRICK/NEWMONT</div></div>
+    <div class="sig-node blocked"><div class="sig-city">Los Angeles</div><div class="sig-count">0</div><div class="sig-status fail">✗ 403 BLOCKED</div></div>
+    <div class="sig-node blocked"><div class="sig-city">Portland</div><div class="sig-count">0</div><div class="sig-status fail">✗ DNS FAIL</div></div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div class="sec">Full Tech Stack</div>
+  <div class="stack">
+    <div class="stack-col">
+      <div class="stack-col-title">Data & Pipeline</div>
+      <div class="stack-item"><span class="stack-item-name">Python 3.11</span><span class="stack-item-role">8-stage pipeline</span></div>
+      <div class="stack-item"><span class="stack-item-name">SQLite</span><span class="stack-item-role">cranegenius_ci.db</span></div>
+      <div class="stack-item"><span class="stack-item-name">Socrata APIs</span><span class="stack-item-role">NYC/SF/Seattle/Chicago</span></div>
+      <div class="stack-item"><span class="stack-item-name">SEC EDGAR API</span><span class="stack-item-role">10-K capex signals</span></div>
+      <div class="stack-item"><span class="stack-item-name">BLM ArcGIS</span><span class="stack-item-role">Mining claims</span></div>
+      <div class="stack-item"><span class="stack-item-name">NOAA API</span><span class="stack-item-role">Weather disruptions</span></div>
+      <div class="stack-item"><span class="stack-item-name">SerpAPI</span><span class="stack-item-role">Domain enrichment</span></div>
+      <div class="stack-item"><span class="stack-item-name">MillionVerifier</span><span class="stack-item-role">Email verification</span></div>
+      <div class="stack-item"><span class="stack-item-name">GitHub Actions</span><span class="stack-item-role">Auto-pipeline scheduler</span></div>
+      <div class="stack-item"><span class="stack-item-name">Google Sheets API</span><span class="stack-item-role">Catch-Up Radar output</span></div>
+    </div>
+    <div class="stack-col">
+      <div class="stack-col-title">AI Layer</div>
+      <div class="stack-item"><span class="stack-item-name">Claude API (Anthropic)</span><span class="stack-item-role">Domain resolution + email copy</span></div>
+      <div class="stack-item"><span class="stack-item-name">Claude (this session)</span><span class="stack-item-role">Strategy + frontend + coordination</span></div>
+      <div class="stack-item"><span class="stack-item-name">Codex (OpenAI)</span><span class="stack-item-role">Backend pipeline builds</span></div>
+      <div class="stack-item"><span class="stack-item-name">Cursor</span><span class="stack-item-role">Local repo execution</span></div>
+      <div class="stack-item"><span class="stack-item-name">ChatGPT</span><span class="stack-item-role">Coordination layer</span></div>
+      <div class="stack-item"><span class="stack-item-name">Google CSE</span><span class="stack-item-role">People search (fix pending)</span></div>
+      <div class="stack-item"><span class="stack-item-name">Scoring agents</span><span class="stack-item-role">Signal Builder / Validator / Repair</span></div>
+      <div class="stack-item"><span class="stack-item-name">Entity resolver</span><span class="stack-item-role">Company → domain matching</span></div>
+    </div>
+    <div class="stack-col">
+      <div class="stack-col-title">Frontend & Outreach</div>
+      <div class="stack-item"><span class="stack-item-name">GitHub Pages</span><span class="stack-item-role">cranegenius.com hosting</span></div>
+      <div class="stack-item"><span class="stack-item-name">GoDaddy DNS</span><span class="stack-item-role">Domain management</span></div>
+      <div class="stack-item"><span class="stack-item-name">Formspree</span><span class="stack-item-role">Lead capture (mgoldjjb)</span></div>
+      <div class="stack-item"><span class="stack-item-name">Bebas Neue / DM Sans</span><span class="stack-item-role">Design system fonts</span></div>
+      <div class="stack-item"><span class="stack-item-name">PlusVibe</span><span class="stack-item-role">Email sequencer</span></div>
+      <div class="stack-item"><span class="stack-item-name">RISKCLARITY</span><span class="stack-item-role">100-account sender pool</span></div>
+      <div class="stack-item"><span class="stack-item-name">Slack</span><span class="stack-item-role">#catch-up-radar digest</span></div>
+      <div class="stack-item"><span class="stack-item-name">Google Cloud</span><span class="stack-item-role">Sheets API + Custom Search</span></div>
+      <div class="stack-item"><span class="stack-item-name">Calendly</span><span class="stack-item-role">calendly.com/lemuel-lee-jr/15min</span></div>
+      <div class="stack-item"><span class="stack-item-name">Apollo.io</span><span class="stack-item-role">7,800+ contact DB (import)</span></div>
+    </div>
+  </div>
+
+  <!-- REVENUE MODEL -->
+  <div class="sec">Revenue Model , 4 Streams</div>
+  <div class="rev-grid">
+    <div class="rev-card">
+      <div class="rev-card-name">Fractional Retainer</div>
+      <div class="rev-card-price">$2,500<span style="font-size:14px;color:var(--muted)">/mo</span></div>
+      <div class="rev-card-desc">We run outbound for crane companies. They pay monthly. We bring verified GC leads from active permits. No close = no renewal.</div>
+      <div class="rev-card-status" style="color:var(--gold);border-color:var(--gold)">TARGET: LEAVITT (ERICK)</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-name">Deal Brokerage</div>
+      <div class="rev-card-price">3–5%<span style="font-size:14px;color:var(--muted)"> comm.</span></div>
+      <div class="rev-card-desc">We source, vet, and close equipment deals. Buyer pays nothing. We get paid by seller. Ascentium Capital financing arranged at no extra cost.</div>
+      <div class="rev-card-status" style="color:var(--blue);border-color:var(--blue)">FUNNEL: MARKETPLACE</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-name">CAA Subscription</div>
+      <div class="rev-card-price">$5K–$25K<span style="font-size:14px;color:var(--muted)">/mo</span></div>
+      <div class="rev-card-desc">Crane Access Agreement for data center developers. SLA-backed availability, guaranteed response, priority fleet access. Modeled after United Rentals fleet contracts.</div>
+      <div class="rev-card-status" style="color:var(--red);border-color:var(--red)">CONTRACT NOT BUILT YET</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-name">Acquisition Roll-Up</div>
+      <div class="rev-card-price">3–5x<span style="font-size:14px;color:var(--muted)"> EBITDA</span></div>
+      <div class="rev-card-desc">Buy 30–50 owner-operated crane companies. Seller stays as operator. Ghost equity on platform exit at 8–15x via Salesforce / Procore / PE strategic.</div>
+      <div class="rev-card-status" style="color:var(--muted);border-color:var(--border)">MONTH 4+ PRIORITY</div>
+    </div>
+  </div>
+
+  <!-- EMAIL PLAN -->
+  <div class="sec">Monday Email Blitz , 1,000/Day Target</div>
+  <div class="email-plan">
+    <div>
+      <div class="ep-col-title">Infrastructure (Ready)</div>
+      <div class="ep-item"><span>RISKCLARITY</span> , 100 rotating sender accounts</div>
+      <div class="ep-item"><span>Already warmed</span> , inbox placement proven</div>
+      <div class="ep-item"><span>PlusVibe</span> , sequence platform wired</div>
+      <div class="ep-item"><span>1,000/day</span> capacity confirmed</div>
+      <div class="ep-item"><span>5,000+ targets</span> goal for Week 1</div>
+    </div>
+    <div>
+      <div class="ep-col-title">Target List (Build This Week)</div>
+      <div class="ep-item"><span>367 companies</span> , NYC + SF permit contractors</div>
+      <div class="ep-item"><span>Run enrich (no limit)</span> , est. ~1,500 emails</div>
+      <div class="ep-item"><span>Apollo $5/1K</span> , bridge gap on PNW targets</div>
+      <div class="ep-item"><span>Canada GCs</span> , Vancouver $145M tower + BC infra</div>
+      <div class="ep-item"><span>NV data center</span> , Google/Switch/Panasonic</div>
+    </div>
+    <div>
+      <div class="ep-col-title">Email Formula (No Deviation)</div>
+      <div class="ep-item"><span>Hook:</span> exact permit address + project type</div>
+      <div class="ep-item"><span>Pain:</span> one sentence , crane sourcing delays kill schedules</div>
+      <div class="ep-item"><span>Offer:</span> same-day crane shortlist for their job</div>
+      <div class="ep-item"><span>Free line:</span> "We get paid by crane companies, not GCs"</div>
+      <div class="ep-item"><span>CTA:</span> "Reply yes" , binary, no friction</div>
+    </div>
+  </div>
+
+  <!-- WIRING DIAGRAM -->
+  <div class="sec">System Wiring , What Talks to What</div>
+  <div class="wire">
+    <div class="wire-col">
+      <div class="wire-col-title">INPUTS</div>
+      <div class="wire-item active">50+ Socrata APIs</div>
+      <div class="wire-item active">SEC EDGAR</div>
+      <div class="wire-item active">BLM ArcGIS</div>
+      <div class="wire-item active">NOAA Weather</div>
+      <div class="wire-item active">WSDOT scraper</div>
+      <div class="wire-item active">Vancouver Opendatasoft</div>
+      <div class="wire-item active">BC Infrastructure CSV</div>
+      <div class="wire-item active">Utility IRP feeds</div>
+      <div class="wire-item" style="color:var(--red)">LA (blocked)</div>
+      <div class="wire-item" style="color:var(--red)">Portland (DNS fail)</div>
+    </div>
+    <div class="wire-center">
+      <div class="wire-col-title" style="text-align:center">PIPELINE (Python · GitHub Actions)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);margin-bottom:6px">NORMALIZE</div>
+          <div class="wire-item active">scrape_permits_public.py</div>
+          <div class="wire-item active">parse_normalize.py</div>
+          <div class="wire-item active">signal_scoring.py</div>
+          <div class="wire-item active">crane relevance filter</div>
+        </div>
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);margin-bottom:6px">ENRICH</div>
+          <div class="wire-item active">enrich_permit_contractors</div>
+          <div class="wire-item active">domain_enricher_claude</div>
+          <div class="wire-item active">enrich_contacts_from...</div>
+          <div class="wire-item active">MillionVerifier API</div>
+        </div>
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);margin-bottom:6px">OUTPUT</div>
+          <div class="wire-item active">early_signals.json</div>
+          <div class="wire-item active">catch_up_rank.json</div>
+          <div class="wire-item active">enriched_contacts.json</div>
+          <div class="wire-item active">catch_up_sheet.csv</div>
+        </div>
+      </div>
+    </div>
+    <div class="wire-col">
+      <div class="wire-col-title">OUTPUTS</div>
+      <div class="wire-item active">Google Sheets (3 tabs)</div>
+      <div class="wire-item active">Slack #catch-up-radar</div>
+      <div class="wire-item active">Command Center dashboard</div>
+      <div class="wire-item active">PlusVibe sequences</div>
+      <div class="wire-item active">cranegenius.com/opportunities</div>
+      <div class="wire-item active">cranegenius.com/data-centers</div>
+      <div class="wire-item active">Formspree lead capture</div>
+      <div class="wire-item active">Calendly booking</div>
+      <div class="wire-item" style="color:var(--gold)">Leavitt pitch page</div>
+      <div class="wire-item" style="color:var(--red)">CAA contract (not built)</div>
+    </div>
+  </div>
+
+  <!-- PAGES LIVE -->
+  <div class="sec">Site Pages , Live</div>
+  <div class="flow-grid">
+    <div class="flow-box">
+      <div class="flow-box-title" style="color:var(--green)">Revenue Pages</div>
+      <ul class="flow-box-items">
+        <li class="live">/partner/leavitt , Erick pitch</li>
+        <li class="live">/partner , crane company partner</li>
+        <li class="live">/newsletter , $49/$149/$249 tiers</li>
+        <li class="live">/sell-your-company , acquisition</li>
+        <li class="live">/acquisitions , roll-up pitch</li>
+        <li class="live">/lp/crane-co , cold outreach LP</li>
+      </ul>
+    </div>
+    <div class="flow-box">
+      <div class="flow-box-title" style="color:var(--blue)">Product Pages</div>
+      <ul class="flow-box-items">
+        <li class="live">/ , crane company marketing (bridge to /estimate/)</li>
+        <li class="live">/estimate/ , lift estimator (6-step wizard)</li>
+        <li class="live">/data-centers , AI lift planner</li>
+        <li class="live">/opportunities , permit intel feed</li>
+        <li class="live">/marketplace , equipment listings</li>
+        <li class="live">/directory , supplier directory</li>
+        <li class="live">/education , 535 Q&A question bank</li>
+      </ul>
+    </div>
+    <div class="flow-box">
+      <div class="flow-box-title" style="color:var(--purple)">Intel Pages</div>
+      <ul class="flow-box-items">
+        <li class="live">/data-centers/lift-matrix</li>
+        <li class="live">/command-center (password)</li>
+        <li class="live">/command-center/predictive-analytics</li>
+        <li class="live">/command-center/pipeline</li>
+        <li class="live">/command-center/signals-kanban</li>
+        <li class="live">/capex-layer , CapexLayer brand</li>
+      </ul>
+    </div>
+    <div class="flow-box">
+      <div class="flow-box-title" style="color:var(--gold)">New Assets (This Week)</div>
+      <ul class="flow-box-items">
+        <li class="live">/command-center/architecture ← THIS PAGE</li>
+        <li class="live">Erick video (record tomorrow)</li>
+        <li class="live">Masterclass video (record tomorrow)</li>
+        <li class="live">1,000/day cold email (starts Monday)</li>
+        <li class="blocked">CAA contract template</li>
+        <li class="blocked">Google CSE people search</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

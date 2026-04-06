@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraneGenius — Financials</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080e1a; --bg2:#0d1525; --bg3:#111d30;
+    --border:rgba(201,168,76,0.15); --border-bright:rgba(201,168,76,0.4);
+    --gold:#c9a84c; --gold-dim:rgba(201,168,76,0.6); --gold-glow:rgba(201,168,76,0.06);
+    --text:#e8e4d8; --text-dim:rgba(232,228,216,0.5); --text-muted:rgba(232,228,216,0.3);
+    --green:#4caf82; --green-dim:rgba(76,175,130,0.15);
+    --red:#e05c5c; --red-dim:rgba(224,92,92,0.12);
+    --blue:#4a8fcb; --blue-dim:rgba(74,143,203,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;}
+
+  /* NAV */
+  .nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;height:52px;position:sticky;top:0;z-index:100;gap:0;}
+  .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:2px;margin-right:32px;text-decoration:none;}
+  .nav-links{display:flex;gap:0;flex:1;}
+  .nav-link{color:var(--text-dim);text-decoration:none;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:0 16px;height:52px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all 0.2s;}
+  .nav-link:hover{color:var(--text);}
+  .nav-link.active{color:var(--gold);border-bottom-color:var(--gold);}
+  .nav-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;}
+  .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+  /* LAYOUT */
+  .main{padding:32px;max-width:1400px;}
+  .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;}
+  .page-title{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);letter-spacing:3px;line-height:1;}
+  .page-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-top:6px;}
+  .last-upd{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);text-align:right;line-height:1.6;}
+
+  /* LOADING */
+  .loading{display:flex;align-items:center;justify-content:center;height:200px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);letter-spacing:2px;}
+  .error-banner{background:var(--red-dim);border:1px solid var(--red);border-radius:6px;padding:12px 20px;font-family:'DM Mono',monospace;font-size:12px;color:var(--red);margin-bottom:20px;}
+
+  /* INVESTOR BANNER */
+  .inv-banner{background:linear-gradient(90deg,rgba(201,168,76,0.08),rgba(201,168,76,0.03));border:1px solid var(--border-bright);border-radius:8px;padding:16px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;}
+  .inv-left{display:flex;align-items:center;gap:12px;}
+  .inv-icon{width:36px;height:36px;background:rgba(201,168,76,0.12);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .inv-text h3{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold);}
+  .inv-text p{font-size:12px;color:var(--text-dim);margin-top:2px;}
+  .inv-metrics{display:flex;gap:32px;}
+  .inv-metric .iml{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;}
+  .inv-metric .imv{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1.1;}
+  .imv.gold{color:var(--gold);} .imv.green{color:var(--green);}
+
+  /* MRR CARDS */
+  .mrr-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+  .mrr-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px 24px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+  .mrr-card:hover{border-color:var(--border-bright);}
+  .mrr-card.t-green{border-top:2px solid var(--green);}
+  .mrr-card.t-gold{border-top:2px solid var(--gold);}
+  .mrr-card.t-blue{border-top:2px solid var(--blue);}
+  .mrr-card.t-dim{border-top:2px solid var(--text-muted);}
+  .mrr-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+  .mrr-val{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:1px;line-height:1;}
+  .mrr-val.green{color:var(--green);} .mrr-val.gold{color:var(--gold);} .mrr-val.blue{color:var(--blue);}
+  .mrr-delta{font-family:'DM Mono',monospace;font-size:11px;margin-top:6px;color:var(--text-muted);}
+  .mrr-delta.up{color:var(--green);} .mrr-delta.pending{color:var(--gold-dim);}
+  .badge{position:absolute;top:14px;right:14px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:3px;}
+  .badge-live{background:var(--green-dim);color:var(--green);}
+  .badge-pending{background:rgba(201,168,76,0.1);color:var(--gold);}
+  .badge-target{background:var(--blue-dim);color:var(--blue);}
+
+  /* SECTION */
+  .section{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:24px;overflow:hidden;}
+  .sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--bg3);}
+  .sec-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:2px;}
+  .sec-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;}
+
+  /* P&L TABLE */
+  .pl-table{width:100%;border-collapse:collapse;}
+  .pl-table th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:12px 24px;text-align:right;border-bottom:1px solid var(--border);background:var(--bg3);}
+  .pl-table th:first-child{text-align:left;}
+  .pl-table td{padding:11px 24px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text);text-align:right;border-bottom:1px solid rgba(201,168,76,0.05);}
+  .pl-table td:first-child{text-align:left;font-family:'DM Sans',sans-serif;}
+  .pl-table tr:last-child td{border-bottom:none;}
+  .pl-table tr:hover td{background:var(--gold-glow);}
+  .pl-table td.note{font-size:11px;color:var(--text-dim);}
+  .grp-hdr td{font-family:'Bebas Neue',sans-serif !important;font-size:13px !important;letter-spacing:2px;color:var(--gold-dim) !important;background:var(--bg3);padding-top:16px !important;padding-bottom:8px !important;}
+  .row-total td{border-top:1px solid var(--border-bright);border-bottom:1px solid var(--border) !important;background:rgba(201,168,76,0.04);}
+  .row-total td:first-child{font-family:'DM Mono',monospace !important;font-size:12px !important;letter-spacing:1px;color:var(--gold) !important;}
+  .row-net td{border-top:2px solid var(--gold);background:rgba(201,168,76,0.06);}
+  .row-net td:first-child{font-family:'Bebas Neue',sans-serif !important;font-size:15px !important;letter-spacing:2px;color:var(--gold) !important;}
+  .vg{color:var(--green) !important;} .vr{color:var(--red) !important;} .vo{color:var(--gold) !important;} .vd{color:var(--text-dim) !important;} .vp{color:var(--gold-dim) !important;font-style:italic;}
+
+  /* CLIENT TABLE */
+  .client-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;flex-shrink:0;}
+  .dl{background:var(--green);} .dp{background:var(--gold);} .dt{background:var(--blue);}
+
+  /* SCENARIO */
+  .scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);}
+  .scen-col{padding:24px;border-right:1px solid var(--border);}
+  .scen-col:last-child{border-right:none;}
+  .scen-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;}
+  .scen-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:16px;}
+  .scen-name.base{color:var(--text);} .scen-name.upside{color:var(--green);} .scen-name.stretch{color:var(--gold);}
+  .scen-mrr{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;margin-bottom:4px;}
+  .scen-mrr.base{color:var(--text);} .scen-mrr.upside{color:var(--green);} .scen-mrr.stretch{color:var(--gold);}
+  .scen-period{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;margin-bottom:20px;}
+  .scen-line{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(201,168,76,0.06);font-family:'DM Mono',monospace;font-size:11px;}
+  .scen-line:last-child{border-bottom:none;}
+  .scen-line .sl{color:var(--text-dim);} .scen-line .sv{color:var(--text);}
+  .scen-line .sv.g{color:var(--green);} .scen-line .sv.o{color:var(--gold);} .scen-line .sv.r{color:var(--red);}
+
+  /* RUNWAY */
+  .runway-wrap{padding:0 24px 24px;}
+  .rw-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;margin-top:18px;}
+  .rw-bar{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;border:1px solid var(--border);}
+  .rw-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+  .f-green{background:var(--green);} .f-gold{background:var(--gold);}
+  .rw-info{display:flex;justify-content:space-between;margin-top:4px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);}
+
+  /* EDIT STRIP */
+  .edit-strip{display:flex;align-items:center;gap:12px;padding:16px 24px;border-top:1px solid var(--border);background:var(--bg3);flex-wrap:wrap;}
+  .edit-strip label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+  .ef{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:6px 10px;border-radius:4px;width:110px;transition:border-color 0.2s;}
+  .ef:focus{outline:none;border-color:var(--gold);}
+  .btn{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;padding:7px 20px;border-radius:4px;cursor:pointer;border:none;transition:all 0.2s;}
+  .btn-gold{background:var(--gold);color:var(--bg);}
+  .btn-gold:hover{background:#d4b55a;}
+  .btn-out{background:transparent;color:var(--gold);border:1px solid var(--border-bright);}
+  .btn-out:hover{background:var(--gold-glow);}
+
+  @media(max-width:900px){.mrr-row{grid-template-columns:repeat(2,1fr);}.scenario-grid{grid-template-columns:1fr;}.inv-metrics{display:none;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/command-center.html" class="nav-logo">CRANEGENIUS</a>
+  <div class="nav-links">
+    <a href="/command-center/dashboard.html" class="nav-link">Dashboard</a>
+    <a href="/command-center/pipeline.html" class="nav-link">Pipeline</a>
+    <a href="/command-center/signals-kanban.html" class="nav-link">Signals</a>
+    <a href="/command-center/predictive-analytics.html" class="nav-link">Predictive</a>
+    <a href="/command-center/financials.html" class="nav-link active">Financials</a>
+    <a href="/command-center/projects.html" class="nav-link">Projects</a>
+  </div>
+  <div class="nav-status"><span class="dot"></span>LIVE &bull; <span id="nav-period"></span></div>
+</nav>
+
+<div class="main" id="app">
+  <div class="loading" id="loading">LOADING FINANCIAL DATA...</div>
+</div>
+
+<script>
+const fmt = n => '$' + Number(n).toLocaleString();
+const pct = n => n + '%';
+const sign = n => n >= 0 ? fmt(n) : '-' + fmt(Math.abs(n));
+
+function statusDotClass(s) {
+  if (s === 'live') return 'dl';
+  if (s === 'pending') return 'dp';
+  return 'dt';
+}
+function statusColor(s) {
+  if (s === 'live') return 'var(--green)';
+  if (s === 'pending') return 'var(--gold)';
+  return 'var(--blue)';
+}
+function scenClass(id) {
+  if (id === 'upside') return 'upside';
+  if (id === 'stretch') return 'stretch';
+  return 'base';
+}
+
+function computeTotals(f) {
+  const cogs = f.costs.cogs.reduce((s, r) => s + r.amount, 0);
+  const opex = f.costs.opex.reduce((s, r) => s + r.amount, 0);
+  const burn = cogs + opex;
+  const mrr = f.revenue.current_mrr;
+  const gross = mrr - cogs;
+  const net = mrr - burn;
+  const grossMargin = mrr > 0 ? Math.round((gross / mrr) * 100) : 0;
+  const netMargin = mrr > 0 ? Math.round((net / mrr) * 100) : 0;
+  return { cogs, opex, burn, gross, net, grossMargin, netMargin };
+}
+
+function render(f) {
+  const t = computeTotals(f);
+  const mrr = f.revenue.current_mrr;
+  const target90 = f.revenue.target_mrr_90d;
+  const pipelineOpps = Array.isArray(f.revenue.pipeline_opportunities)
+    ? f.revenue.pipeline_opportunities
+    : [];
+  const oppUnweighted = pipelineOpps.reduce((sum, opp) => sum + (Number(opp?.mrr) || 0), 0);
+  const oppWeighted = pipelineOpps.reduce((sum, opp) => {
+    if (Number.isFinite(Number(opp?.weighted_mrr))) {
+      return sum + Number(opp.weighted_mrr);
+    }
+    const m = Number(opp?.mrr) || 0;
+    const p = Number(opp?.probability_pct);
+    return sum + (Number.isFinite(p) ? m * (p / 100) : 0);
+  }, 0);
+  const pipelineUnweighted = Number.isFinite(Number(f.revenue.pipeline_mrr))
+    ? Number(f.revenue.pipeline_mrr)
+    : oppUnweighted;
+  const pipelineWeighted = Number.isFinite(Number(f.revenue.pipeline_mrr_weighted))
+    ? Number(f.revenue.pipeline_mrr_weighted)
+    : (oppWeighted || pipelineUnweighted);
+  const pipelineProbability = Number.isFinite(Number(f.revenue.pipeline_probability_pct))
+    ? Number(f.revenue.pipeline_probability_pct)
+    : (pipelineUnweighted > 0 ? Math.round((pipelineWeighted / pipelineUnweighted) * 100) : null);
+  const pipelinePrimary = pipelineOpps[0] || null;
+  const liveCount = f.revenue.clients.filter(c=>c.status==='live').length;
+  const pendingCount = f.revenue.clients.filter(c=>c.status==='pending').length;
+
+  const pipelineOppRows = pipelineOpps.length
+    ? pipelineOpps.map(o => `
+        <tr>
+          <td>${o.name}</td>
+          <td class="note vd">${o.stage || '&mdash;'}</td>
+          <td>${o.probability_pct != null ? o.probability_pct + '%' : (pipelineProbability != null ? pipelineProbability + '%' : '&mdash;')}</td>
+          <td>${fmt(o.mrr || 0)}</td>
+          <td>${fmt(o.weighted_mrr || 0)}</td>
+          <td class="note vd">${o.next_action || o.notes || '&mdash;'}</td>
+        </tr>`).join('')
+    : `<tr><td colspan="6" class="note vd">Add pipeline_opportunities in data/financials.json to publish a live pipeline breakdown.</td></tr>`;
+
+  const pipelineSection = `
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-title">PIPELINE OPPORTUNITIES</div>
+      <div class="sec-meta">${pipelineProbability != null ? pipelineProbability + '% weighted probability' : 'Update pipeline_probability_pct in financials.json'}</div>
+    </div>
+    <table class="pl-table">
+      <thead>
+        <tr>
+          <th>Opportunity</th>
+          <th>Stage</th>
+          <th>Probability</th>
+          <th>MRR</th>
+          <th>Weighted EV</th>
+          <th>Next Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${pipelineOppRows}
+      </tbody>
+    </table>
+  </div>`;
+
+  document.getElementById('nav-period').textContent = f.period.current_month.toUpperCase();
+
+  const html = `
+  <div class="page-header">
+    <div>
+      <div class="page-title">FINANCIALS &amp; P&amp;L</div>
+      <div class="page-sub">${f.company.entity} &mdash; ${f.company.name} Operating Entity</div>
+    </div>
+    <div class="last-upd">
+      Source: <code style="color:var(--gold-dim);font-size:10px">data/financials.json</code><br>
+      Last updated: ${f._meta.last_updated} &bull; ${f._meta.updated_by}<br>
+      <span style="color:var(--gold-dim);font-size:10px">Edit financials.json to update all pages</span>
+    </div>
+  </div>
+
+  <!-- INVESTOR BANNER -->
+  <div class="inv-banner">
+    <div class="inv-left">
+      <div class="inv-icon">&#x1F4CA;</div>
+      <div class="inv-text">
+        <h3>INVESTOR SNAPSHOT</h3>
+        <p>Live MRR + 90-day trajectory &mdash; ${f.company.entity} / ${f.company.name} &mdash; ${f.period.current_month}</p>
+      </div>
+    </div>
+    <div class="inv-metrics">
+      <div class="inv-metric"><div class="iml">Current MRR</div><div class="imv gold">${fmt(mrr)}</div></div>
+      <div class="inv-metric"><div class="iml">Pipeline (Unweighted)</div><div class="imv gold">${fmt(pipelineUnweighted)}</div></div>
+      <div class="inv-metric"><div class="iml">Pipeline Weighted EV</div><div class="imv gold">${fmt(pipelineWeighted)}</div></div>
+      <div class="inv-metric"><div class="iml">Gross Margin</div><div class="imv gold">${pct(t.grossMargin)}</div></div>
+      <div class="inv-metric"><div class="iml">Active Clients</div><div class="imv gold">${liveCount} Live / ${pendingCount} Pending</div></div>
+    </div>
+  </div>
+
+  <!-- MRR HERO CARDS -->
+  <div class="mrr-row">
+    <div class="mrr-card t-green">
+      <span class="badge badge-live">Live</span>
+      <div class="mrr-lbl">Current MRR</div>
+      <div class="mrr-val green">${fmt(mrr)}</div>
+      <div class="mrr-delta up">+${fmt(mrr)} this month &uarr;</div>
+    </div>
+    <div class="mrr-card t-gold">
+      <span class="badge badge-pending">Pending</span>
+      <div class="mrr-lbl">Pipeline MRR (Unweighted)</div>
+      <div class="mrr-val gold">${fmt(pipelineUnweighted)}</div>
+      <div class="mrr-delta pending">
+        ${pipelinePrimary ? `${pipelinePrimary.name} &mdash; ${pipelinePrimary.probability_pct != null ? pipelinePrimary.probability_pct + '% confidence' : (pipelineProbability != null ? pipelineProbability + '%' : 'Probability TBD')}` : 'Update pipeline_opportunities in financials.json'}
+        <br><span style="color:var(--text-muted);font-size:11px">Weighted EV: ${fmt(pipelineWeighted)}${pipelineProbability != null ? ' ('+pipelineProbability+'%)' : ''}</span>
+      </div>
+    </div>
+    <div class="mrr-card t-blue">
+      <span class="badge badge-target">90-Day</span>
+      <div class="mrr-lbl">90-Day MRR Target</div>
+      <div class="mrr-val blue">${fmt(target90)}</div>
+      <div class="mrr-delta" style="color:var(--blue)">Leavitt + RiseWell confirmed</div>
+    </div>
+    <div class="mrr-card t-dim">
+      <div class="mrr-lbl">Est. Monthly Burn</div>
+      <div class="mrr-val">${fmt(t.burn)}</div>
+      <div class="mrr-delta">Tooling + infra only &mdash; no payroll</div>
+    </div>
+  </div>
+
+  ${pipelineSection}
+
+  <!-- P&L TABLE -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-title">PROFIT &amp; LOSS &mdash; MONTHLY</div>
+      <div class="sec-meta">${f.period.current_month.toUpperCase()} &bull; ALL FIGURES USD</div>
+    </div>
+    <table class="pl-table">
+      <thead><tr>
+        <th style="width:40%">LINE ITEM</th>
+        <th>CURRENT MO.</th>
+        <th>LEAVITT CLOSED</th>
+        <th>90-DAY TARGET</th>
+        <th>NOTES</th>
+      </tr></thead>
+      <tbody>
+        <tr class="grp-hdr"><td colspan="5">REVENUE</td></tr>
+        ${f.revenue.clients.map(c => `
+        <tr>
+          <td>${c.name} &mdash; ${c.type}</td>
+          <td class="${c.status==='live'?'vg':c.status==='pending'?'vp':'vd'}">${c.status==='live'?fmt(c.mrr):c.status==='pending'?'$0 &rarr; '+fmt(c.mrr):(c.mrr_display||fmt(c.mrr))}</td>
+          <td class="${c.mrr>0?'vo':'vd'}">${fmt(c.mrr)}</td>
+          <td class="${c.mrr>0?'vo':'vd'}">${c.mrr>0?fmt(c.mrr):(c.mrr_display||'TBD')}</td>
+          <td class="note vd">${c.notes}</td>
+        </tr>`).join('')}
+        <tr class="row-total">
+          <td>TOTAL REVENUE</td>
+          <td class="vg">${fmt(mrr)}</td>
+          <td class="vo">${fmt(mrr + pipelineUnweighted)}</td>
+          <td class="vo">${fmt(target90)}+</td>
+          <td></td>
+        </tr>
+
+        <tr class="grp-hdr"><td colspan="5">COST OF GOODS SOLD</td></tr>
+        ${f.costs.cogs.map(c => `
+        <tr>
+          <td>${c.item}</td>
+          <td class="vr">${fmt(c.amount)}</td>
+          <td class="vr">${fmt(c.amount)}</td>
+          <td class="vr">${fmt(c.amount)}</td>
+          <td class="note vd">${c.note||''}</td>
+        </tr>`).join('')}
+        <tr class="row-total">
+          <td>TOTAL COGS</td>
+          <td class="vr">${fmt(t.cogs)}</td>
+          <td class="vr">${fmt(t.cogs)}</td>
+          <td class="vr">${fmt(t.cogs)}</td>
+          <td></td>
+        </tr>
+
+        <tr class="row-net">
+          <td>GROSS PROFIT</td>
+          <td class="vg">${fmt(t.gross)}</td>
+          <td class="vo">${fmt(mrr + pipelineUnweighted - t.cogs)}</td>
+          <td class="vo">${fmt(target90 - t.cogs)}+</td>
+          <td class="note vd">${pct(t.grossMargin)} margin current</td>
+        </tr>
+
+        <tr class="grp-hdr"><td colspan="5">OPERATING EXPENSES</td></tr>
+        ${f.costs.opex.map(c => `
+        <tr>
+          <td>${c.item}</td>
+          <td class="${c.amount>0?'vr':'vd'}">${fmt(c.amount)}</td>
+          <td class="${c.amount>0?'vr':'vd'}">${fmt(c.amount)}</td>
+          <td class="${c.amount>0?'vr':'vd'}">${fmt(c.amount)}</td>
+          <td class="note vd">${c.note||''}</td>
+        </tr>`).join('')}
+        <tr class="row-total">
+          <td>TOTAL OPEX</td>
+          <td class="vr">${fmt(t.opex)}</td>
+          <td class="vr">${fmt(t.opex)}</td>
+          <td class="vr">${fmt(t.opex)}</td>
+          <td></td>
+        </tr>
+        <tr class="row-total">
+          <td>TOTAL MONTHLY BURN</td>
+          <td class="vr">${fmt(t.burn)}</td>
+          <td class="vr">${fmt(t.burn)}</td>
+          <td class="vr">${fmt(t.burn)}</td>
+          <td></td>
+        </tr>
+        <tr class="row-net">
+          <td>NET OPERATING INCOME</td>
+          <td class="vg">${fmt(t.net)}</td>
+          <td class="vo">${fmt(mrr + pipelineUnweighted - t.burn)}</td>
+          <td class="vo">${fmt(target90 - t.burn)}+</td>
+          <td class="note vd">${pct(t.netMargin)} net margin current</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="edit-strip">
+      <label>Source file:</label>
+      <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-dim);">data/financials.json</code>
+      <span style="flex:1"></span>
+      <button class="btn btn-out" onclick="copyInvestorText(${mrr},${t.burn},${t.netMargin})">COPY INVESTOR SUMMARY</button>
+    </div>
+  </div>
+
+  <!-- CLIENT REGISTER -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-title">CLIENT REGISTER</div>
+      <div class="sec-meta">REVENUE BY CLIENT &mdash; CURRENT STATE</div>
+    </div>
+    <table class="pl-table">
+      <thead><tr>
+        <th style="width:28%">CLIENT</th><th>TYPE</th><th>MRR</th><th>STATUS</th><th>SINCE</th><th>NOTES</th>
+      </tr></thead>
+      <tbody>
+        ${f.revenue.clients.map(c => `
+        <tr>
+          <td><span class="client-dot ${statusDotClass(c.status)}"></span>${c.name} (${c.contact})</td>
+          <td class="vd">${c.type}</td>
+          <td class="${c.status==='live'?'vg':c.status==='pending'?'vo':'vd'}">${c.mrr>0?fmt(c.mrr):(c.mrr_display||'TBD')}</td>
+          <td><span style="color:${statusColor(c.status)};font-size:11px">&#9679; ${c.status_label}</span></td>
+          <td class="vd">${c.since||'&mdash;'}</td>
+          <td class="note vd">${c.notes}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SCENARIOS -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-title">90-DAY SCENARIO MODELS</div>
+      <div class="sec-meta">BASE / UPSIDE / STRETCH &mdash; MONTHLY MRR PROJECTION</div>
+    </div>
+    <div class="scenario-grid">
+      ${f.scenarios.map((s,i) => `
+      <div class="scen-col">
+        <div class="scen-lbl">Scenario ${String.fromCharCode(65+i)}</div>
+        <div class="scen-name ${scenClass(s.id)}">${s.label}</div>
+        <div class="scen-mrr ${scenClass(s.id)}">${fmt(s.mrr)}</div>
+        <div class="scen-period">${s.description} &mdash; ${s.period}</div>
+        ${s.lines.map(l => `
+        <div class="scen-line">
+          <span class="sl">${l.label}</span>
+          <span class="sv ${l.value<0?'r':l.label.toLowerCase().includes('net')||l.label.toLowerCase().includes('income')?'g':''}">${sign(l.value)}</span>
+        </div>`).join('')}
+      </div>`).join('')}
+    </div>
+
+    <div class="runway-wrap">
+      ${f.scenarios.map((s,i) => `
+      <div class="rw-lbl">MRR PROGRESS TO ${s.label} (${fmt(s.mrr)})</div>
+      <div class="rw-bar"><div class="rw-fill ${i===0?'f-green':'f-gold'}" style="width:${Math.min(100,Math.round((mrr/s.mrr)*100))}%"></div></div>
+      <div class="rw-info"><span>Current: ${fmt(mrr)}</span><span>Target: ${fmt(s.mrr)}</span></div>
+      `).join('')}
+    </div>
+  </div>`;
+
+  document.getElementById('app').innerHTML = html;
+}
+
+function copyInvestorText(mrr, burn, margin) {
+  const text = `CraneGenius / Dark 30 Ventures - Investor Summary (${new Date().toLocaleDateString()})
+Current MRR: $${mrr.toLocaleString()}
+Pipeline MRR (Leavitt pending): $5,000
+90-Day Target: $6,200
+Active Clients: 1 (RiseWell GTM Consulting)
+Pending: 1 (Leavitt Cranes - Remote Sales Arm @ $5K/mo)
+Monthly Burn: $${burn.toLocaleString()} (tooling only, no payroll)
+Net Margin: ${margin}%
+Platform: B2B permit intelligence + managed sales pipeline - 36 cities, 13,460+ permits tracked.`;
+  navigator.clipboard.writeText(text).then(() => alert('Investor summary copied.'));
+}
+
+// MAIN: fetch from data/financials.json
+fetch('/data/financials.json?v=' + Date.now())
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(data => render(data))
+  .catch(err => {
+    document.getElementById('app').innerHTML = `
+      <div class="error-banner">Could not load /data/financials.json: ${err.message}<br>
+      Make sure the file exists in the repo root at data/financials.json</div>
+      <div class="loading">-- OFFLINE / FILE MISSING --</div>`;
+  });
+</script>
+</body>
+</html>

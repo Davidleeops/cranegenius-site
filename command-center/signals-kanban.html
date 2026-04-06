@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CraneGenius , 68 Signals Kanban</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080c14;--bg2:#0d1628;--bg3:#111e35;--gold:#F5A623;--gold-border:rgba(245,166,35,.22);--border:#1e3a5f;--text:#e8f0ff;--muted:#8899aa;--mono:'DM Mono',monospace;--green:#22c55e;--green-bg:rgba(34,197,94,.12);--amber:#EF9F27;--amber-bg:rgba(239,159,39,.12);--blue:#378ADD;--blue-bg:rgba(55,138,221,.12);--purple:#7F77DD;--purple-bg:rgba(127,119,221,.12);--red:#E24B4A;--red-bg:rgba(226,75,74,.12)}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:13px;line-height:1.5}
+.shell{max-width:1480px;margin:0 auto;padding:24px 20px 80px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--gold-border);flex-wrap:wrap;gap:8px}
+.wm{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--gold)}
+.tm{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em}
+.tm span{color:var(--gold)}
+.tm a{color:var(--gold);text-decoration:none}
+.tm a:hover{text-decoration:underline}
+.process-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:20px}
+.process-box h3{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.1em;color:var(--gold);margin-bottom:10px}
+.process-box p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px}
+.process-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.process-step{font-family:var(--mono);font-size:10px;padding:6px 12px;border-radius:4px;letter-spacing:.08em;text-transform:uppercase;background:var(--bg3);border:1px solid var(--border);color:var(--muted)}
+.process-arrow{color:var(--gold);font-size:12px}
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:20px}
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(3,1fr)}}
+.sv{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;text-align:center}
+.sv-n{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1}
+.sv-l{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:start}
+@media(max-width:1200px){.board{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.board{grid-template-columns:repeat(2,1fr)}}
+.col-head{padding:10px 12px;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.ch-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase}
+.ch-cnt{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,.35);padding:2px 8px;border-radius:8px}
+.col-body{background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;padding:8px;min-height:80px;display:flex;flex-direction:column;gap:6px}
+.col-backlog .col-head{background:rgba(136,153,170,.12);color:var(--muted)}
+.col-planning .col-head{background:var(--blue-bg);color:var(--blue)}
+.col-dev .col-head{background:var(--amber-bg);color:var(--amber)}
+.col-qa .col-head{background:var(--purple-bg);color:var(--purple)}
+.col-done .col-head{background:var(--green-bg);color:var(--green)}
+.card{border-radius:5px;padding:10px 11px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;transition:border-color .15s}
+.card:hover{border-color:var(--gold-border)}
+.card-name{font-size:11px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.35}
+.card-id{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.04em;margin-bottom:4px}
+.card-meta{font-size:10px;color:var(--muted);line-height:1.4}
+.dp{display:none;position:fixed;top:0;right:0;width:380px;height:100vh;background:var(--bg2);border-left:1px solid var(--gold-border);z-index:200;overflow-y:auto;padding:22px}
+.dp.open{display:block}
+.dp-close{font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer;margin-bottom:18px;letter-spacing:.06em}
+.dp-close:hover{color:var(--gold)}
+.dp-phase{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.dp-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.5px;color:var(--text);margin-bottom:8px;line-height:1.2}
+.dp-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.dp-sec{margin-bottom:14px}
+.dp-sec-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.dp-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.dp-rl{color:var(--muted)}
+.dp-rv{color:var(--text);text-align:right}
+.dp-link{color:var(--gold);font-size:11px;text-decoration:none}
+.dp-link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="topbar">
+  <div class="wm">68 Signals , Development Kanban</div>
+  <div class="tm">// <a href="index.html" style="color:var(--gold);text-decoration:none">Command Center</a> &nbsp;|&nbsp; <a href="dashboard.html">Dashboard</a> &nbsp;|&nbsp; <a href="pipeline.html">Pipeline</a> &nbsp;|&nbsp; <a href="projects.html">Project Board</a> &nbsp;|&nbsp; <a href="../docs/SIGNALS_BUILT_VS_NOT_BUILT.md" target="_blank">Brief</a> &nbsp;|&nbsp; <span id="ds"></span></div>
+</div>
+
+<div class="process-box">
+  <h3>Process (PMP-aligned, lean)</h3>
+  <p>Each signal moves left → right. No gate meetings, just clear stages so you can see what’s not started, in progress, or done. Matches PMP: Initiate → Plan → Execute → Monitor &amp; Control → Close.</p>
+  <div class="process-flow">
+    <span class="process-step">Backlog (Initiate)</span>
+    <span class="process-arrow">→</span>
+    <span class="process-step">Planning</span>
+    <span class="process-arrow">→</span>
+    <span class="process-step">In Development (Execute)</span>
+    <span class="process-arrow">→</span>
+    <span class="process-step">QA / Review (M&amp;C)</span>
+    <span class="process-arrow">→</span>
+    <span class="process-step">Done (Close)</span>
+  </div>
+</div>
+
+<div class="stats-row" id="statsRow"></div>
+<div class="board" id="board"></div>
+</div>
+
+<div class="dp" id="dp">
+  <span class="dp-close" onclick="document.getElementById('dp').classList.remove('open')">← Close</span>
+  <div id="dpc"></div>
+</div>
+
+<script>
+const COLS = [
+  { id: 'backlog',  label: 'Backlog',       pmp: 'Initiate' },
+  { id: 'planning', label: 'Planning',      pmp: 'Plan' },
+  { id: 'dev',      label: 'In Development', pmp: 'Execute' },
+  { id: 'qa',       label: 'QA / Review',    pmp: 'Monitor & Control' },
+  { id: 'done',     label: 'Done',          pmp: 'Close' }
+];
+
+const SIGNALS = [
+  { id: 'design_build_team_shortlists', name: 'Design-Build Team Shortlists', stage: 'backlog', script: null, next: 'DOT shortlist PDFs; PDF table extraction.' },
+  { id: 'pre_bid_meeting_attendance_lists', name: 'Pre-bid Meeting Attendance Lists', stage: 'backlog', script: null, next: 'Plan-room rosters; OCR/session capture.' },
+  { id: 'environmental_army_corps_permit_filings', name: 'Environmental / Army Corps Permit Filings', stage: 'backlog', script: null, next: 'USACE + EPA public notices; PDF/docket.' },
+  { id: 'steel_erection_permits', name: 'Steel Erection Permits', stage: 'backlog', script: null, next: 'NYC/LA/Chicago structural permit queues.' },
+  { id: 'industrial_equipment_installs', name: 'Industrial Equipment Installs', stage: 'backlog', script: null, next: 'OEM retrofit announcements.' },
+  { id: 'municipal_lift_row_street_closure_permits', name: 'Municipal Lift / ROW / Street Closure', stage: 'backlog', script: null, next: 'LADOT, SF beyond Seattle.' },
+  { id: 'building_structural_permits_with_crane_keywords', name: 'Building / Structural Permits (Crane Keywords)', stage: 'backlog', script: null, next: 'Permit queues + NLP crane keywords.' },
+  { id: 'project_schedule_critical_path_updates', name: 'Project Schedule / Critical Path Updates', stage: 'backlog', script: null, next: 'CPM exports; owner updates.' },
+  { id: 'logistics_oversize_load_notices', name: 'Logistics / Oversize Load Notices', stage: 'backlog', script: null, next: 'Port bulletins; freight advisories.' },
+  { id: 'faa_obstruction_notices', name: 'FAA Obstruction Notices', stage: 'backlog', script: null, next: 'OE/AAA cases; FAA API.' },
+  { id: 'usace_environmental_permits', name: 'USACE / Environmental Permits', stage: 'backlog', script: null, next: 'USACE district notices.' },
+  { id: 'design_build_shortlists', name: 'Design-Build Shortlists', stage: 'backlog', script: null, next: 'TxDOT/FDOT shortlist PDFs.' },
+  { id: 'equipment_marketplace_pricing_spikes', name: 'Equipment Marketplace Pricing Spikes', stage: 'backlog', script: null, next: 'Rate deltas; marketplace APIs.' },
+  { id: 'specialized_rigging_strand_jack_bookings', name: 'Specialized Rigging / Strand Jack Bookings', stage: 'backlog', script: null, next: 'Partner/NDA data.' },
+  { id: 'wind_component_delivery_trackers', name: 'Wind Component Delivery Trackers', stage: 'backlog', script: null, next: 'AIS/port bulletins.' },
+  { id: 'major_equipment_decommission_notices', name: 'Major Equipment Decommission / Swap', stage: 'backlog', script: null, next: 'Refinery/plant decommission RFQs.' },
+  { id: 'port_modular_delivery_bulletins', name: 'Port Modular Delivery Bulletins', stage: 'backlog', script: null, next: 'LA/LB, Houston, Savannah bulletins.' },
+  { id: 'hydrogen_hub_award_announcements', name: 'Hydrogen Hub Award Announcements', stage: 'backlog', script: null, next: 'DOE hydrogen hub press/RSS.' },
+  { id: 'grid_hardening_grant_signals', name: 'Grid Hardening Grant Signals', stage: 'backlog', script: null, next: 'DOE/FEMA grant awards.' },
+  { id: 'airport_modernization_programs', name: 'Airport Modernization Programs', stage: 'backlog', script: null, next: 'Airport authority CIP (LAX, ATL, JFK).' },
+  { id: 'rail_terminal_expansion_permits', name: 'Rail Terminal Expansion Permits', stage: 'backlog', script: null, next: 'STB/FTA + municipal permits.' },
+  { id: 'bridge_rehabilitation_bids', name: 'Bridge Rehabilitation Bids', stage: 'backlog', script: null, next: 'TxDOT, Caltrans, PennDOT.' },
+  { id: 'industrial_demolition_permits', name: 'Industrial Demolition Permits', stage: 'backlog', script: null, next: 'Demo permits, 10 metros.' },
+  { id: 'mega_project_financing_bonds', name: 'Mega Project Financing Bonds', stage: 'backlog', script: null, next: 'Muni/PAB issuances; EMMA.' },
+  { id: 'transmission_condemnation_filings', name: 'Transmission Condemnation Filings', stage: 'backlog', script: null, next: 'Eminent domain; ERCOT, SPP, MISO.' },
+  { id: 'utility_rate_case_capex_signals', name: 'Utility Rate Case Capex Signals', stage: 'backlog', script: null, next: 'PUC rate-case filings.' },
+  { id: 'greenfield_fab_investments', name: 'Greenfield Fab Investments', stage: 'backlog', script: null, next: 'Semiconductor fab announcements.' },
+  { id: 'oversize_transport_notices', name: 'Oversize Transport Notices', stage: 'done', script: 'scripts/signal_oversize_loads.py', next: 'Real: USDOT Truck Size and Weight Enforcement + Federal Register.' },
+  { id: 'heavy_transport_oversize_load_signals', name: 'Heavy Transport / Oversize-load', stage: 'done', script: 'scripts/signal_oversize_loads.py', next: 'Same script; state-year permit counts + FR notices.' },
+  { id: 'road_closures_crane_notices', name: 'Road Closures / Crane Notices', stage: 'done', script: 'scripts/signal_lift_permits.py', next: 'Real: NYC DOT Street Construction Permits - Cranes (hcv3-zacv). Seattle/Chicago optional.' },
+  { id: 'subcontractor_registration_signals', name: 'Subcontractor Registration', stage: 'dev', script: 'scripts/signal_subcontractor_registrations.py', next: 'TxDOT/FDOT registry APIs or scrapes.' },
+  { id: 'state_city_capital_improvement_plans', name: 'State/City Capital Improvement Plans', stage: 'dev', script: 'scripts/signal_capital_improvement_plans.py', next: 'TxDOT/Caltrans in infra script. NCDOT STIP live (tdot_stip). Fairfax, Manatee, Sioux Falls stubs.' },
+  { id: 'zoning_variance_filings', name: 'Zoning / Variance Filings', stage: 'done', script: 'scripts/signal_zoning_filings.py', next: 'Real: NYC BSA Open Data (f72e-3i4c). Chicago ZBA optional later.' },
+  { id: 'utility_and_substation_irp_signals', name: 'Utility + Substation IRP', stage: 'dev', script: 'scripts/signal_utility_irp.py', next: 'TVA, CAISO, Duke, PNM IRP feeds.' },
+  { id: 'utility_integrated_resource_plans', name: 'Utility IRP (Future Coverage)', stage: 'dev', script: 'scripts/signal_utility_irp.py', next: 'Same script.' },
+  { id: 'utility_and_substation_expansion_signals', name: 'Utility and Substation Expansion', stage: 'dev', script: 'scripts/signal_utility_expansion.py', next: 'TVA, CAISO; add ISO-NE.' },
+  { id: 'utility_infrastructure_notices', name: 'Utility Infrastructure Notices', stage: 'dev', script: 'scripts/signal_utility_infrastructure.py', next: 'PSC/PUC bulletins.' },
+  { id: 'corporate_capex_guidance_extraction', name: 'Corporate Capex / Earnings Guidance', stage: 'done', script: 'scripts/signal_corporate_capex.py', next: 'Real: SEC XBRL CompanyConcept (PaymentsToAcquirePropertyPlantAndEquipment); 15-CIK watchlist.' },
+  { id: 'corporate_capex_watchlist', name: 'Corporate Capex Watchlist Refresh', stage: 'done', script: 'scripts/signal_corporate_capex.py', next: 'Same script.' },
+  { id: 'rental_spikes_equipment_swaps', name: 'Rental Spikes / Equipment Swaps', stage: 'dev', script: 'scripts/signal_equipment_rentals.py', next: 'BigRentz; LiftingGear, Sunbelt.' },
+  { id: 'equipment_rental_utilization_signals', name: 'Equipment Rental Utilization', stage: 'dev', script: 'scripts/signal_equipment_rentals.py', next: 'Same script.' },
+  { id: 'sec_edgar_turnaround_alerts', name: 'SEC EDGAR Turnaround Alerts', stage: 'done', script: 'intel/01_edgar_scraper.py', next: 'Real: EDGAR full-text search.' },
+  { id: 'epa_turnaround_outage_alerts', name: 'EPA Turnaround / Outage Alerts', stage: 'done', script: 'intel/02_epa_turnaround_scraper.py', next: 'Real: TCEQ, IEPA, NDEP.' },
+  { id: 'utility_interconnection_queue_signals', name: 'Utility Interconnection Queue', stage: 'done', script: 'intel/03_utility_interconnection_scraper.py', next: 'Real: MISO/ERCOT-style APIs.' },
+  { id: 'labor_requests_hiring_spikes', name: 'Labor Requests / Hiring Spikes', stage: 'done', script: 'intel/04_job_posting_scraper.py', next: 'Real: Indeed/LinkedIn job scrape.' },
+  { id: 'blm_mining_solar_leases', name: 'BLM Mining & Solar Lease Signals', stage: 'done', script: 'intel/05_blm_mining_solar_scraper.py', next: 'Real: BLM LR2000, solar ROW.' },
+  { id: 'federal_infrastructure_program_earmarks', name: 'Federal Infrastructure Earmarks', stage: 'done', script: 'scripts/signal_infrastructure_projects.py', next: 'Real: Federal Register API.' },
+  { id: 'txdot_capital_plans', name: 'TxDOT Capital Improvement Plans', stage: 'done', script: 'scripts/signal_infrastructure_projects.py', next: 'Real: TxDOT Projects MapServer REST API (layer 0).' },
+  { id: 'caltrans_capital_plans', name: 'Caltrans Early Development Projects', stage: 'done', script: 'scripts/signal_infrastructure_projects.py', next: 'Real: California Open Data CKAN (Early Development Project List).' },
+  { id: 'data_center_site_plan_reviews', name: 'Data Center Site Plan Reviews', stage: 'done', script: 'scripts/signal_data_center_site_plan_reviews.py', next: 'Scaffold; live source TBD.' },
+  { id: 'battery_storage_procurement_notices', name: 'Battery Storage Procurement Notices', stage: 'done', script: 'scripts/signal_battery_storage_procurements.py', next: 'Scaffold; live ISO/utility APIs TBD.' },
+  { id: 'procurement_rfp_notices_expansion', name: 'Procurement / RFP Expansion', stage: 'done', script: 'scripts/signal_construction_bids.py', next: 'Real: NYC City Record (Socrata).' }
+];
+
+function render() {
+  const counts = { backlog: 0, planning: 0, dev: 0, qa: 0, done: 0 };
+  SIGNALS.forEach(s => { counts[s.stage] = (counts[s.stage] || 0) + 1; });
+
+  document.getElementById('statsRow').innerHTML = [
+    { l: 'Total signals', v: SIGNALS.length, c: 'var(--text)' },
+    { l: 'Backlog', v: counts.backlog, c: 'var(--muted)' },
+    { l: 'In Development', v: counts.dev, c: 'var(--amber)' },
+    { l: 'QA / Review', v: counts.qa, c: 'var(--purple)' },
+    { l: 'Done', v: counts.done, c: 'var(--green)' }
+  ].map(s => '<div class="sv"><div class="sv-n" style="color:'+s.c+'">'+s.v+'</div><div class="sv-l">'+s.l+'</div></div>').join('');
+
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  COLS.forEach(col => {
+    const colEl = document.createElement('div');
+    colEl.className = 'col col-' + col.id;
+    const cards = SIGNALS.filter(s => s.stage === col.id);
+    colEl.innerHTML = '<div class="col-head"><span class="ch-title">'+col.label+'</span><span class="ch-cnt">'+cards.length+'</span></div><div class="col-body" id="body-'+col.id+'"></div>';
+    board.appendChild(colEl);
+    const body = document.getElementById('body-'+col.id);
+    cards.forEach(sig => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.onclick = () => openDetail(sig);
+      card.innerHTML = '<div class="card-name">'+sig.name+'</div><div class="card-id">'+sig.id+'</div><div class="card-meta">'+(sig.script || 'No script')+'</div>';
+      body.appendChild(card);
+    });
+  });
+}
+
+function openDetail(sig) {
+  const stageLabels = { backlog: 'Backlog', planning: 'Planning', dev: 'In Development', qa: 'QA / Review', done: 'Done' };
+  document.getElementById('dpc').innerHTML =
+    '<div class="dp-phase">'+stageLabels[sig.stage]+'</div>'+
+    '<div class="dp-name">'+sig.name+'</div>'+
+    '<div class="dp-desc">Signal ID: <code>'+sig.id+'</code></div>'+
+    '<div class="dp-sec"><div class="dp-sec-title">Collector</div>'+
+    '<div class="dp-row"><span class="dp-rl">Script</span><span class="dp-rv">'+(sig.script || ', ')+'</span></div></div>'+
+    '<div class="dp-sec"><div class="dp-sec-title">Next step</div><div class="dp-desc">'+sig.next+'</div></div>'+
+    '<div class="dp-sec"><div class="dp-sec-title">Reference</div><a class="dp-link" href="../docs/SIGNALS_BUILT_VS_NOT_BUILT.md" target="_blank">Signals built vs not built (brief)</a><br><a class="dp-link" href="../autonomy/config/signal_registry.yaml" target="_blank">signal_registry.yaml</a></div>';
+  document.getElementById('dp').classList.add('open');
+}
+
+document.getElementById('ds').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+render();
+</script>
+</body>
+</html>

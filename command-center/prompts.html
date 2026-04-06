@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CraneGenius , Cursor Prompts</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080c14;--bg2:#0d1628;--bg3:#111e35;--gold:#F5A623;--gb:rgba(245,166,35,.22);--border:#1e3a5f;--text:#e8f0ff;--muted:#8899aa;--mono:'DM Mono',monospace;--red:#E24B4A;--amber:#EF9F27;--green:#22cc77;--blue:#378ADD;--purple:#7F77DD}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;padding:24px 20px 80px;max-width:900px;margin:0 auto;font-size:13px;line-height:1.5}
+h1{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
+.sub{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:28px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px}
+.fb{font-family:var(--mono);font-size:10px;padding:5px 12px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--muted);cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+.fb.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.fb:hover:not(.on){color:var(--text);border-color:var(--gb)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-bottom:12px;border-left:3px solid transparent}
+.card.david{border-left-color:var(--amber)}
+.card.cursor-claude{border-left-color:var(--purple)}
+.card.cursor-codex{border-left-color:var(--blue)}
+.card.hidden{display:none}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.card-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.5px;color:var(--text)}
+.tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:.06em;text-transform:uppercase}
+.t-david{background:rgba(239,159,39,.15);color:var(--amber)}
+.t-claude{background:rgba(127,119,221,.15);color:var(--purple)}
+.t-codex{background:rgba(55,138,221,.15);color:var(--blue)}
+.t-shared{background:rgba(99,153,26,.15);color:var(--green)}
+.t-critical{background:rgba(226,75,74,.15);color:var(--red)}
+.t-high{background:rgba(239,159,39,.1);color:var(--amber)}
+.t-med{background:rgba(55,138,221,.1);color:var(--blue)}
+.why{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.55}
+.prompt-wrap{position:relative;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px 14px 14px 16px;border-left:3px solid var(--gold)}
+.plabel{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.ptext{font-family:var(--mono);font-size:11px;color:#c8d8f0;line-height:1.65;white-space:pre-wrap;word-break:break-word;padding-right:60px}
+.copy{position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:9px;padding:3px 9px;border:1px solid var(--border);border-radius:3px;background:var(--bg2);color:var(--muted);cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+.copy:hover{border-color:var(--gold);color:var(--gold)}
+.copy.ok{background:rgba(34,204,119,.1);color:var(--green);border-color:var(--green)}
+.step-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;margin-top:10px}
+.blocker{background:rgba(226,75,74,.08);border:1px solid rgba(226,75,74,.3);border-radius:4px;padding:6px 10px;font-family:var(--mono);font-size:10px;color:var(--red);margin-top:8px;letter-spacing:.04em}
+.outcome{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.18);border-radius:4px;padding:8px 12px;font-size:11px;color:var(--muted);margin-top:10px}
+.outcome span{color:var(--gold);font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:3px}
+.divider{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin:28px 0 16px;display:flex;align-items:center;gap:10px}
+.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+</style>
+</head>
+<body>
+<h1>Cursor Prompts</h1>
+<div class="sub">// CraneGenius , every project, every prompt, priority order , paste directly into Cursor</div>
+
+<div class="filters">
+  <button class="fb on" onclick="filter('all',this)">All</button>
+  <button class="fb" onclick="filter('david',this)">David actions</button>
+  <button class="fb" onclick="filter('cursor-claude',this)">Cursor , Claude</button>
+  <button class="fb" onclick="filter('cursor-codex',this)">Cursor , Codex</button>
+  <button class="fb" onclick="filter('critical',this)">Critical only</button>
+</div>
+
+<div id="cards">
+
+<div class="divider">// Block 1 , revenue gate (do these first, no build work required)</div>
+
+<div class="card david" data-tags="david critical">
+<div class="card-top">
+  <div class="card-name">Send Erick the partner link</div>
+  <div class="tags"><span class="tag t-david">David</span><span class="tag t-critical">Critical</span></div>
+</div>
+<div class="why">This is the only thing standing between $0 MRR and first dollar. /partner/ is live. Calendly is wired. Just send it.</div>
+<div class="step-label">// message to send</div>
+<div class="prompt-wrap">
+<div class="ptext">Hey Erick , built something I think you'll find useful. 2 minutes to look at: cranegenius.com/partner
+
+Want to show you what we're seeing in your market. 15 min this week?
+calendly.com/lemuel-lee-jr/15min</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+<div class="outcome"><span>// done when</span>Call booked. Pilot $500/mo or Standard $1,500/mo agreed on the call.</div>
+</div>
+
+<div class="card david" data-tags="david critical">
+<div class="card-top">
+  <div class="card-name">Check PlusVibe for replies now</div>
+  <div class="tags"><span class="tag t-david">David</span><span class="tag t-critical">Critical</span></div>
+</div>
+<div class="why">204 data center contacts in active campaign ID 69ab12e0cd4741629f3cd112. Any reply is a warm lead. Respond within 2 hours or it goes cold.</div>
+<div class="step-label">// positive reply response (copy + send)</div>
+<div class="prompt-wrap">
+<div class="ptext">Thanks for getting back to me , I have 15 minutes available this week.
+Here's my calendar: calendly.com/lemuel-lee-jr/15min
+Looking forward to showing you what we're seeing in your market right now.</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+<div class="step-label">// neutral reply response</div>
+<div class="prompt-wrap">
+<div class="ptext">Understood , I'll circle back in 30 days. If a crane job comes up before then, feel free to reach out directly.</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+<div class="outcome"><span>// done when</span>All replies categorized. Positive replies have a call booked.</div>
+</div>
+
+<div class="divider">// Block 2 , funnel closure (paste into Cursor, run immediately)</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude critical">
+<div class="card-top">
+  <div class="card-name">Fix Formspree lead capture on /estimate/</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-critical">Critical</span></div>
+</div>
+<div class="why">Every GC who completes the wizard and doesn't get captured is a lost lead. The bot handoff is unconfirmed. This closes the most important revenue leak on the site.</div>
+<div class="step-label">// cursor prompt , paste into Cursor composer</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: estimate/index.html</div>
+<div class="ptext">Read estimate/index.html in the cranegenius repo (lift estimator lives here; homepage is owner/GM positioning only).
+
+Find the lead capture form after the crane recommendation output in the lift report step.
+
+If window.openBotWithPrefill exists and works: confirm it by adding console.log('bot panel fired') immediately after it's called.
+
+If it does NOT work or the function is missing: add a lead capture modal directly in estimate/index.html:
+- Name field (required)
+- Email field (required)
+- Phone field (optional)
+- Hidden field: crane_recommendation (populated with the current recommendation text)
+- Submit: POST to https://formspree.io/f/mgoldjjb as JSON with Content-Type application/json
+- Success: "We'll match you with crane companies in your market within 2 hours."
+- Error: "Something went wrong , email info@CraneGenius.site"
+
+Modal styles: background #080c14, gold #F5A623, DM Sans font. Match existing site design exactly.
+
+Also add between the GC hero block and wizard step 1: a single line
+"// [N] active crane-ready projects tracked this week across Chicago, Dallas, Phoenix & NYC"
+where [N] fetches from /data/opportunities/opportunities.json .opportunities.length on page load.
+Fallback text if fetch fails: "// 500+ active crane-ready projects tracked this week"
+Style: DM Mono 12px, color rgba(245,166,35,0.7), letter-spacing 0.12em.
+
+Commit with: git add estimate/index.html && git commit -m "fix: formspree lead capture modal + social proof stat" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+<div class="outcome"><span>// done when</span>Submit a test lead via the wizard. Confirm it appears in Formspree dashboard at formspree.io/f/mgoldjjb.</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex critical">
+<div class="card-top">
+  <div class="card-name">Merge codex/repo-recon into main</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-critical">Critical</span></div>
+</div>
+<div class="why">The entire autonomy layer, 12 signal collectors, watchdog, and repair agents are sitting on a branch that's never been merged. Nothing on this branch exists on the live site.</div>
+<div class="step-label">// cursor prompt , paste into Cursor terminal</div>
+<div class="prompt-wrap">
+<div class="plabel">// run in terminal in cranegenius repo</div>
+<div class="ptext">cd ~/Downloads/cranegenius_repo
+git checkout main
+git pull origin main
+git merge codex/repo-recon
+
+# Conflict resolution rules:
+# HTML files (*.html) → keep main: git checkout main -- [file]
+# src/, scripts/, autonomy/, agents/ → keep codex/repo-recon version
+# TASK.md, CHANGELOG_AGENT.md, AGENT_CONTEXT.md → keep main version
+
+git add .
+git commit -m "merge: codex/repo-recon , autonomy layer, signal collectors, pipeline infrastructure"
+git push origin main
+
+# Then verify:
+python3 -m pytest tests/ -v --tb=short
+python3 scripts/pipeline_autonomy.py --mode host --once</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+<div class="outcome"><span>// done when</span>autonomy/, agents/, src/ are all on main. Tests pass or failures are documented in CHANGELOG_AGENT.md.</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex critical">
+<div class="card-top">
+  <div class="card-name">Opportunity noise filter</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-critical">Critical</span></div>
+</div>
+<div class="why">Interior alterations and retail remodels showing up in the crane feed destroys credibility with every crane company who looks at the product. Clean signal is the whole value prop.</div>
+<div class="step-label">// cursor prompt</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: pipeline export stage (find in src/pipeline.py or scripts/)</div>
+<div class="ptext">Find the stage in the pipeline where opportunities are written to data/opportunities/opportunities.json.
+
+Add a filter BEFORE the export that removes records where project_type or project_description contains (case-insensitive):
+interior_alteration, interior alteration, tenant improvement, tenant_improvement,
+retail remodel, retail_remodel, painting, cleaning, cosmetic, janitorial,
+carpet, flooring, window replacement, door replacement
+
+Add a score multiplier of 1.25 to overall_priority_score for records where project_type contains:
+demolition, steel_erection, steel erection, tower_crane, tower crane,
+utility_infrastructure, telecom, hvac_rooftop, data_center, data center,
+modular, generator, rigging, curtain wall
+
+Log to console: records excluded count, records boosted count.
+
+Do not touch any HTML files. Do not change any other pipeline behavior.</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+<div class="outcome"><span>// done when</span>Run pipeline. Verify opportunities.json contains zero interior_alteration entries. Top 5 records are demolition / steel erection / crane-relevant types.</div>
+</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude critical">
+<div class="card-top">
+  <div class="card-name">Opportunities page , Beehiiv embed + score badges</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-critical">Critical</span></div>
+</div>
+<div class="why">The opportunities page is the product demo and the list-building engine. The subscribe embed is missing. Score badges don't exist. Both are needed before showing this to any crane company.</div>
+<div class="step-label">// cursor prompt</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: opportunities/index.html</div>
+<div class="ptext">Read opportunities/index.html.
+
+Make exactly two additions , do not change anything else:
+
+ADDITION 1 , Beehiiv subscribe panel
+Insert between the filter bar and the cards grid:
+&lt;div style="background:#0d1628;border:1px solid rgba(245,166,35,.22);border-radius:8px;padding:24px;margin-bottom:20px;text-align:center"&gt;
+  &lt;p style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#e8f0ff;margin-bottom:6px"&gt;Get The Ironsheet , Weekly crane market intel, free.&lt;/p&gt;
+  &lt;p style="font-size:12px;color:#8899aa;margin-bottom:14px"&gt;Active projects, permit signals, equipment deals. Sourced before the bid goes out.&lt;/p&gt;
+  &lt;iframe src="https://embeds.beehiiv.com/subscribe/pub_f56762cf-7183-4678-b901-e26ea596909c" width="100%" height="52" frameborder="0" scrolling="no" style="border-radius:4px;background:transparent"&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+
+ADDITION 2 , Score bar + "FORGED THIS WEEK" badge per card
+In the card render loop, at the bottom of each card add:
+&lt;div style="height:2px;background:#1e3a5f;border-radius:2px;margin-top:8px"&gt;
+  &lt;div style="height:100%;background:#F5A623;border-radius:2px;width:MIN(100%,MAX(0%,SCORE%));"&gt;&lt;/div&gt;
+&lt;/div&gt;
+where SCORE = (opportunity.overall_priority_score / 100) * 100, clamped 0-100.
+
+Also add to the top 5 cards by overall_priority_score:
+&lt;span style="background:#F5A623;color:#000;font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:inline-block"&gt;FORGED THIS WEEK&lt;/span&gt;
+
+Commit: git add opportunities/index.html && git commit -m "feat: opportunities , beehiiv embed + score badges" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="divider">// Block 3 , retainer infrastructure (needed when Erick says yes)</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude high">
+<div class="card-top">
+  <div class="card-name">Client onboarding form + retainer contract generator</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-high">High</span></div>
+</div>
+<div class="why">The moment Erick says yes, you need to collect their fleet details and get a contract signed. Build this before the call so it's ready to fire.</div>
+<div class="step-label">// cursor prompt</div>
+<div class="prompt-wrap">
+<div class="plabel">// files: onboarding/index.html + scripts/generate_retainer_contract.py</div>
+<div class="ptext">Create two things:
+
+FILE 1: onboarding/index.html
+Retainer client onboarding form. Fields:
+- Company name (required)
+- Primary contact name + email + phone (required)
+- Markets: checkboxes: Chicago / Dallas / Phoenix / NYC / Pacific Northwest / Other
+- Crane types in fleet: checkboxes: Mobile / Tower / Mini / Boom Truck / Other
+- Preferred outreach style: radio , "Use our company name" / "Use CraneGenius brand" / "Either"
+- GCs they already have relationships with , do NOT contact (textarea)
+- Anything else we should know (textarea)
+Submit → POST https://formspree.io/f/mgoldjjb as JSON
+On success: "You're set. We'll have your first outreach batch ready within 48 hours."
+
+Design: exact CraneGenius design system , #080c14 bg, #F5A623 gold, Bebas Neue headings, DM Sans body.
+
+FILE 2: scripts/generate_retainer_contract.py
+Takes a dict and writes contracts/[company_name]_retainer.txt
+Contract fields: parties, effective date, service description, markets covered,
+tier (Pilot $500/mo 30-day / Standard $1500/mo / Full $2500/mo+3%), term, payment Net 7,
+cancel 14 days written notice, commission definition (Full tier only: 3% of first crane
+rental contract on deals directly sourced by CraneGenius), confidentiality clause, signature block.
+Plain English. One page max. No legalese.
+
+Example call:
+generate_contract({"client_name":"Leavitt Cranes","contact":"Erick","markets":["Pacific Northwest"],"tier":"Pilot","fee":500})
+
+Commit both: git add onboarding/ scripts/generate_retainer_contract.py && git commit -m "feat: retainer onboarding form + contract generator" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="divider">// Block 4 , outreach pipeline scale</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex high">
+<div class="card-top">
+  <div class="card-name">Export next 200 verified contacts for PlusVibe</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-high">High</span></div>
+</div>
+<div class="why">700+ verified contacts are sitting in the SQLite database doing nothing. This exports the next batch ready to import into PlusVibe.</div>
+<div class="step-label">// cursor prompt</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: scripts/export_outreach_batch.py</div>
+<div class="ptext">Read ~/data_runtime/cranegenius_ci.db
+
+Export to data/outreach/next_batch.csv:
+Columns: first_name, last_name, email, company_name, city, state, project_type, permit_address
+
+Filter:
+- email_status = 'verified' OR confidence_score >= 0.85
+- city IN ('Chicago','Dallas','Phoenix','New York','Seattle','Portland','Austin','San Francisco')
+- project_type NOT IN ('interior_alteration','tenant_improvement','retail_remodel','painting','cleaning')
+- NOT already exported in any previous batch (track in data/outreach/exported_emails.txt)
+
+Deduplicate by email , keep highest confidence_score.
+Limit: 200 records.
+Append exported emails to data/outreach/exported_emails.txt
+
+Print summary: total exported, breakdown by city, breakdown by project_type.
+
+git add -f data/outreach/ && git commit -m "data: next outreach batch export" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex high">
+<div class="card-top">
+  <div class="card-name">Weekly pipeline GitHub Action (replace launchd)</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-high">High</span></div>
+</div>
+<div class="why">Pipeline currently requires manual trigger. One GitHub Action makes it fully automatic forever. This is the single highest-leverage Codex task after the merge.</div>
+<div class="step-label">// cursor prompt</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: .github/workflows/pipeline-weekly.yml</div>
+<div class="ptext">Create .github/workflows/pipeline-weekly.yml
+
+Triggers: every Sunday at 3 AM Pacific (cron: '0 11 * * 0') + workflow_dispatch
+
+Steps:
+1. Checkout repo
+2. Set up Python 3.11
+3. pip install -r requirements.txt
+4. Run pipeline: python3 src/pipeline.py (or current entry point , check package.json or src/ for main runner)
+5. Apply noise filter: exclude interior_alteration, tenant_improvement, retail_remodel, painting, cleaning
+6. Export opportunities to data/opportunities/opportunities.json
+7. Export jobs to data/jobs/jobs.json (crane-relevant only)
+8. Commit and push all data files:
+   git config user.email "info@CraneGenius.site"
+   git config user.name "CraneGenius Pipeline Bot"
+   git add -f data/
+   git commit -m "chore: weekly pipeline , $(date +%Y-%m-%d)" || echo "no changes"
+   git push origin main
+9. Print summary as GitHub Actions step summary:
+   echo "## Pipeline Run $(date)" >> $GITHUB_STEP_SUMMARY
+   echo "Opportunities: $(cat data/opportunities/opportunities.json | python3 -c 'import sys,json;d=json.load(sys.stdin);print(len(d.get("opportunities",d) if isinstance(d,dict) else d))')" >> $GITHUB_STEP_SUMMARY
+
+Required secrets: ANTHROPIC_API_KEY, SOCRATA_APP_TOKEN (if needed for Socrata rate limits)</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="divider">// Block 5 , content flywheel</div>
+
+<div class="card david" data-tags="david high">
+<div class="card-top">
+  <div class="card-name">Create Buffer account + schedule Monday posts</div>
+  <div class="tags"><span class="tag t-david">David</span><span class="tag t-high">High</span></div>
+</div>
+<div class="why">Monday launch posts are already written in Gmail drafts. Buffer is the only missing piece. 20 minutes to set up.</div>
+<div class="step-label">// exact steps</div>
+<div class="prompt-wrap">
+<div class="ptext">1. buffer.com → sign up free
+2. Connect: LinkedIn personal, X (@TheCraneGenius), Facebook
+3. Open Gmail draft "THE IRONSHEET , Monday Launch Posts"
+4. Schedule X post: Monday 8:00 AM Pacific
+5. Schedule LinkedIn post: Monday 8:30 AM Pacific
+6. Schedule Facebook post: Monday 9:00 AM Pacific
+7. Get Buffer access token: buffer.com/account/settings
+8. Get Beehiiv API key: Beehiiv dashboard → Settings → API
+9. Add both to GitHub secrets:
+   github.com/Davidleeops/cranegenius/settings/secrets/actions
+   BUFFER_ACCESS_TOKEN = [token]
+   BEEHIIV_API_KEY = [key]</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex high">
+<div class="card-top">
+  <div class="card-name">Social content + Beehiiv GitHub Action</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-high">High</span><span class="tag t-codex">Blocked: Buffer token</span></div>
+</div>
+<div class="why">Zero manual social posts ever again after this. Reads top opportunities every Friday, formats 3 platform posts, fires to Buffer, assembles Beehiiv draft.</div>
+<div class="step-label">// cursor prompt</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: .github/workflows/content-pipeline.yml</div>
+<div class="ptext">Create .github/workflows/content-pipeline.yml
+
+Triggers: every Friday at 8 AM Pacific (cron: '0 16 * * 5') + workflow_dispatch
+
+Steps:
+1. Checkout repo
+2. Read data/opportunities/opportunities.json
+3. Get top 5 records by overall_priority_score (exclude: interior_alteration, tenant_improvement, retail_remodel, painting, cleaning)
+4. Get top city by count
+
+5. Format X post (max 280 chars):
+"{N} active crane-ready projects in {CITY} this week , sourced from permit data.
+Top job: {PROJECT_NAME} ({JOB_TYPE}).
+Full list: cranegenius.com/opportunities
+#construction #crane #{CITY}"
+
+6. Format LinkedIn post:
+"CraneGenius identified {N} active crane-ready projects in {CITY} this week , sourced from municipal permit data.
+
+Top opportunity: {PROJECT_NAME} , {JOB_TYPE}.
+
+Crane companies and GCs in {CITY}: full list at cranegenius.com/opportunities
+
+#construction #crane #{CITY} #buildintelligence"
+
+7. Format Facebook post:
+"{N} active crane-ready projects in {CITY} this week.
+Top job: {PROJECT_NAME} ({JOB_TYPE}).
+Full list: cranegenius.com/opportunities"
+
+8. POST each to Buffer API:
+   POST https://api.bufferapp.com/1/updates/create.json
+   Authorization: Bearer $BUFFER_ACCESS_TOKEN
+   Body: {text: "[post text]", profile_ids: ["[profile_id]"]}
+   (Get profile_ids first via GET https://api.bufferapp.com/1/profiles.json)
+
+9. Assemble Beehiiv newsletter draft with top 5 opportunities:
+   POST https://api.beehiiv.com/v2/publications/pub_f56762cf-7183-4678-b901-e26ea596909c/posts
+   Authorization: Bearer $BEEHIIV_API_KEY
+   Body: {title: "The Ironsheet , {DATE}", content: "[formatted HTML with top 5 opps]", status: "draft"}
+
+Log all API responses. Continue on failure , do not abort entire workflow.
+
+Required secrets: BUFFER_ACCESS_TOKEN, BEEHIIV_API_KEY</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="divider">// Block 6 , site pages (SEO + credibility)</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex high">
+<div class="card-top">
+  <div class="card-name">Export directory.json from SQLite (Codex B1)</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-high">High</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: data/directory/directory.json</div>
+<div class="ptext">Read ~/data_runtime/cranegenius_ci.db
+
+Export crane company records to data/directory/directory.json
+Schema per record: {company_name, city, state, crane_types:[], contact_name, website, phone, confidence_score}
+
+Filter: confidence_score >= 0.70, company_name not null
+Deduplicate by company_name + city (keep highest confidence_score)
+Sort: state ASC → city ASC → company_name ASC
+
+git add -f data/directory/directory.json && git commit -m "feat: directory JSON export" && git push
+Print: total exported, breakdown by state.</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude high">
+<div class="card-top">
+  <div class="card-name">Build directory page (Claude A4)</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-high">High</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: directory/index.html</div>
+<div class="ptext">Create directory/index.html in the cranegenius repo.
+
+Renders /data/directory/directory.json. Full CraneGenius design system:
+bg #080c14, panels #0d1628, cards #111e35, gold #F5A623, border #1e3a5f, Bebas Neue/DM Sans/DM Mono.
+
+Structure:
+1. Nav: Lift Estimator | Opportunities | Directory | Jobs | Education | The Ironsheet [gold pill] | Data Centers | Sell Your Company
+2. Hero: "Crane Company Directory" , "Every crane operator in our coverage markets. Searchable. Verified."
+3. Filters: State dropdown | City dropdown | Crane Type chips (all populated from JSON data)
+4. Company cards: name (Bebas Neue 18px), city/state (DM Mono muted), crane_types as gold tag chips, contact_name, website link if available
+5. Group by state with h2 per state for SEO indexing
+6. Beehiiv embed at bottom: iframe src="https://embeds.beehiiv.com/subscribe/pub_f56762cf-7183-4678-b901-e26ea596909c" width="100%" height="52"
+7. Empty state: "Directory loading..."
+
+git add directory/index.html && git commit -m "feat: crane company directory page" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex high">
+<div class="card-top">
+  <div class="card-name">Generate jobs.json from permit feed (Codex B2)</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-high">High</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: data/jobs/jobs.json</div>
+<div class="ptext">Read data/opportunities/opportunities.json (and opportunities_batch_2.json if it exists). Merge, deduplicate by opportunity_id.
+
+Include ONLY records where project_type contains any of:
+demolition, steel_erection, steel erection, tower_crane, tower crane, utility_infrastructure,
+telecom, hvac_rooftop, data_center, data_center_construction, modular, generator, rigging, curtain wall
+
+Output to data/jobs/jobs.json, schema per record:
+{project_name, address, city, state, job_type, lift_capacity_estimate, posted_date, status:"active", overall_priority_score}
+
+Sort by overall_priority_score desc. Limit 100.
+git add -f data/jobs/jobs.json && git commit -m "feat: jobs JSON from permit feed" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude high">
+<div class="card-top">
+  <div class="card-name">Build jobs board page (Claude A5)</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-high">High</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: jobs/index.html</div>
+<div class="ptext">Create jobs/index.html (overwrite existing , needs new design system).
+
+Renders /data/jobs/jobs.json. Full CraneGenius design system.
+
+Structure:
+1. Nav (same expanded nav as all new pages)
+2. Hero: "Active Crane Jobs" , "Permit-sourced crane opportunities. Updated weekly."
+3. Stat bar: total count, unique cities, most common job type (computed from JSON on load)
+4. Filters: City | Job Type
+5. Job cards: project_name bold, address DM Mono gold, city/state, job_type colored badge, lift_capacity_estimate, overall_priority_score as thin gold bar at card bottom (width = score%)
+6. Each card: "Get Crane Availability" button → window.openBotWithPrefill(project_name + ' ' + address) if available, else href="/?bot=1"
+7. Beehiiv embed at bottom
+8. Empty state: "Jobs feed updating..."
+
+git add jobs/index.html && git commit -m "feat: permit-sourced jobs board" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex high">
+<div class="card-top">
+  <div class="card-name">Generate education articles via Claude API (Codex B4)</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-high">High</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: scripts/generate_education_articles.py</div>
+<div class="ptext">Create scripts/generate_education_articles.py
+
+Calls claude-sonnet-4-20250514 for each of 5 articles.
+
+System prompt for all:
+"You are a construction industry expert writing for crane operators, GCs, and project managers.
+Write a practical guide. Plain markdown. 400-600 words. Prose only , no bullet points.
+Start with the most important point. End with exactly: 'Use the CraneGenius Lift Estimator to size the right crane for your job in 60 seconds at cranegenius.com'"
+
+Articles (title → slug → category):
+1. "How to Select a Crane for a Data Center Build" → data-center-crane-selection → data-center
+2. "What Permits Trigger a Crane Requirement in Texas" → texas-crane-permits → permit-guide
+3. "Mini Crane vs Mobile Crane for Commercial HVAC Installs" → mini-vs-mobile-hvac → hvac
+4. "Tower Crane Setup Time: What GCs Need to Plan For" → tower-crane-setup-time → tower-crane
+5. "How to Read a Lift Plan and What to Ask Your Crane Vendor" → how-to-read-lift-plan → rigging
+
+For each article:
+- Add to data/education/articles.json array: {slug, title, category, body_markdown, published_date}
+- Write education/{slug}/index.html: full CraneGenius design system page with article content + Lift Estimator CTA at end
+
+git add -f data/education/ education/ && git commit -m "feat: education library , 5 crane intelligence guides" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude high">
+<div class="card-top">
+  <div class="card-name">Build education index page (Claude A6)</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-high">High</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: education/index.html</div>
+<div class="ptext">Create education/index.html.
+
+Renders /data/education/articles.json. Full CraneGenius design system.
+
+Structure:
+1. Nav (same expanded nav)
+2. Hero: "Crane & Lift Intelligence Library" , "Practical guides from the field."
+3. Category filter tabs: All | Tower Crane | Rigging | Data Center | HVAC | Permit Guides
+4. Article cards: title (Bebas Neue 18px), category badge gold, published_date DM Mono muted, first 120 chars body as excerpt, "Read Guide →" button → /education/[slug]/
+5. Beehiiv embed at bottom
+6. Empty state: "Library building..."
+
+git add education/index.html && git commit -m "feat: education library index" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="divider">// Block 7 , high-value product fixes</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude high">
+<div class="card-top">
+  <div class="card-name">Fix data center AI planner auth + wire CAA intake</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-high">High</span></div>
+</div>
+<div class="why">The data center planner leads to the highest-value offer (CAA at $5K-$150K/mo). Auth header is broken so zero AI calls are working.</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: data-centers/index.html</div>
+<div class="ptext">Read data-centers/index.html.
+
+FIX 1 , Auth header:
+Find all fetch() calls to AI/API endpoints. Ensure every request includes:
+headers: { 'Content-Type': 'application/json', 'x-api-key': window.CONFIG?.ANTHROPIC_API_KEY || '' }
+If CONFIG is undefined or key is empty, show visible error in the planner UI:
+"AI Planner temporarily unavailable , contact info@CraneGenius.site for a manual crane plan."
+
+FIX 2 , Add-to-Plan button:
+Wire the "Add to Plan" button to append the selected crane to a running plan list using localStorage key 'cg_crane_plan'.
+Display the running plan below the results: each item shows crane type + capacity. Add "Clear Plan" button.
+
+FIX 3 , CAA Request Quote modal:
+Wire the "Request CAA Quote" button to open a modal with fields:
+Company name, project type (dropdown: data center / industrial / utility / other),
+project location, estimated MW or sq ft, timeline, name + email + phone.
+Submit → POST https://formspree.io/f/mgoldjjb with source:"caa-inquiry"
+Success: "Your request received. Preliminary crane access proposal within 24 hours."
+
+Commit: git add data-centers/index.html && git commit -m "fix: data center planner auth + CAA intake modal" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude high">
+<div class="card-top">
+  <div class="card-name">Fix marketplace bot CDN + wire inquiry form</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-high">High</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: marketplace/index.html</div>
+<div class="ptext">Read marketplace/index.html.
+
+FIX 1 , Bot panel:
+Find the script loading the bot panel. If it loads externally and fails (CDN issues), inline bot_snippet.html content directly into marketplace/index.html instead.
+Verify window.openBotWithPrefill is defined. Add console.log('marketplace bot loaded') to confirm.
+If function is missing entirely, create minimal fallback:
+window.openBotWithPrefill = function(msg) {
+  document.getElementById('bot-modal').style.display='flex';
+  document.getElementById('bot-prefill').value = msg;
+}
+And add a modal with id="bot-modal": equipment description textarea (id="bot-prefill"), name, email, submit → Formspree mgoldjjb.
+
+FIX 2 , "Inquire" button on each listing:
+Each listing card should have an "Inquire" button that calls:
+openBotWithPrefill('Inquiry about: ' + equipmentName + ' , ' + capacity + ' , ' + location)
+
+Commit: git add marketplace/index.html && git commit -m "fix: marketplace bot panel + inquiry form" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="divider">// Block 8 , acquisition funnel</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude med">
+<div class="card-top">
+  <div class="card-name">Complete sell-your-company intake + EBITDA calculator</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-med">Medium</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: sell-your-company/index.html</div>
+<div class="ptext">Read sell-your-company/index.html. Add to existing page without changing what's above:
+
+SECTION 1 , EBITDA Valuation Calculator (client-side only, no backend):
+Inputs: Annual Revenue ($), EBITDA Margin (%), Number of cranes, Years in business
+Output: "Estimated valuation: $[3x EBITDA] , $[5x EBITDA]" displayed in gold Bebas Neue 32px
+Note: "This is an estimate. CraneGenius provides detailed valuations on our no-obligation call."
+
+SECTION 2 , Acquisition Intake Form:
+Fields: Company name, City/State, Number of cranes (number input),
+Fleet types (checkboxes: Mobile / Tower / Mini / Boom Truck),
+Annual revenue (dropdown: under $500K / $500K-$1M / $1M-$2M / $2M-$5M / over $5M),
+Reason considering exit (dropdown: Retirement / Health / Burnout / Ready for next chapter / Just exploring),
+Timeline (dropdown: Within 6 months / Within 1 year / Within 2 years / Just want to know my options),
+Name + Email + Phone (phone optional)
+Submit → Formspree mgoldjjb with source:"acquisition"
+
+SECTION 3 , Confidentiality statement below form:
+"All inquiries are strictly confidential. CraneGenius will never contact your employees,
+customers, or competitors about a potential transaction without your explicit written consent."
+
+Commit: git add sell-your-company/index.html && git commit -m "feat: acquisition funnel , EBITDA calculator + intake form" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="divider">// Block 9 , automation and intelligence scale</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex med">
+<div class="card-top">
+  <div class="card-name">Build CAA intake page + contract generator</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-med">Medium</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// files: caa/index.html + scripts/generate_caa_contract.py</div>
+<div class="ptext">FILE 1: caa/index.html
+CAA inquiry page for data center developers and industrial operators.
+Full CraneGenius design system.
+
+Tier table:
+- Starter: $5K-$25K/mo , 24hr response guarantee, priority scheduling, monthly reporting
+- Enterprise: $50K-$150K+/mo , dedicated fleet allocation, 24/7 dispatch, real-time scheduling, multi-year
+
+Quote intake form fields:
+Company name, project type (data center/industrial/utility/other), city+state,
+estimated MW or sq ft, expected start date, crane requirements (or "unknown"),
+name + email + phone.
+Submit → Formspree mgoldjjb, source:"caa-quote"
+Success: "Request received. Preliminary proposal within 24 hours."
+
+FILE 2: scripts/generate_caa_contract.py
+Takes dict, writes contracts/caa/[company]_caa.txt:
+SLA terms, response time guarantees, fleet access tier, monthly fee, payment Net 7,
+term and renewal, termination 30 days written notice, confidentiality.
+Plain English. generate_caa_contract({"client":"Acme DC","tier":"Starter","fee":10000,"markets":["Phoenix"]})
+
+git add caa/ scripts/generate_caa_contract.py && git commit -m "feat: CAA intake page + contract generator" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex med">
+<div class="card-top">
+  <div class="card-name">Pre-bid attendance signal collector (Codex B6)</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-med">Medium</span></div>
+</div>
+<div class="why">Pre-bid attendance is the highest-value signal class missing from the pipeline. Projects appear in the feed 2-4 weeks before permit is filed. This puts CraneGenius ahead of every competitor.</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: scripts/signal_prebid_attendance.py</div>
+<div class="ptext">Read docs/signal_backlog.md and the existing signal collectors in the cranegenius repo.
+
+Create scripts/signal_prebid_attendance.py
+
+Scrapes public pre-bid meeting attendance lists from:
+- Illinois, Texas, Arizona, New York state procurement portals
+- Chicago, Dallas, Phoenix, NYC city procurement portals
+- Any Socrata endpoints publishing bid_attendance or prebid_meeting data
+
+Per record: project_name, project_address, city, state, bid_date, attending_companies (list)
+
+Score: crane_relevance_score weighted higher when multiple contractors attended (signals major work).
+signal_type = "prebid_attendance"
+
+Add to signal expansion loop in autonomy/agents/ so it runs on each pipeline cycle.
+Test with Chicago first, then expand.
+Document rate limits in docs/signal_architecture.md.</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex med">
+<div class="card-top">
+  <div class="card-name">Formspree → Google Sheets CRM sync</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-med">Medium</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: scripts/formspree_to_sheets.py + .github/workflows/crm-sync.yml</div>
+<div class="ptext">Create scripts/formspree_to_sheets.py
+
+1. GET https://formspree.io/api/0/forms/mgoldjjb/submissions (auth: FORMSPREE_API_KEY secret)
+2. Track last processed ID in data/crm/last_processed.json
+3. For each new submission extract: name, email, phone, message, source, timestamp
+4. Map source to lead type:
+   - estimator → "GC Lead"
+   - partner/onboarding → "Crane Co Lead"
+   - tip-page → "Tip Submission"
+   - marketplace → "Equipment Inquiry"
+   - caa-inquiry / caa-quote → "CAA Lead"
+   - acquisition → "Acquisition Lead"
+5. Append row to Google Sheet via Sheets API (GOOGLE_SHEETS_CREDENTIALS secret, sheet ID in config)
+6. Save updated last_processed.json
+
+Create .github/workflows/crm-sync.yml: runs every 30 minutes.
+
+Required secrets: FORMSPREE_API_KEY, GOOGLE_SHEETS_CREDENTIALS (service account JSON), SHEETS_ID</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex med">
+<div class="card-top">
+  <div class="card-name">EDGAR NLP prospecting engine</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-med">Medium</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: scripts/edgar_nlp_scraper.py + .github/workflows/edgar-monthly.yml</div>
+<div class="ptext">Create scripts/edgar_nlp_scraper.py
+
+Two target types:
+
+TARGET 1 , Acquisition targets (small crane companies):
+Search EDGAR full-text: https://efts.sec.gov/LATEST/search-index?q="crane"+"lifting+equipment"
+Filter: small companies (market cap under $10M if available, or under 100 employees)
+Extract: company_name, CIK, state, recent_revenue, employee_count
+Output: data/acquisition/edgar_targets.json
+
+TARGET 2 , CAA enterprise prospects (data center/industrial builders):
+Search: https://efts.sec.gov/LATEST/search-index?q="data+center"+"capital+expenditure"+"construction"
+Filter: capex > $50M in most recent annual filing
+Extract: company_name, CIK, state, capex_amount, CFO_name (from filing if available)
+Output: data/caa/edgar_prospects.json
+
+For each prospect: attempt SerpAPI lookup for LinkedIn/website (SERPAPI_KEY secret).
+No auth needed for EDGAR full-text search API.
+
+Create .github/workflows/edgar-monthly.yml: runs 1st of each month.
+
+git add scripts/edgar_nlp_scraper.py .github/workflows/edgar-monthly.yml && git commit -m "feat: EDGAR NLP prospecting engine" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude med">
+<div class="card-top">
+  <div class="card-name">Word of Mouth tip moderation queue</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-med">Medium</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: command-center/tips.html</div>
+<div class="ptext">Create command-center/tips.html
+
+Client-side tip moderation queue for The Ironsheet Word of Mouth section.
+
+On load: prompt for Formspree API key (store in sessionStorage , never in git).
+Fetch: GET https://formspree.io/api/0/forms/mgoldjjb/submissions
+Filter: submissions where source = "tip-page"
+
+Display each tip as a card: tip text, city/market, work type, submitter name (or "Anonymous"), date.
+Two buttons per card:
+- "Approve" → stores tip ID in localStorage key 'wom_approved' array
+- "Reject" → hides the card
+
+"Copy Approved Tips" button at top:
+Copies all approved tips formatted for Beehiiv paste:
+"WORD OF MOUTH // Submitted by [name] in [city]: [tip text]"
+
+Full CraneGenius design system.
+git add command-center/tips.html && git commit -m "feat: Word of Mouth tip moderation queue" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="card cursor-codex" data-tags="cursor-codex med">
+<div class="card-top">
+  <div class="card-name">Project Memory Graph , wire contractor relationships</div>
+  <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-med">Medium</span></div>
+</div>
+<div class="prompt-wrap">
+<div class="plabel">// file: autonomy/agents/ or src/ (wherever graph lives)</div>
+<div class="ptext">Read docs/project_memory_graph.md in the cranegenius repo.
+
+Wire the contractor graph to live data:
+1. For each opportunity in pipeline output, query cranegenius_ci.db for GC name matches
+2. For matched GCs, find associated crane companies (where crane_company = True or equipment_type LIKE '%crane%')
+3. Add "relationship_score" field to each opportunity JSON record:
+   = number of known GC↔crane_company edges in graph for this opportunity's GC
+4. Apply 1.15x multiplier to overall_priority_score where relationship_score > 0
+   (warm intro path , GC already knows a crane company we work with)
+5. Add relationship_score to the opportunities.json export schema
+
+This creates the warm intro signal: outreach that says "we know you've worked with [crane co]" gets 2-3x better reply rates.</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+<div class="divider">// Block 10 , nav restructure (do last, touches every page)</div>
+
+<div class="card cursor-claude" data-tags="cursor-claude high">
+<div class="card-top">
+  <div class="card-name">Nav restructure , all pages</div>
+  <div class="tags"><span class="tag t-claude">Cursor , Claude</span><span class="tag t-high">High</span></div>
+</div>
+<div class="why">Every page currently has a different or incomplete nav. Run this after all the new pages are built so the nav links don't 404.</div>
+<div class="prompt-wrap">
+<div class="plabel">// all HTML pages</div>
+<div class="ptext">Find every .html file in the cranegenius repo that contains a &lt;nav&gt; element.
+
+Replace the nav content in each file with this exact nav:
+&lt;nav style="position:sticky;top:0;z-index:80;display:flex;justify-content:space-between;align-items:center;padding:12px 24px;border-bottom:1px solid rgba(245,166,35,.22);background:rgba(8,12,20,.92);backdrop-filter:blur(12px)"&gt;
+  &lt;a href="/" style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#F5A623;text-decoration:none"&gt;CraneGenius&lt;/a&gt;
+  &lt;div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"&gt;
+    &lt;a href="/" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase"&gt;Lift Estimator&lt;/a&gt;
+    &lt;a href="/opportunities/" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase"&gt;Opportunities&lt;/a&gt;
+    &lt;a href="/directory/" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase"&gt;Directory&lt;/a&gt;
+    &lt;a href="/jobs/" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase"&gt;Jobs&lt;/a&gt;
+    &lt;a href="/education/" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase"&gt;Education&lt;/a&gt;
+    &lt;a href="/ironsheet/" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;background:#F5A623;color:#000;padding:5px 14px;border-radius:4px;text-decoration:none;letter-spacing:.05em;text-transform:uppercase"&gt;The Ironsheet&lt;/a&gt;
+    &lt;a href="/data-centers/" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase"&gt;Data Centers&lt;/a&gt;
+    &lt;a href="/sell-your-company/" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase"&gt;Sell Your Company&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;
+
+Skip: command-center/ pages (they don't need site nav).
+Do not change any other content on any page.
+
+Commit: git add *.html **/*.html && git commit -m "feat: unified nav , all pages updated" && git push</div>
+<button class="copy" onclick="cp(this)">Copy</button>
+</div>
+</div>
+
+</div>
+
+<script>
+function filter(f, btn) {
+  document.querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.card').forEach(c => {
+    const tags = c.dataset.tags || '';
+    if (f === 'all') { c.classList.remove('hidden'); return; }
+    if (f === 'critical') { c.classList.toggle('hidden', !tags.includes('critical')); return; }
+    c.classList.toggle('hidden', !tags.includes(f));
+  });
+}
+function cp(btn) {
+  const text = btn.previousElementSibling.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
