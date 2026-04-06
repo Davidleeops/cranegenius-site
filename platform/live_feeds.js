@@ -110,15 +110,25 @@
 
   // ── Fire hotspot layer ─────────────────────────────────────────────────────
   async function loadFires() {
-    try {
-      const res = await fetch(FIRE_URL);
-      if (!res.ok) throw new Error(`FIRMS ${res.status}`);
-      const csv = await res.text();
-      return parseFireCSV(csv);
-    } catch (e) {
-      console.warn('[CG Live Feeds] Fire fetch failed:', e.message);
-      return null;
+    // Try direct first, then CORS proxy fallback
+    const urls = [
+      FIRE_URL,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(FIRE_URL)}`,
+    ];
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        const csv = await res.text();
+        const result = parseFireCSV(csv);
+        if (result && result.features.length > 0) {
+          console.log(`[CG Live Feeds] Fire data loaded from ${url === FIRE_URL ? 'direct' : 'proxy'}`);
+          return result;
+        }
+      } catch (_) {}
     }
+    console.warn('[CG Live Feeds] Fire fetch failed from all sources');
+    return null;
   }
 
   function parseFireCSV(csv) {
