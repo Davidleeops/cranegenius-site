@@ -516,6 +516,16 @@
         return;
       }
       try {
+        // Test if style is ready by trying to add a throwaway source
+        try {
+          mapRef.addSource('__cg_intel_test', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+          mapRef.removeSource('__cg_intel_test');
+        } catch (_styleErr) {
+          // Style not ready yet — retry
+          retries++;
+          if (retries < 120) setTimeout(tryAdd, 1000);
+          return;
+        }
         // Add empty sources + layers
         for (const feedKey of Object.keys(FEEDS)) {
           addOrUpdateSource(mapRef, `cg-intel-${feedKey}`, { type: 'FeatureCollection', features: [] });
