@@ -12,7 +12,7 @@
   const FEEDS = {
     gdelt: { url: `${FEED_BASE}?feed=gdelt`, interval: 300000, label: 'Global Incidents', color: '#10b981' },
     adsb: { url: `${FEED_BASE}?feed=adsb`, interval: 60000, label: 'Aviation (ADS-B)', color: '#22d3ee' },
-    ais:  { url: `${FEED_BASE}?feed=ais`, interval: 120000, label: 'Maritime (AIS)', color: '#3b82f6' },
+    ais:  { url: null, interval: 0, label: 'Maritime (AIS)', color: '#3b82f6', ws: true },
   };
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -139,8 +139,69 @@
 
   const parsers = { gdelt: parseGDELT, adsb: parseADSB, ais: parseAIS };
 
+  // ── AISStream WebSocket collector ────────────────────────────────────
+  const AISSTREAM_KEY = 'be13c88e5869660929896d4410fee47d37e46276';
+  const aisVessels = {};
+  let aisWs = null;
+
+  function connectAIS() {
+    if (aisWs && aisWs.readyState <= 1) return; // already open or connecting
+    try {
+      aisWs = new WebSocket('wss://stream.aisstream.io/v0/stream');
+      aisWs.onopen = function () {
+        console.log('[CG Intel] AISStream connected');
+        aisWs.send(JSON.stringify({
+          APIKey: AISSTREAM_KEY,
+          BoundingBoxes: [[[-90, -180], [90, 180]]],
+          FilterMessageTypes: ['PositionReport'],
+        }));
+      };
+      aisWs.onmessage = function (evt) {
+        try {
+          var msg = JSON.parse(evt.data);
+          if (msg.MessageType === 'PositionReport') {
+            var pos = msg.Message && msg.Message.PositionReport;
+            var meta = msg.MetaData;
+            if (pos && meta) {
+              aisVessels[meta.MMSI] = {
+                mmsi: meta.MMSI,
+                name: (meta.ShipName || '').trim(),
+                lat: pos.Latitude,
+                lng: pos.Longitude,
+                speed: pos.Sog,
+                heading: pos.TrueHeading === 511 ? pos.Cog : pos.TrueHeading,
+              };
+            }
+          }
+        } catch (_) {}
+      };
+      aisWs.onerror = function () { console.warn('[CG Intel] AISStream error'); };
+      aisWs.onclose = function () {
+        console.log('[CG Intel] AISStream closed, reconnecting in 30s');
+        setTimeout(connectAIS, 30000);
+      };
+    } catch (e) { console.warn('[CG Intel] AIS connect failed:', e); }
+  }
+
+  function getAISGeoJSON() {
+    var features = [];
+    for (var mmsi in aisVessels) {
+      var v = aisVessels[mmsi];
+      features.push({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [v.lng, v.lat] },
+        properties: { id: 'ais-' + v.mmsi, name: v.name || ('MMSI ' + v.mmsi), speed: v.speed, heading: v.heading, mmsi: v.mmsi },
+      });
+    }
+    return { type: 'FeatureCollection', features: features };
+  }
+
   // ── Fetch feed data ──────────────────────────────────────────────────
   async function fetchFeed(feedKey) {
+    if (feedKey === 'ais') {
+      // AIS uses WebSocket — return accumulated vessels
+      return getAISGeoJSON();
+    }
     try {
       const resp = await fetch(FEEDS[feedKey].url);
       if (!resp.ok) { console.warn(`[CG Intel] ${feedKey} returned ${resp.status}`); return null; }
@@ -473,9 +534,12 @@
           refreshFeedWithCount(mapRef, 'adsb');
           timers.adsb = setInterval(() => refreshFeedWithCount(mapRef, 'adsb'), FEEDS.adsb.interval);
         }, 1500);
+        // AIS uses WebSocket — start connection and update map every 10s
         setTimeout(() => {
-          refreshFeedWithCount(mapRef, 'ais');
-          timers.ais = setInterval(() => refreshFeedWithCount(mapRef, 'ais'), FEEDS.ais.interval);
+          connectAIS();
+          // First update after 10s to let vessels accumulate
+          setTimeout(() => refreshFeedWithCount(mapRef, 'ais'), 10000);
+          timers.ais = setInterval(() => refreshFeedWithCount(mapRef, 'ais'), 10000);
         }, 2500);
 
         window.__cg_intel = { layerState, FEEDS, timers, mapRef };
