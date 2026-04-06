@@ -375,7 +375,7 @@
           layerState[key] = !layerState[key];
           saveState();
           applyStyle(toggle, layerState[key]);
-          setVisibility(map, key, layerState[key]);
+          if (mapRef) setVisibility(mapRef, key, layerState[key]);
         });
       });
 
@@ -441,57 +441,62 @@
   }
 
   // ── Main ─────────────────────────────────────────────────────────────
-  async function init() {
+  function init() {
     injectStyles();
 
-    // Poll for map instance
-    let mapAttempts = 0;
-    const startPoll = () => {
+    let layersAdded = false;
+    let retries = 0;
+    const tryAdd = () => {
+      if (layersAdded) return;
       mapRef = findMap();
-      if (mapRef) {
-        console.log('[CG Intel] Map instance found, initializing intelligence feeds...');
-        wireSidebar(mapRef);
-
-        // Initialize empty sources first, then start refresh loops
+      if (!mapRef) {
+        retries++;
+        if (retries < 120) setTimeout(tryAdd, 1000);
+        return;
+      }
+      try {
+        // Add empty sources + layers
         for (const feedKey of Object.keys(FEEDS)) {
           addOrUpdateSource(mapRef, `cg-intel-${feedKey}`, { type: 'FeatureCollection', features: [] });
           layerSetup[feedKey](mapRef);
           setVisibility(mapRef, feedKey, layerState[feedKey]);
         }
+        layersAdded = true;
+        console.log('[CG Intel] All 3 sources + layers added to map');
 
-        // Start refresh loops (staggered to avoid hammering)
+        // Start refresh loops (staggered)
         setTimeout(() => {
           refreshFeedWithCount(mapRef, 'gdelt');
-          if (timers.gdelt) clearInterval(timers.gdelt);
           timers.gdelt = setInterval(() => refreshFeedWithCount(mapRef, 'gdelt'), FEEDS.gdelt.interval);
         }, 500);
-
         setTimeout(() => {
           refreshFeedWithCount(mapRef, 'adsb');
-          if (timers.adsb) clearInterval(timers.adsb);
           timers.adsb = setInterval(() => refreshFeedWithCount(mapRef, 'adsb'), FEEDS.adsb.interval);
         }, 1500);
-
         setTimeout(() => {
           refreshFeedWithCount(mapRef, 'ais');
-          if (timers.ais) clearInterval(timers.ais);
           timers.ais = setInterval(() => refreshFeedWithCount(mapRef, 'ais'), FEEDS.ais.interval);
         }, 2500);
 
-        console.log('[CG Intel] All 3 intelligence feed layers initialized');
         window.__cg_intel = { layerState, FEEDS, timers, mapRef };
-        return;
+      } catch (e) {
+        retries++;
+        if (retries < 120) {
+          setTimeout(tryAdd, 1000);
+        } else {
+          console.warn('[CG Intel] Gave up after 120 retries:', e.message);
+        }
       }
-      mapAttempts++;
-      if (mapAttempts < 120) setTimeout(startPoll, 1000);
-      else console.warn('[CG Intel] Map not found after 120 attempts');
     };
-    setTimeout(startPoll, 3000); // start after equipment layers have had time
+    // Wire sidebar immediately (doesn't need map style)
+    wireSidebar(null);
+    // Start polling after 3s to let equipment layers initialize first
+    setTimeout(tryAdd, 3000);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 1500));
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    setTimeout(init, 1500);
+    init();
   }
 })();
