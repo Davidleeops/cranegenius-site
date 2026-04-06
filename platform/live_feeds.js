@@ -6,7 +6,8 @@
   'use strict';
 
   const EARTHQUAKE_URL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson';
-  const FIRE_URL = 'https://firms.modaps.eosdis.nasa.gov/api/area/csv/d0a43f563a39810ec3e498cdd64bee7a/VIIRS_SNPP_NRT/world/1';
+  // NASA EONET — public, CORS-friendly wildfire events (no key needed)
+  const FIRE_URL = 'https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires&days=7&status=open&limit=200';
 
   // ── Map discovery (same pattern as equipment_layers.js) ────────────────────
   function findMap() {
@@ -110,63 +111,38 @@
 
   // ── Fire hotspot layer ─────────────────────────────────────────────────────
   async function loadFires() {
-    // Try direct first, then CORS proxy fallback
-    const urls = [
-      FIRE_URL,
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(FIRE_URL)}`,
-    ];
-    for (const url of urls) {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) continue;
-        const csv = await res.text();
-        const result = parseFireCSV(csv);
-        if (result && result.features.length > 0) {
-          console.log(`[CG Live Feeds] Fire data loaded from ${url === FIRE_URL ? 'direct' : 'proxy'}`);
-          return result;
-        }
-      } catch (_) {}
-    }
-    console.warn('[CG Live Feeds] Fire fetch failed from all sources');
-    return null;
-  }
-
-  function parseFireCSV(csv) {
-    const lines = csv.trim().split('\n');
-    if (lines.length < 2) return null;
-
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-    const latIdx = headers.indexOf('latitude');
-    const lngIdx = headers.indexOf('longitude');
-    const brightIdx = headers.indexOf('bright_ti4');
-    const confIdx = headers.indexOf('confidence');
-    const dateIdx = headers.indexOf('acq_date');
-    const timeIdx = headers.indexOf('acq_time');
-
-    if (latIdx < 0 || lngIdx < 0) {
-      console.warn('[CG Live Feeds] Fire CSV missing lat/lng columns');
+    try {
+      const res = await fetch(FIRE_URL);
+      if (!res.ok) throw new Error(`EONET ${res.status}`);
+      const data = await res.json();
+      return parseEONET(data);
+    } catch (e) {
+      console.warn('[CG Live Feeds] Fire fetch failed:', e.message);
       return null;
     }
+  }
 
+  function parseEONET(data) {
     const features = [];
-    for (let i = 1; i < lines.length; i++) {
-      const cols = lines[i].split(',');
-      const lat = parseFloat(cols[latIdx]);
-      const lng = parseFloat(cols[lngIdx]);
-      if (isNaN(lat) || isNaN(lng)) continue;
-
-      const brightness = parseFloat(cols[brightIdx]) || 300;
-      const confidence = cols[confIdx] || 'n';
-      const acqDate = cols[dateIdx] || '';
-      const acqTime = cols[timeIdx] || '';
-
-      features.push({
-        type: 'Feature',
-        properties: { brightness, confidence, acq_date: acqDate, acq_time: acqTime },
-        geometry: { type: 'Point', coordinates: [lng, lat] },
-      });
+    for (const event of (data.events || [])) {
+      // Each event can have multiple geometry entries; use the latest
+      const geoms = event.geometry || [];
+      for (const g of geoms) {
+        if (g.type !== 'Point' || !g.coordinates) continue;
+        const [lng, lat] = g.coordinates;
+        if (isNaN(lat) || isNaN(lng)) continue;
+        features.push({
+          type: 'Feature',
+          properties: {
+            title: event.title || 'Wildfire',
+            date: g.date || '',
+            source: (event.sources && event.sources[0]?.url) || '',
+            category: 'wildfire',
+          },
+          geometry: { type: 'Point', coordinates: [lng, lat] },
+        });
+      }
     }
-
     return { type: 'FeatureCollection', features };
   }
 
@@ -184,23 +160,11 @@
       type: 'circle',
       source: srcId,
       paint: {
-        'circle-radius': [
-          'interpolate', ['linear'], ['get', 'brightness'],
-          300, 3,
-          350, 5,
-          400, 8,
-          500, 12,
-        ],
-        'circle-color': [
-          'interpolate', ['linear'], ['get', 'brightness'],
-          300, '#fb923c',   // orange
-          350, '#f97316',   // deeper orange
-          400, '#ef4444',   // red
-          500, '#991b1b',   // dark red
-        ],
-        'circle-opacity': 0.7,
-        'circle-stroke-width': 0.5,
-        'circle-stroke-color': 'rgba(255,200,100,0.4)',
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 4, 6, 6, 10, 9, 14, 12],
+        'circle-color': '#f97316',
+        'circle-opacity': 0.8,
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': '#ef4444',
       },
     });
 
@@ -210,16 +174,15 @@
       const f = e.features[0];
       const p = f.properties;
       const coords = f.geometry.coordinates.slice(0, 2);
-      const confLabel = p.confidence === 'h' ? 'High' : p.confidence === 'n' ? 'Nominal' : p.confidence === 'l' ? 'Low' : p.confidence;
+      const date = p.date ? new Date(p.date).toLocaleString() : '';
 
       new (window.maplibregl || window.mapboxgl).Popup({ closeButton: true, maxWidth: '280px', className: 'cg-equip-popup' })
         .setLngLat(coords)
         .setHTML(`
           <div style="font-family:'DM Sans',system-ui,sans-serif;max-width:260px;padding:2px;">
-            <div style="font-size:10px;color:#f97316;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px;">FIRE HOTSPOT</div>
-            <div style="font-size:15px;font-weight:700;color:#e8f0ff;margin-bottom:4px;">Brightness: ${p.brightness}K</div>
-            <div style="font-size:11px;color:#8899aa;margin-bottom:2px;">Confidence: ${confLabel}</div>
-            <div style="font-size:10px;color:#667788;">${p.acq_date} ${p.acq_time ? p.acq_time.toString().padStart(4, '0').replace(/(\d{2})(\d{2})/, '$1:$2') + ' UTC' : ''}</div>
+            <div style="font-size:10px;color:#f97316;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px;">WILDFIRE</div>
+            <div style="font-size:13px;font-weight:600;color:#e8f0ff;margin-bottom:4px;line-height:1.3;">${p.title || 'Active Fire'}</div>
+            <div style="font-size:10px;color:#667788;">${date}</div>
           </div>
         `)
         .addTo(map);
@@ -272,7 +235,7 @@
 
       const feeds = [
         { key: 'earthquakes', label: 'Earthquakes (USGS)', color: '#facc15', count: counts.earthquakes, icon: '<circle cx="12" cy="12" r="8" fill="none"/><path d="M4 12h2l1-3 2 6 2-6 2 6 1-3h2"/>' },
-        { key: 'fires', label: 'Fire Hotspots (NASA)', color: '#f97316', count: counts.fires, icon: '<path d="M12 2c0 4-4 6-4 10a4 4 0 008 0c0-4-4-6-4-10z"/><path d="M12 22v-4"/>' },
+        { key: 'fires', label: 'Wildfires (NASA EONET)', color: '#f97316', count: counts.fires, icon: '<path d="M12 2c0 4-4 6-4 10a4 4 0 008 0c0-4-4-6-4-10z"/><path d="M12 22v-4"/>' },
       ];
 
       feeds.forEach(({ key, label, color, count, icon }) => {
