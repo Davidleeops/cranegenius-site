@@ -32,10 +32,6 @@ var r2=el;for(var k=0;k<5;k++){r2=r2.parentElement;if(!r2)break;if(r2.offsetHeig
 if(t==='DISCUSSIONS'||t.indexOf('CHECK UPDATES')!==-1||t.indexOf('AUTO UPDATE')!==-1){
 var a=el.closest('a')||el.closest('button');if(a)a.style.display='none';
 }
-// Floating panels
-if(t==='LIVE NEWS'||t==='LIVE WEBCAMS'||t==='INDUSTRIAL INTELLIGENCE'){
-var p2=el;for(var i=0;i<8;i++){p2=p2.parentElement;if(!p2)break;var s=getComputedStyle(p2);if(s.position==='absolute'&&p2.offsetHeight>80){p2.style.display='none';break;}}
-}
 });
 // Fix search
 document.querySelectorAll('input[placeholder]').forEach(function(el){
