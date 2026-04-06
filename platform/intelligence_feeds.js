@@ -12,7 +12,7 @@
   const FEEDS = {
     gdelt: { url: `${FEED_BASE}?feed=gdelt`, interval: 300000, label: 'Global Incidents', color: '#10b981' },
     adsb: { url: `${FEED_BASE}?feed=adsb`, interval: 60000, label: 'Aviation (ADS-B)', color: '#22d3ee' },
-    ais:  { url: null, interval: 0, label: 'Maritime (AIS)', color: '#3b82f6', ws: true },
+    ais:  { url: 'ws-direct', interval: 10000, label: 'Maritime (AIS)', color: '#3b82f6', ws: true },
   };
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -456,7 +456,7 @@
     const el = document.querySelector(`.cg-intel-count[data-feed="${feedKey}"]`);
     if (el) {
       const interval = FEEDS[feedKey].interval / 1000;
-      el.textContent = `${count.toLocaleString()} items \u00b7 ${interval}s refresh`;
+      el.textContent = feedKey === 'ais' ? `${count.toLocaleString()} vessels \u00b7 live stream` : `${count.toLocaleString()} items \u00b7 ${interval}s refresh`;
     }
   }
 
