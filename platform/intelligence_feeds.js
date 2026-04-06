@@ -554,6 +554,8 @@
     };
     // Wire sidebar immediately (doesn't need map style)
     wireSidebar(null);
+    // Start AIS WebSocket immediately — accumulate vessels while map loads
+    connectAIS();
     // Start polling after 3s to let equipment layers initialize first
     setTimeout(tryAdd, 3000);
   }
