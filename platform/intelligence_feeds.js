@@ -29,7 +29,10 @@
 
   // ── Find MapLibre map (same pattern as equipment_layers.js) ──────────
   function findMap() {
+    // Check maps found by other scripts first
     if (window.__cg_map && window.__cg_map.addSource) return window.__cg_map;
+    if (window.__cg_equipment_map && window.__cg_equipment_map.addSource) return window.__cg_equipment_map;
+    if (window.__cg_equipment && window.__cg_equipment.mapRef && window.__cg_equipment.mapRef.addSource) return window.__cg_equipment.mapRef;
     try {
       const mapEl = document.querySelector('.maplibregl-map') || document.querySelector('.mapboxgl-map');
       if (mapEl) {
