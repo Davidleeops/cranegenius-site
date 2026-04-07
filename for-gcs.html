@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crane Intelligence for GCs & Developers | CraneGenius</title>
+  <meta name="description" content="Free crane planning tools for general contractors, project managers, and infrastructure developers. Access lift estimates, hyperscale planning, and the monthly crane intelligence brief.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F8C5G2JQ8Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F8C5G2JQ8Q');
+  </script>
+  <style>
+    :root {
+      --bg: #080e1a;
+      --bg-panel: #0f1727;
+      --bg-card: #111b2d;
+      --gold: #c9a84c;
+      --gold-soft: rgba(201,168,76,0.25);
+      --white: #f4f1ea;
+      --muted: #8a94ad;
+      --mono: 'DM Mono', monospace;
+      --display: 'Bebas Neue', sans-serif;
+      --body: 'DM Sans', sans-serif;
+    }
+    *,*::before,*::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+    }
+    .page-shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 96px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 64px;
+    }
+    .logo-mark {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: var(--white);
+    }
+    .logo-mark svg { width: 42px; height: 42px; }
+    .logo-type {
+      font-family: var(--display);
+      font-size: 34px;
+      letter-spacing: 0.08em;
+      display: flex;
+      gap: 6px;
+    }
+    .logo-type span:last-child { color: var(--gold); }
+    .logo-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(201,168,76,0.65);
+      letter-spacing: 0.3em;
+      margin-top: 4px;
+    }
+    .cta-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--gold);
+      border: 1px solid var(--gold-soft);
+      padding: 8px 18px;
+      border-radius: 999px;
+      transition: background 0.2s;
+    }
+    .cta-link:hover { background: rgba(201,168,76,0.12); }
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.3em;
+      margin-bottom: 18px;
+    }
+    h1 {
+      font-family: var(--display);
+      font-size: clamp(42px, 6vw, 72px);
+      letter-spacing: 0.05em;
+      margin: 0 0 16px;
+    }
+    .subhead {
+      font-size: 20px;
+      color: var(--muted);
+      max-width: 720px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 72px;
+    }
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--gold-soft);
+      padding: 32px;
+      border-radius: 18px;
+      box-shadow: 0 30px 80px rgba(5,8,15,0.5);
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .tool-card h3 {
+      font-family: var(--display);
+      font-size: 32px;
+      letter-spacing: 0.04em;
+    }
+    .tool-card p { color: var(--muted); font-size: 16px; }
+    .tool-card a {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--bg);
+      font-weight: 600;
+      background: var(--gold);
+      padding: 12px 18px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+    }
+    .lead-panel {
+      border: 1px solid var(--gold);
+      border-radius: 20px;
+      padding: 40px;
+      background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(8,14,26,0.9));
+    }
+    .lead-panel h2 {
+      font-family: var(--display);
+      font-size: 40px;
+      margin: 0 0 12px;
+    }
+    .lead-panel p { color: var(--muted); margin: 0 0 28px; max-width: 640px; }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    input[type="email"] {
+      flex: 1;
+      min-width: 240px;
+      padding: 16px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(201,168,76,0.4);
+      background: rgba(8,14,26,0.6);
+      color: var(--white);
+      font-size: 16px;
+      font-family: var(--body);
+    }
+    input[type="email"]::placeholder { color: rgba(255,255,255,0.4); }
+    button[type="submit"] {
+      border: none;
+      border-radius: 999px;
+      padding: 16px 22px;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: var(--gold);
+      color: var(--bg);
+      transition: opacity 0.2s;
+    }
+    button[type="submit"]:hover { opacity: 0.9; }
+    .fine-print {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 14px;
+    }
+    @media (max-width: 720px) {
+      header { flex-direction: column; gap: 18px; }
+      .logo-type { font-size: 30px; }
+      .lead-panel { padding: 28px; }
+      form { flex-direction: column; }
+      button[type="submit"] { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header>
+      <a href="/" class="logo-mark">
+        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="40" cy="40" r="33" stroke="#c9a84c" stroke-width="1.5" opacity="0.85" fill="none" />
+          <path d="M55.56 24.44A22 22 0 1 1 24.44 24.44" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round" opacity="0.55" fill="none" />
+          <circle cx="55.56" cy="24.44" r="2.8" fill="#c9a84c" opacity="0.9" />
+          <circle cx="40" cy="40" r="11" stroke="#c9a84c" stroke-width="1" opacity="0.65" fill="none" />
+          <circle cx="40" cy="40" r="3.5" fill="#c9a84c" />
+        </svg>
+        <div>
+          <div class="logo-type"><span>CAPEX</span><span>LAYER</span></div>
+          <div class="logo-sub">CRANEGENIUS.COM</div>
+        </div>
+      </a>
+      <a href="https://calendly.com/lemuel-lee-jr/15min" target="_blank" class="cta-link">Book a Call</a>
+    </header>
+
+    <div class="hero-eyebrow">// FOR PROJECT OWNERS · GCS · HYPERSCALERS</div>
+    <h1>You're Building Something. We Help You Move It.</h1>
+    <p class="subhead">Free crane intelligence tools for project owners, GCs, and infrastructure developers. No commitment. We're paid by crane companies.</p>
+
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h3>Free Lift Cost Estimator</h3>
+        <p>Get a preliminary crane sizing and cost range for your specific job. 60 seconds. AI-generated, not engineering advice.</p>
+        <a href="/estimate/">Get My Estimate →</a>
+      </div>
+      <div class="tool-card">
+        <h3>Data Center Crane Planner</h3>
+        <p>Scoping tool for hyperscale and colocation builds. Get a crane type matrix and vendor shortlist for your site.</p>
+        <a href="/data-centers/ai-planner/">Build My Crane Plan →</a>
+      </div>
+    </div>
+
+    <div class="lead-panel">
+      <h2>Get the monthly crane intelligence brief for your market.</h2>
+      <p>We track building permits and infrastructure projects across 36 cities. One email per week. No pitch.</p>
+      <form action="https://formspree.io/f/mgoldjjb" method="POST">
+        <input type="hidden" name="source" value="for-gcs-page">
+        <input type="email" name="email" placeholder="Your work email" required>
+        <button type="submit">Send Me the Brief</button>
+      </form>
+      <div class="fine-print">We only email when we have new verified opportunities. Unsubscribe anytime.</div>
+    </div>
+  </div>
+</body>
+</html>
