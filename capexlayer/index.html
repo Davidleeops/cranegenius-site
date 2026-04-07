@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapexLayer — Industrial Intelligence Engine</title>
+<meta name="description" content="CapexLayer reads the full industrial and construction signal trail and powers CraneGenius with 70+ early demand signals, outreach orchestration, and partner workflows.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F8C5G2JQ8Q"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-F8C5G2JQ8Q');
+</script>
+<style>
+  :root {
+    --bg:#050914;
+    --bg-alt:#0d1424;
+    --panel:#111b2d;
+    --gold:#c9a84c;
+    --teal:#2bd4c7;
+    --muted:#8a9bb5;
+    --white:#f4f1ea;
+    --border:rgba(201,168,76,0.2);
+    --font-display:'Bebas Neue',sans-serif;
+    --font-body:'DM Sans',sans-serif;
+    --font-mono:'DM Mono',monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--white);font-family:var(--font-body);line-height:1.7;-webkit-font-smoothing:antialiased;}
+  a{text-decoration:none;color:inherit;}
+  .nav{position:sticky;top:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(5,9,20,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);}
+  .nav-left{display:flex;align-items:center;gap:14px;}
+  .wordmark{display:flex;flex-direction:column;gap:4px;}
+  .wordmark-main{font-family:var(--font-display);font-size:32px;letter-spacing:0.08em;display:flex;gap:6px;}
+  .wordmark-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:0.18em;color:rgba(201,168,76,0.7);text-transform:uppercase;}
+  .nav-links{display:flex;gap:32px;font-size:14px;color:var(--muted);}
+  .nav-links a:hover{color:var(--gold);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border);padding:12px 22px;border-radius:999px;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;font-family:var(--font-mono);transition:background .2s,color .2s;}
+  .btn-gold{background:var(--gold);color:#050914;border-color:var(--gold);}
+  .btn-gold:hover{background:#e2c56f;}
+  .btn-ghost:hover{background:rgba(201,168,76,0.1);color:var(--gold);}
+  main{overflow:hidden;}
+  section{padding:100px 48px;border-bottom:1px solid rgba(255,255,255,0.05);} 
+  .hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:40px;padding-top:80px;padding-bottom:120px;background:radial-gradient(circle at 20% 20%,rgba(43,212,199,0.25),transparent 55%),radial-gradient(circle at 80% 0%,rgba(201,168,76,0.18),transparent 60%);}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;display:inline-flex;align-items:center;gap:10px;}
+  .eyebrow::before{content:'';display:inline-block;width:30px;height:1px;background:var(--gold);}
+  h1{font-family:var(--font-display);font-size:clamp(44px,6vw,72px);letter-spacing:0.04em;margin:0 0 20px;line-height:1.05;}
+  .hero p{color:var(--muted);font-size:18px;max-width:520px;}
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;margin-top:28px;}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;margin-top:48px;}
+  .stat-card{background:var(--panel);padding:24px;border:1px solid var(--border);border-radius:16px;}
+  .stat-card h3{font-size:36px;font-family:var(--font-display);margin:0;color:var(--gold);}
+  .stat-card span{display:block;font-size:13px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:6px;}
+  .grid-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:40px;align-items:center;}
+  .card{background:var(--panel);padding:32px;border:1px solid var(--border);border-radius:18px;box-shadow:0 40px 80px rgba(0,0,0,0.25);}
+  .card h2,.card h3{font-family:var(--font-display);letter-spacing:0.04em;margin:0 0 16px;font-size:38px;}
+  ul.feature-list{list-style:none;padding:0;margin:0;display:grid;gap:12px;}
+  ul.feature-list li{display:flex;gap:10px;align-items:flex-start;color:var(--muted);}
+  ul.feature-list li::before{content:'//';font-family:var(--font-mono);color:var(--teal);font-size:11px;margin-top:3px;}
+  .signal-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+  .signal-tags span{border:1px solid rgba(201,168,76,0.35);border-radius:999px;padding:6px 14px;font-size:12px;font-family:var(--font-mono);letter-spacing:0.08em;color:var(--muted);}
+  .proof-panel{background:var(--bg-alt);padding:32px;border:1px solid rgba(43,212,199,0.25);border-radius:18px;}
+  .proof-panel h3{font-family:var(--font-display);font-size:32px;margin:0 0 12px;}
+  .proof-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-top:24px;}
+  .metric{padding:18px;border:1px dashed rgba(201,168,76,0.4);border-radius:12px;}
+  .metric strong{display:block;font-size:30px;font-family:var(--font-display);color:var(--gold);}
+  .proof-list{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:10px;color:var(--muted);}
+  .proof-list li{display:flex;gap:8px;align-items:flex-start;font-size:14px;}
+  .proof-list li::before{content:'↗';color:var(--gold);font-family:var(--font-mono);font-size:12px;margin-top:2px;}
+  .api-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:32px;}
+  .api-card{border:1px solid rgba(43,212,199,0.35);border-radius:12px;padding:20px;background:rgba(43,212,199,0.04);}
+  .api-card code{display:block;background:rgba(0,0,0,0.4);padding:14px;border-radius:10px;font-family:var(--font-mono);font-size:12px;color:#97ffe5;margin-top:14px;white-space:pre-wrap;}
+  .audience-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:32px;}
+  .audience-card{border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;background:rgba(255,255,255,0.02);}
+  form{display:grid;gap:16px;margin-top:24px;}
+  input,textarea{padding:14px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;background:rgba(255,255,255,0.02);color:var(--white);font-family:var(--font-body);font-size:14px;}
+  input:focus,textarea:focus{outline:none;border-color:var(--gold);}
+  footer{padding:40px 24px;text-align:center;font-family:var(--font-mono);font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,168,76,0.75);}
+@media (max-width:768px){
+    .nav{flex-wrap:wrap;padding:16px 24px;gap:18px;}
+    .nav-links{flex-wrap:wrap;gap:18px;}
+    section{padding:72px 24px;}
+    .hero{padding:72px 24px;}
+  }
+</style>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "CLARITY_PROJECT_ID_HERE");
+</script>
+<!-- RB2B Company Identification -->
+<script type="text/javascript">
+!function(){var e,t,n;e="RB2B_PIXEL_ID_HERE",
+t=window,n=document,t.__rb2b=t.__rb2b||function(){
+(t.__rb2b.q=t.__rb2b.q||[]).push(arguments)};
+var s=n.createElement("script");s.async=!0;
+s.src="https://s3-us-west-2.amazonaws.com/b2bjsstore/b/"+e+"/rb2b.js.gz";
+var r=n.getElementsByTagName("script")[0];
+r.parentNode.insertBefore(s,r)}();
+</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-left">
+    <div class="wordmark">
+      <div class="wordmark-main"><span style="color:#ffffff;">CAPEX</span><span style="color:var(--gold);">LAYER</span></div>
+      <div class="wordmark-sub">INDUSTRIAL INTELLIGENCE ENGINE</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#signals">Signals</a>
+    <a href="#proof">Live Proof</a>
+    <a href="#api">API</a>
+    <a href="#who">Who Uses This</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn btn-ghost" href="https://calendly.com/lemuel-lee-jr/15min" target="_blank">Book a Call</a>
+  </div>
+</header>
+<main>
+<section class="hero" id="home">
+  <div>
+    <div class="eyebrow">Signal Intelligence Stack</div>
+    <h1>Read the Full Project Signal Trail Before the Market Crowds In.</h1>
+    <p>CapexLayer ingests 70+ industrial and construction signal classes — permits, utility data, procurement clues, labor indicators, movement telemetry — and scores them for commercial relevance. CraneGenius runs on top of CapexLayer so partners move before bids lock.</p>
+    <div class="hero-cta">
+      <a href="https://calendly.com/lemuel-lee-jr/15min" target="_blank" class="btn btn-gold">Talk with the team</a>
+      <a href="/demo/" class="btn btn-ghost">Watch the live brief</a>
+    </div>
+  </div>
+  <div>
+    <div class="stat-grid">
+      <div class="stat-card"><h3>70+</h3><span>Signal classes fused</span></div>
+      <div class="stat-card"><h3>36</h3><span>Primary metros under continuous coverage</span></div>
+      <div class="stat-card"><h3>13,460+</h3><span>Active industrial signals scored weekly</span></div>
+      <div class="stat-card"><h3>21 Days</h3><span>Average lead window before competitors</span></div>
+    </div>
+  </div>
+</section>
+<section id="signals" class="grid-two">
+  <div>
+    <div class="eyebrow">What CapexLayer Does</div>
+    <h2 style="font-family:var(--font-display);font-size:46px;margin:0 0 16px;">Industrial Intelligence, Not Permit Scraping.</h2>
+    <p>CapexLayer treats permits as one signal among many. We read SEC and EDGAR filings, utility interconnect queues, procurement notices, labor board filings, federal register actions, substation telemetry, AIS/ADS-B feeds, and on-the-ground movement data. Everything is normalized, time-aligned, and scored for equipment demand.</p>
+  </div>
+  <div class="card">
+    <h3>How the Signal Trail Forms</h3>
+    <ul class="feature-list">
+      <li><strong>Signal acquisition</strong> — 70+ structured and unstructured feeds ingested hourly.</li>
+      <li><strong>Classification</strong> — domain-specific models mark crane probability, lift class, and timing.</li>
+      <li><strong>Motion layer</strong> — rail, maritime, and aerial telemetry confirm equipment movement.</li>
+      <li><strong>Outreach orchestration</strong> — CapexLayer pushes scored opportunities into CraneGenius for managed outreach.</li>
+      <li><strong>Feedback loop</strong> — replies, wins, and timing data retrain the scoring layer.</li>
+    </ul>
+    <div class="signal-tags">
+      <span>Permits</span>
+      <span>Utility Interconnects</span>
+      <span>Procurement</span>
+      <span>Labor Indicators</span>
+      <span>Financial Filings</span>
+      <span>Movement Telemetry</span>
+      <span>Energy + Grid</span>
+      <span>Environmental</span>
+    </div>
+  </div>
+</section>
+<section id="proof">
+  <div class="grid-two">
+    <div class="proof-panel">
+      <div class="eyebrow">Live Proof</div>
+      <h3>CraneGenius Runs on CapexLayer.</h3>
+      <p>Every weekly CraneGenius brief, operator intake, and partner conversation is backed by CapexLayer scores. When a CraneGenius partner sees a “signal-scored” job, it originated here.</p>
+      <div class="proof-metrics">
+        <div class="metric"><strong>3-5×</strong><span>Improved close rates when outreach starts pre-bid</span></div>
+        <div class="metric"><strong>0 Ramp</strong><span>CapexLayer keeps partners live without hiring new reps</span></div>
+      </div>
+      <ul class="proof-list">
+        <li>Weekly CraneGenius brief = curated CapexLayer feed filtered by market, fleet, and urgency.</li>
+        <li>Operator Track “signal-scored” cards pull directly from the same scoring layer.</li>
+        <li>API + webhook drops stream the identical payload into partner tooling and CRMs.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Integrations in Motion</h3>
+      <ul class="feature-list">
+        <li>Programmatic pushes into the CraneGenius partner routing engine.</li>
+        <li>Slack and email digests for territory owners.</li>
+        <li>Command Center dashboards powered by CapexLayer metrics.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section id="api" class="card">
+  <div class="eyebrow">Developer Surface</div>
+  <h2 style="font-family:var(--font-display);font-size:44px;margin:0 0 18px;">CapexLayer API</h2>
+  <p>Expose the same signal intelligence powering CraneGenius inside your own tooling. REST + webhook support with per-market scoping.</p>
+  <div class="api-grid">
+    <div class="api-card">
+      <h4>Signals Endpoint</h4>
+      <code>GET /v1/signals?market=PNW&score_min=7
+Authorization: Bearer YOUR_KEY</code>
+    </div>
+    <div class="api-card">
+      <h4>Webhook Payload</h4>
+      <code>{
+  "project": "Seattle Edge Campus",
+  "city": "Seattle, WA",
+  "signal_score": 9.4,
+  "drivers": ["utility_interconnect","labor_filing"],
+  "recommendation": "tower_crane,mobile_crane"
+}</code>
+    </div>
+    <div class="api-card">
+      <h4>Partner Routing</h4>
+      <p>Push hot signals straight into CraneGenius partner territories or your internal CRM so your team acts while timing is fresh.</p>
+    </div>
+  </div>
+</section>
+<section id="who">
+  <div class="eyebrow">Who Uses CapexLayer</div>
+  <h2 style="font-family:var(--font-display);font-size:46px;margin:0 0 8px;">Built for Companies Moving Heavy Assets.</h2>
+  <p style="color:var(--muted);max-width:720px;">CapexLayer is not a public feed. Access is limited to operators, OEMs, financiers, and industrial partners who need to see demand before it breaks surface.</p>
+  <div class="audience-grid">
+    <div class="audience-card"><h3>Heavy Lift & Crane Operators</h3><p>Territory exclusivity, signal-scored jobs, and managed outreach via CraneGenius.</p></div>
+    <div class="audience-card"><h3>OEM / Equipment Finance</h3><p>Anticipate plant expansions, utility upgrades, and hyperscale builds before order cycles open.</p></div>
+    <div class="audience-card"><h3>Developers & Infrastructure Funds</h3><p>Use signal trails to validate pipeline timing, contractor readiness, and supply chain risk.</p></div>
+  </div>
+</section>
+<section id="cta" class="card" style="margin:80px auto;max-width:760px;">
+  <div class="eyebrow">Request Access</div>
+  <h2 style="font-family:var(--font-display);font-size:42px;margin:0 0 12px;">Tell Us What Market You Need.</h2>
+  <p style="color:var(--muted);margin-bottom:24px;">CapexLayer access is invitation-only. Share your territory, fleet, or program requirements — we will confirm fit and schedule a working session.</p>
+  <form action="https://formspree.io/f/mgoldjjb" method="POST">
+    <input type="hidden" name="source" value="capexlayer-landing">
+    <input type="text" name="name" placeholder="Your name" required>
+    <input type="email" name="email" placeholder="Work email" required>
+    <input type="text" name="company" placeholder="Company" required>
+    <input type="text" name="markets" placeholder="Markets or regions of focus">
+    <textarea name="context" rows="4" placeholder="What signals or coverage do you need?" required></textarea>
+    <button type="submit" class="btn btn-gold" style="width:fit-content;">Request CapexLayer Access</button>
+  </form>
+</section>
+</main>
+<footer>
+  CAPEXLAYER — POWERING CRANEGENIUS — INDUSTRIAL INTELLIGENCE ENGINE
+</footer>
+</body>
+</html>
