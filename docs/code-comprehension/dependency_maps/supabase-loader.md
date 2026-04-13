@@ -1,0 +1,14 @@
+# Dependency Map: command-center/supabase-loader.js
+- **Upstream dependencies:**
+  - Global variables `window.__CG_SUPABASE_URL__` and `window.__CG_SUPABASE_ANON_KEY__`, injected somewhere outside this repo.
+  - Browser Fetch API with AbortController support.
+- **Downstream dependencies:**
+  - `command-center/dashboard.html`, `pipeline.html`, and any other page that calls `cgSupabase.query()` to fetch opportunities or signal events.
+- **Shared state:**
+  - `window.cgSupabase` singleton exposes `isConfigured()` and `query()`; any script can mutate or overwrite it.
+- **External systems:**
+  - Supabase PostgREST endpoint for the specified project; tables such as `opportunities` and `signal_events`.
+- **Coupling risks:**
+  - Anonymous key must be shipped to every browser session; compromise exposes entire PostgREST surface allowed by RLS.
+  - Query builders assume Supabase column names; schema drift breaks dashboards at runtime.
+  - Timeout value (5 s) is hard-coded; long-running queries abort without retries or metrics, leaving UI empty.

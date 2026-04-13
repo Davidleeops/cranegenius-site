@@ -483,7 +483,7 @@ git add directory/index.html && git commit -m "feat: crane company directory pag
 
 <div class="card cursor-codex" data-tags="cursor-codex high">
 <div class="card-top">
-  <div class="card-name">Generate jobs.json from permit feed (Codex B2)</div>
+<div class="card-name">Generate jobs.json from signal feed (Codex B2)</div>
   <div class="tags"><span class="tag t-codex">Cursor , Codex</span><span class="tag t-high">High</span></div>
 </div>
 <div class="prompt-wrap">
@@ -498,7 +498,7 @@ Output to data/jobs/jobs.json, schema per record:
 {project_name, address, city, state, job_type, lift_capacity_estimate, posted_date, status:"active", overall_priority_score}
 
 Sort by overall_priority_score desc. Limit 100.
-git add -f data/jobs/jobs.json && git commit -m "feat: jobs JSON from permit feed" && git push</div>
+git add -f data/jobs/jobs.json && git commit -m "feat: jobs JSON from filtered signal feed" && git push</div>
 <button class="copy" onclick="cp(this)">Copy</button>
 </div>
 </div>
@@ -516,7 +516,7 @@ Renders /data/jobs/jobs.json. Full CraneGenius design system.
 
 Structure:
 1. Nav (same expanded nav as all new pages)
-2. Hero: "Active Crane Jobs" , "Permit-sourced crane opportunities. Updated weekly."
+2. Hero: "Active Crane Jobs" , "Signal-scored crane opportunities. Updated weekly."
 3. Stat bar: total count, unique cities, most common job type (computed from JSON on load)
 4. Filters: City | Job Type
 5. Job cards: project_name bold, address DM Mono gold, city/state, job_type colored badge, lift_capacity_estimate, overall_priority_score as thin gold bar at card bottom (width = score%)
@@ -524,7 +524,7 @@ Structure:
 7. Beehiiv embed at bottom
 8. Empty state: "Jobs feed updating..."
 
-git add jobs/index.html && git commit -m "feat: permit-sourced jobs board" && git push</div>
+git add jobs/index.html && git commit -m "feat: signal-scored jobs board" && git push</div>
 <button class="copy" onclick="cp(this)">Copy</button>
 </div>
 </div>

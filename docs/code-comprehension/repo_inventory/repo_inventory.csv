@@ -1,0 +1,35 @@
+file_path,file_type,language,probable_role,likely_domain_area,production_relevance,touches_data,touches_auth,touches_money,touches_external_integrations,touches_infra,has_tests,comprehension_status,initial_risk_score
+index.html,html,HTML/CSS/JS,Primary CraneGenius marketing landing page,go_to_market,high,no,no,no,yes,no,no,partial,2
+for-gcs.html,html,HTML/CSS/JS,Google Cloud Summit campaign landing page,go_to_market,medium,no,no,no,yes,no,no,partial,2
+operator-track-intake.html,html,HTML/CSS/JS,Operator Track intake + qualification form,customer_success,high,yes,no,no,yes,no,no,partial,3
+capexlayer/index.html,html,HTML/CSS/JS,CapexLayer co-branded marketing page,go_to_market,medium,no,no,no,yes,no,no,partial,2
+newsletter/index.html,html,HTML/CSS/JS,Prospect brief landing,marketing_ops,medium,no,no,no,yes,no,no,understood,2
+newsletter/brief-es.html,html,HTML/CSS/JS,Spanish newsletter brief,marketing_ops,low,no,no,no,yes,no,no,understood,1
+newsletter/brief-pt.html,html,HTML/CSS/JS,Portuguese newsletter brief,marketing_ops,low,no,no,no,yes,no,no,understood,1
+command-center/index.html,html,HTML/CSS/JS,Command Center shell with client-side access gate,operations_intel,high,no,yes,yes,yes,no,no,partial,3
+command-center/dashboard.html,html,HTML/CSS/JS,Executive dashboard pulling from data/financials.json,operations_intel,critical,yes,no,yes,yes,no,no,partial,4
+command-center/financials.html,html,HTML/CSS/JS,Full P&L view bound to financials.json,finance,critical,yes,no,yes,yes,no,no,partial,4
+command-center/pipeline.html,html,HTML/CSS/JS,Revenue pipeline tracker using Supabase + financials,sales_pipeline,high,yes,no,yes,yes,no,no,partial,4
+command-center/projects.html,html,HTML/CSS/JS,Project board narrative,delivery_management,medium,no,no,no,no,no,no,partial,2
+command-center/prompts.html,html,HTML/CSS/JS,AI prompt library + governance notes,growth_ops,medium,no,no,no,no,no,no,partial,2
+command-center/signals-kanban.html,html,HTML/CSS/JS,Signals tracker board,signal_intelligence,medium,no,no,no,no,no,no,partial,2
+command-center/predictive-analytics.html,html,HTML/CSS/JS,Predictive analytics runbook reading dashboard JSON,data_science,medium,yes,no,no,no,no,no,partial,3
+command-center/execution-plan.html,html,HTML/CSS/JS,Execution milestones tied to finance data,ops_execution,high,yes,no,yes,yes,no,no,partial,4
+command-center/launch-kanban.html,html,HTML/CSS/JS,Launch program Kanban,ops_execution,medium,yes,no,yes,yes,no,no,partial,3
+command-center/architecture.html,html,HTML/CSS/JS,System architecture narrative,architecture,medium,no,no,no,no,no,no,understood,2
+command-center/system-schematic.html,html,HTML/CSS/JS,System schematic overview,architecture,medium,no,no,no,no,no,no,understood,2
+command-center/_finance_loader.js,js,JavaScript,Client-side binder that loads data/financials.json and updates DOM,finance,critical,yes,no,yes,no,no,no,partial,4
+command-center/supabase-loader.js,js,JavaScript,Lightweight Supabase PostgREST fetcher,data_access,high,yes,yes,no,yes,no,no,partial,4
+platform/index.html,html,HTML/CSS/JS,Platform detail marketing page,go_to_market,high,no,no,no,yes,no,no,partial,2
+platform/dashboard.html,html,HTML/JS (Next.js build),Pre-rendered dashboard entry point,product_ui,critical,yes,no,yes,yes,no,unknown,dark,5
+platform/404.html,html,HTML,Platform 404 fallback,product_ui,medium,no,no,no,no,no,no,understood,2
+platform/index.txt,manifest,Next.js RSC payload,Serialized data for Next index route,product_ui,high,yes,no,no,yes,no,unknown,dark,4
+platform/dashboard.txt,manifest,Next.js RSC payload,Serialized data for dashboard route,product_ui,high,yes,no,yes,yes,no,unknown,dark,5
+platform/map-style.json,json,JSON,Mapbox tile style definition,mapping,medium,no,no,no,yes,no,no,understood,2
+platform/cables.geojson,geojson,GeoJSON,Sample subsea cable dataset for map layer,mapping,medium,yes,no,no,no,no,no,understood,3
+platform/cranegenius_opportunities.json,json,JSON,Opportunity intelligence catalog powering maps,data_platform,critical,yes,no,yes,no,no,no,partial,4
+platform/cranegenius_signals.json,json,JSON,Global signal list for dashboards,data_platform,critical,yes,no,no,no,no,no,partial,4
+platform/_next,dir,Compiled Next.js bundle,Client assets for platform dashboard,product_ui,critical,yes,unknown,yes,yes,no,unknown,dark,5
+tools/README.md,md,Markdown,Notes for tooling directory,operations,low,no,no,no,no,no,no,understood,1
+tools/gdelt_healthcheck.py,py,Python,Automated healthcheck for Supabase + Google Translate,monitoring,high,yes,yes,no,yes,no,no,understood,3
+.github/workflows/gdelt-healthcheck.yml,yml,YAML,CI workflow scheduling healthcheck hourly,infra_ci,high,no,no,no,no,yes,no,understood,3

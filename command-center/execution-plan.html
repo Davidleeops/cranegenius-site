@@ -234,7 +234,7 @@ This script takes a dictionary of client details and generates a simple retainer
 Contract should include:
 - Parties: CraneGenius (Dark 30 Ventures) and [Client Company Name]
 - Effective date
-- Service description: "CraneGenius will provide permit-sourced GC outreach services in the following markets: [markets]. Outreach will reference client's company name and credentials."
+- Service description: "CraneGenius will provide signal-scored GC outreach services in the following markets: [markets]. Outreach will reference client's company name and credentials."
 - Retainer tier selected: Pilot ($500/mo) / Standard ($1,500/mo) / Full ($2,500/mo + 3% commission)
 - Term: 30 days (Pilot) or monthly rolling (Standard/Full)
 - Payment terms: Net 7 from invoice
@@ -1059,7 +1059,7 @@ Output to data/jobs/jobs.json with this schema per record:
 
 Sort by overall_priority_score descending. Limit to 100 records.
 
-git add -f data/jobs/jobs.json && git commit -m "feat: jobs JSON from filtered permit feed" && git push</div>
+git add -f data/jobs/jobs.json && git commit -m "feat: jobs JSON from filtered signal feed" && git push</div>
         <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
       </div>
     </div>
@@ -1074,7 +1074,7 @@ git add -f data/jobs/jobs.json && git commit -m "feat: jobs JSON from filtered p
         <div class="prompt-label">// Cursor prompt (Claude context)</div>
         <div class="prompt-text">Create jobs/index.html in the cranegenius repo (overwrite the existing file , it needs the new design system).
 
-This page renders permit-sourced crane jobs from /data/jobs/jobs.json
+This page renders signal-scored crane jobs from /data/jobs/jobs.json
 
 Match the full CraneGenius design system:
 - Background: #080c14, panels: #0d1628, cards: #111e35
@@ -1083,7 +1083,7 @@ Match the full CraneGenius design system:
 
 Page structure:
 1. Nav: same expanded nav as all new pages
-2. Hero: "Active Crane Jobs" , "Permit-sourced crane opportunities across our coverage markets. Updated weekly."
+2. Hero: "Active Crane Jobs" , "Signal-scored crane opportunities across our coverage markets. Updated weekly."
 3. Stat bar: total job count, unique cities, most common job type
 4. Filters: City | Job Type | Lift Capacity range
 5. Card grid per job: project_name (bold), address (DM Mono, gold), city/state, job_type as colored badge, lift_capacity_estimate, posted_date, overall_priority_score bar (thin gold line at bottom of card, width = score/100 * 100%)
@@ -1091,7 +1091,7 @@ Page structure:
 7. Beehiiv subscribe embed: "Get weekly job alerts in your market."
 8. Empty state when no data: "Jobs feed updating , check back shortly."
 
-After creating: git add jobs/index.html && git commit -m "feat: jobs page , permit-sourced crane jobs board" && git push</div>
+After creating: git add jobs/index.html && git commit -m "feat: jobs page , signal-scored crane jobs board" && git push</div>
         <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
       </div>
     </div>
@@ -1939,7 +1939,7 @@ Takes a client dict, outputs contracts/[company_name]_retainer.txt
 Contract includes:
 - Parties: CraneGenius (Dark 30 Ventures) and [Client Name]
 - Effective date
-- Service: permit-sourced GC outreach in [markets], using client company name and credentials
+- Service: signal-scored GC outreach in [markets], using client company name and credentials
 - Tier: Pilot $500/mo / Standard $1,500/mo / Full $2,500/mo + 3% commission
 - Term: 30 days (Pilot) or monthly rolling
 - Payment: Net 7 from invoice
@@ -2407,11 +2407,11 @@ git add directory/index.html && git commit -m "feat: crane company directory wit
 </div>
 
 <div id="jobs" class="pb">
-<div class="pb-top"><div class="pb-name">Permit-Sourced Jobs Board</div><span class="badge b-med">Priority 10 , Medium</span></div>
+<div class="pb-top"><div class="pb-name">Signal-Scored Jobs Board</div><span class="badge b-med">Priority 10 , Medium</span></div>
 <div class="tags"><span class="tag ts">Shared</span><span class="tag tph">Scoped</span><span class="tag tct">Platform</span></div>
 <div class="steps-lbl">// Action steps , two-step: Codex filters data, Claude builds shell</div>
 <div class="step"><div class="sn">1</div><div>
-<div class="sa">Generate jobs.json from filtered permit feed</div>
+<div class="sa">Generate jobs.json from filtered signal feed</div>
 <div class="so oc">// Cursor , Codex session</div>
 <div class="pblock"><div class="plbl">// Cursor prompt (Codex context)</div>
 <div class="ptxt">Read data/opportunities/opportunities.json (and opportunities_batch_2.json if exists). Merge and deduplicate by opportunity_id.
@@ -2426,7 +2426,7 @@ Output to data/jobs/jobs.json. Schema:
 { "project_name":"", "address":"", "city":"", "state":"", "job_type":"", "lift_capacity_estimate":"", "posted_date":"", "status":"active", "overall_priority_score":0.0 }
 
 Sort by overall_priority_score DESC. Limit 100 records.
-git add -f data/jobs/jobs.json && git commit -m "feat: jobs JSON from filtered permit feed" && git push</div>
+git add -f data/jobs/jobs.json && git commit -m "feat: jobs JSON from filtered signal feed" && git push</div>
 <button class="cbtn" onclick="cp(this)">Copy</button></div>
 </div></div>
 <div class="step"><div class="sn">2</div><div>
@@ -2439,7 +2439,7 @@ Renders /data/jobs/jobs.json. Full CraneGenius design system.
 
 Structure:
 1. Expanded nav (same as ironsheet page)
-2. Hero: "Active Crane Jobs" , "Permit-sourced opportunities across our coverage markets. Updated weekly."
+2. Hero: "Active Crane Jobs" , "Signal-scored opportunities across our coverage markets. Updated weekly."
 3. Stat bar: total jobs, unique cities, most common job type
 4. Filters: City | Job Type | lift capacity range
 5. Card grid: project_name (bold), address (DM Mono gold), city/state, job_type badge, lift_capacity_estimate, posted_date, priority score bar (2px gold line at card bottom, width = score%)
@@ -2447,7 +2447,7 @@ Structure:
 7. Beehiiv subscribe embed: "Get weekly job alerts in your market."
 8. Empty state: "Jobs feed updating , check back shortly."
 
-git add jobs/index.html && git commit -m "feat: permit-sourced jobs board" && git push</div>
+git add jobs/index.html && git commit -m "feat: signal-scored jobs board" && git push</div>
 <button class="cbtn" onclick="cp(this)">Copy</button></div>
 </div></div>
 <div class="out"><div class="out-lbl">// Revenue ready when</div><div class="out-txt">Jobs board ranks for "crane jobs [city]" Google searches. Operators and workers subscribing to Ironsheet via jobs page. Organic traffic measurable in Analytics.</div></div>

@@ -1,0 +1,19 @@
+# Dependency Map: command-center/_finance_loader.js
+- **Upstream Dependencies:**
+  - Static file `/data/financials.json` (not checked into repo). Must include keys like `revenue.current_mrr`, `revenue.pipeline_opportunities`, `costs.cogs`, `costs.opex`, `period.current_month`.
+  - Browser Fetch API, Promise, and CustomEvent support.
+- **Downstream Consumers:**
+  - `command-center/dashboard.html`, `financials.html`, `pipeline.html`, `execution-plan.html`, `launch-kanban.html` (use `data-fin` attributes).
+  - Inline scripts listening for `financialsLoaded` (e.g., pipeline hero card).
+- **Shared State:**
+  - Global flag `window.__craneFinanceLoaderInitialized` avoids duplicate init but means only one fetch occurs per page load.
+  - Dispatches `financialsLoaded` event carrying `financials`, `totals`, and derived values.
+- **External Systems:**
+  - Whatever process publishes `/data/financials.json` to the site CDN (likely manual upload). No documentation in repo.
+- **Coupling Risks:**
+  - If JSON schema changes, every page breaks simultaneously with no visible alerts.
+  - Because data is fetched client-side, any visitor can download financials.
+  - Derived metrics (pipeline weighting) assume optional fields; incorrect values propagate to all dashboards.
+- **Silent Failure Points:**
+  - Missing JSON results in console warning only; UIs show `--` but still look "live".
+  - Stale JSON delivers old numbers indefinitely because there’s no timestamp check.
