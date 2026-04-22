@@ -62,22 +62,29 @@ def fetch_json(url: str, *, headers: Dict[str, str] | None = None, timeout: int 
 
 
 def check_feed() -> Dict[str, Any]:
-    # The live-feeds edge function is flaky and returns intermittent 5xx.
-    # Retry with backoff so a single blip doesn't trip CI.
-    max_attempts = 5
+    # The live-feeds edge function is flaky — cold starts and Supabase function
+    # timeouts produce intermittent 5xx/socket timeouts. Retry with exponential
+    # backoff (1s, 2s, 4s, 8s, 16s, 30s, 30s) so a single blip doesn't trip CI.
+    # Per-request timeout is generous (45s) because edge function cold starts
+    # can take 10-20s before streaming response bytes.
+    max_attempts = 8
+    per_request_timeout = 45
     status: int | None = None
     payload: Any = None
     last_error: Exception | None = None
     for attempt in range(max_attempts):
         try:
-            status, payload = fetch_json(SUPABASE_URL, headers=SUPABASE_HEADERS, timeout=20)
+            status, payload = fetch_json(
+                SUPABASE_URL, headers=SUPABASE_HEADERS, timeout=per_request_timeout
+            )
             if status == 200:
                 break
             last_error = RuntimeError(f"HTTP {status}")
         except (TimeoutError, urllib.error.URLError) as exc:
             last_error = exc
         if attempt < max_attempts - 1:
-            time.sleep(1.5 * (attempt + 1))
+            backoff = min(30.0, 2.0 ** attempt)
+            time.sleep(backoff)
 
     if status != 200:
         raise RuntimeError(
