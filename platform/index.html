@@ -963,6 +963,157 @@ r.parentNode.insertBefore(s,r)}();
 </head>
 <body>
 
+<!-- ═══ BOOT OVERLAY ═══ -->
+<div id="bootOverlay" aria-hidden="true">
+  <style>
+    #bootOverlay{position:fixed;inset:0;z-index:99999;background:#050914;color:#c9a84c;font-family:'DM Mono',ui-monospace,monospace;font-size:14px;line-height:1.65;display:none;flex-direction:column;padding:48px 52px;overflow:hidden;}
+    #bootOverlay.active{display:flex;}
+    #bootOverlay::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(255,255,255,0) 0px,rgba(255,255,255,0) 2px,rgba(201,168,76,0.025) 3px,rgba(201,168,76,0) 4px);pointer-events:none;}
+    #bootOverlay::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(201,168,76,0.04) 0%,rgba(5,9,20,0.6) 100%);pointer-events:none;}
+    #bootHeader{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.18em;color:#c9a84c;opacity:0.85;margin-bottom:24px;position:relative;z-index:2;}
+    #bootHeader .dot{display:inline-block;width:9px;height:9px;background:#c9a84c;border-radius:50%;margin-right:12px;vertical-align:middle;animation:bootPulse 1.1s infinite;}
+    @keyframes bootPulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+    #bootLog{flex:1;white-space:pre-wrap;position:relative;z-index:2;color:#d4b860;}
+    #bootLog .ok{color:#2bd4c7;}
+    #bootLog .dim{color:rgba(201,168,76,0.55);}
+    #bootLog .cursor{display:inline-block;width:9px;height:16px;background:#c9a84c;vertical-align:text-bottom;margin-left:2px;animation:bootCursor 0.85s step-end infinite;}
+    @keyframes bootCursor{50%{opacity:0;}}
+    #bootFoot{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(201,168,76,0.55);padding-top:18px;border-top:1px solid rgba(201,168,76,0.18);position:relative;z-index:2;}
+    #bootStart{background:transparent;border:1px solid #c9a84c;color:#c9a84c;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.24em;padding:10px 26px;cursor:pointer;text-transform:uppercase;transition:all .15s;}
+    #bootStart:hover{background:rgba(201,168,76,0.12);}
+    #bootSkip{background:transparent;border:none;color:rgba(201,168,76,0.55);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.15em;cursor:pointer;text-transform:uppercase;}
+    #bootSkip:hover{color:#c9a84c;}
+    #bootPrompt{text-align:center;padding:28px 0 10px;position:relative;z-index:2;}
+    #bootOverlay.fadeout{animation:bootFade .45s ease-out forwards;}
+    @keyframes bootFade{to{opacity:0;transform:scale(1.015);pointer-events:none;}}
+    @media (prefers-reduced-motion: reduce){
+      #bootOverlay::before{display:none;}
+      #bootLog .cursor{animation:none;}
+      #bootHeader .dot{animation:none;}
+    }
+  </style>
+  <div id="bootHeader"><span class="dot"></span>CAPEXLAYER  //  SIGNAL FABRIC</div>
+  <pre id="bootLog"></pre>
+  <div id="bootPrompt">
+    <button id="bootStart" type="button">▸ initiate boot sequence</button>
+  </div>
+  <div id="bootFoot">
+    <span>v0.1 · industrial intelligence engine</span>
+    <button id="bootSkip" type="button">skip [esc]</button>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY='capexlayer_boot_seen_v1';
+  if (sessionStorage.getItem(KEY)==='1') return;
+  var overlay=document.getElementById('bootOverlay');
+  var log=document.getElementById('bootLog');
+  var startBtn=document.getElementById('bootStart');
+  var skipBtn=document.getElementById('bootSkip');
+  var prompt=document.getElementById('bootPrompt');
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden','false');
+
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var audioCtx=null;
+  function beep(freq,dur){
+    if(!audioCtx||reduced)return;
+    try{
+      var o=audioCtx.createOscillator();
+      var g=audioCtx.createGain();
+      o.type='square';
+      o.frequency.value=freq;
+      g.gain.value=0.018;
+      o.connect(g);g.connect(audioCtx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+dur/1000);
+      o.stop(audioCtx.currentTime+dur/1000+0.01);
+    }catch(e){}
+  }
+
+  var lines=[
+    {t:'> ',k:'dim'},{t:'capexlayer boot --target=cranegenius-platform\n'},
+    {t:'> initializing signal fabric',pause:180},{t:' ................ ',k:'dim'},{t:'[ok]\n',k:'ok'},
+    {t:'> connecting to gdelt feed',pause:120},{t:' ................. ',k:'dim'},{t:'1,778 events live\n',k:'ok'},
+    {t:'> usace district contract stream',pause:100},{t:' ........ ',k:'dim'},{t:'22 states tracked\n',k:'ok'},
+    {t:'> sec edgar 8-k capex listener',pause:100},{t:' .......... ',k:'dim'},{t:'online\n',k:'ok'},
+    {t:'> ferc filings monitor',pause:100},{t:' .................. ',k:'dim'},{t:'online\n',k:'ok'},
+    {t:'> warn act + form d (private capital)',pause:100},{t:' ... ',k:'dim'},{t:'online\n',k:'ok'},
+    {t:'> resolving industrial account cache',pause:160},{t:' .... ',k:'dim'},{t:'4,312 accounts\n',k:'ok'},
+    {t:'> warming outbound lanes',pause:140},{t:' ................ ',k:'dim'},{t:'10 campaigns armed\n',k:'ok'},
+    {t:'\n'},
+    {t:'READY.',k:'ok',pause:200},{t:'  entering platform...\n',k:'dim'}
+  ];
+
+  var idx=0, chIdx=0, charCount=0, running=false;
+  function type(){
+    if(!running) return;
+    if(idx>=lines.length){
+      log.innerHTML+='<span class="cursor"></span>';
+      setTimeout(dismiss, 650);
+      return;
+    }
+    var seg=lines[idx];
+    if(chIdx===0 && seg.k){ log.innerHTML+='<span class="'+seg.k+'">'; }
+    var ch=seg.t.charAt(chIdx);
+    log.textContent=log.textContent; // noop to flush
+    // append char via innerHTML safe paths
+    if(seg.k){
+      // find last span and append
+      var spans=log.querySelectorAll('span.'+seg.k);
+      if(spans.length){ spans[spans.length-1].textContent+=ch; }
+      else{ log.innerHTML+=ch; }
+    } else {
+      log.appendChild(document.createTextNode(ch));
+    }
+    chIdx++;
+    charCount++;
+    if(charCount%2===0) beep(ch==='.'?520:880, 7);
+    if(chIdx>=seg.t.length){
+      if(seg.k){ /* span already closed by next line start */ }
+      idx++; chIdx=0;
+      var p=seg.pause||0;
+      if(seg.t.indexOf('\n')>-1) beep(660,22);
+      setTimeout(type, p || (reduced?1:22));
+    } else {
+      setTimeout(type, reduced?1:(28+Math.random()*18));
+    }
+  }
+
+  function start(){
+    if(running) return;
+    running=true;
+    try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+    prompt.style.display='none';
+    beep(1040, 40);
+    setTimeout(type, 180);
+  }
+  function dismiss(){
+    running=false;
+    sessionStorage.setItem(KEY,'1');
+    overlay.classList.add('fadeout');
+    setTimeout(function(){
+      overlay.classList.remove('active');
+      overlay.style.display='none';
+    }, 500);
+  }
+
+  startBtn.addEventListener('click', start);
+  skipBtn.addEventListener('click', dismiss);
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){ dismiss(); }
+    else if(!running && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); start(); }
+  }, {once:false});
+
+  // Respect reduced-motion: auto-dismiss instantly
+  if(reduced){
+    // Still show a brief non-animated pass so they know something happened, then dismiss
+    log.textContent='> capexlayer booted. entering platform...';
+    setTimeout(dismiss, 400);
+  }
+})();
+</script>
+
 <!-- ═══ BETA BANNER ═══ -->
 <div class="beta-banner" id="betaBanner">
   <span>⚠ BETA v0.1</span>
