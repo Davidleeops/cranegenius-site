@@ -33,7 +33,11 @@ DATASETS = {
     "signals": ROOT / "command-center" / "data" / "signals.json",
     "financials": ROOT / "data" / "financials.json",
 }
-KDF_ITERATIONS = 250_000
+# OWASP 2023 minimum for PBKDF2-HMAC-SHA256. The JS loader reads this
+# value from each bundle's manifest, so bumping this default only affects
+# bundles encrypted from this point forward — existing bundles keep
+# decrypting with whatever iteration count they were encrypted with.
+KDF_ITERATIONS = 600_000
 
 
 def b64(value: bytes) -> str:
