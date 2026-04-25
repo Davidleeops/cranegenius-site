@@ -47,6 +47,7 @@ tailwind.config = {
   .bar-fill { animation: bar-fill 1.8s ease-out forwards; }
   .gold-gradient { background: linear-gradient(135deg, #e6c364 0%, #c9a84c 100%); }
 </style>
+<script src="_secure_loader.js" defer></script>
 </head>
 <body class="bg-bg min-h-screen">
 
@@ -99,7 +100,7 @@ tailwind.config = {
         <span class="text-gold text-[10px] font-mono font-medium uppercase tracking-[0.2em]">LIVE OPERATIONS</span>
       </div>
       <h1 class="font-display text-txt text-5xl leading-none tracking-wide">COMMAND CENTER</h1>
-      <p class="text-dim text-sm mt-1 font-body">36 Cities in Signal Coverage &mdash; Pipeline Active</p>
+      <p id="hero-subtitle" class="text-dim text-sm mt-1 font-body">Signal Coverage Active &mdash; Pipeline Live</p>
     </div>
   </section>
 
@@ -111,7 +112,7 @@ tailwind.config = {
           <span class="material-symbols-outlined text-dim text-sm">monitoring</span>
           <span class="text-dim text-[9px] font-mono uppercase tracking-[0.15em]">Signals Processed</span>
         </div>
-        <p class="font-display text-gold text-3xl leading-none" data-count="13460">0</p>
+        <p id="kpi-signals" class="font-display text-gold text-3xl leading-none" data-count="0">0</p>
         <div class="h-[2px] bg-surface-4 mt-2 rounded-full overflow-hidden">
           <div class="h-full gold-gradient bar-fill" style="width: 82%;"></div>
         </div>
@@ -121,7 +122,7 @@ tailwind.config = {
           <span class="material-symbols-outlined text-dim text-sm">trending_up</span>
           <span class="text-dim text-[9px] font-mono uppercase tracking-[0.15em]">Scored Opps</span>
         </div>
-        <p class="font-display text-gold text-3xl leading-none" data-count="1561">0</p>
+        <p id="kpi-opps" class="font-display text-gold text-3xl leading-none" data-count="0">0</p>
         <div class="h-[2px] bg-surface-4 mt-2 rounded-full overflow-hidden">
           <div class="h-full gold-gradient bar-fill" style="width: 65%;"></div>
         </div>
@@ -131,7 +132,7 @@ tailwind.config = {
           <span class="material-symbols-outlined text-dim text-sm">contacts</span>
           <span class="text-dim text-[9px] font-mono uppercase tracking-[0.15em]">Verified Contacts</span>
         </div>
-        <p class="font-display text-gold text-3xl leading-none" data-count="5400" data-suffix="+">0</p>
+        <p id="kpi-contacts" class="font-display text-gold text-3xl leading-none" data-count="0">0</p>
         <div class="h-[2px] bg-surface-4 mt-2 rounded-full overflow-hidden">
           <div class="h-full gold-gradient bar-fill" style="width: 54%;"></div>
         </div>
@@ -141,7 +142,7 @@ tailwind.config = {
           <span class="material-symbols-outlined text-dim text-sm">location_on</span>
           <span class="text-dim text-[9px] font-mono uppercase tracking-[0.15em]">Cities Live</span>
         </div>
-        <p class="font-display text-gold text-3xl leading-none" data-count="36">0</p>
+        <p id="kpi-cities" class="font-display text-gold text-3xl leading-none" data-count="0">0</p>
         <div class="h-[2px] bg-surface-4 mt-2 rounded-full overflow-hidden">
           <div class="h-full gold-gradient bar-fill" style="width: 72%;"></div>
         </div>
@@ -187,59 +188,11 @@ tailwind.config = {
   <section class="mt-8 px-4">
     <div class="flex items-center justify-between mb-3">
       <h2 class="font-heading font-extrabold text-txt text-sm uppercase tracking-wider">Hot Opportunities</h2>
-      <a href="/permits" class="text-gold text-xs font-mono hover:underline">View All</a>
+      <a href="pipeline.html" class="text-gold text-xs font-mono hover:underline">View All</a>
     </div>
-    <div class="space-y-3">
-      <!-- Opp 1 -->
-      <div class="bg-surface-2 border border-white/5 border-l-4 border-l-gold p-4">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1.5">
-              <span class="inline-flex items-center justify-center gold-gradient text-bg text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">11/12</span>
-              <span class="text-txt text-sm font-semibold truncate">Dallas TX</span>
-            </div>
-            <p class="text-dim text-xs leading-snug">Data center foundation</p>
-            <p class="text-dim/70 text-[10px] font-mono mt-1">Crawler 200-600T</p>
-          </div>
-          <div class="text-right flex-shrink-0">
-            <p class="text-[9px] font-mono text-dim uppercase">Outreach</p>
-            <p class="text-gold text-xs font-mono font-medium">Apr 8</p>
-          </div>
-        </div>
-      </div>
-      <!-- Opp 2 -->
-      <div class="bg-surface-2 border border-white/5 border-l-4 border-l-gold p-4">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1.5">
-              <span class="inline-flex items-center justify-center gold-gradient text-bg text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">10/12</span>
-              <span class="text-txt text-sm font-semibold truncate">Chicago IL</span>
-            </div>
-            <p class="text-dim text-xs leading-snug">High-rise structural steel</p>
-            <p class="text-dim/70 text-[10px] font-mono mt-1">Tower/Crawler 150-400T</p>
-          </div>
-          <div class="text-right flex-shrink-0">
-            <p class="text-[9px] font-mono text-dim uppercase">Outreach</p>
-            <p class="text-gold text-xs font-mono font-medium">Apr 11</p>
-          </div>
-        </div>
-      </div>
-      <!-- Opp 3 -->
-      <div class="bg-surface-2 border border-white/5 border-l-4 border-l-gold p-4">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1.5">
-              <span class="inline-flex items-center justify-center gold-gradient text-bg text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">9/12</span>
-              <span class="text-txt text-sm font-semibold truncate">Houston TX</span>
-            </div>
-            <p class="text-dim text-xs leading-snug">Industrial warehouse tilt-up</p>
-            <p class="text-dim/70 text-[10px] font-mono mt-1">Rough Terrain 50-150T</p>
-          </div>
-          <div class="text-right flex-shrink-0">
-            <p class="text-[9px] font-mono text-dim uppercase">Outreach</p>
-            <p class="text-gold text-xs font-mono font-medium">Apr 14</p>
-          </div>
-        </div>
+    <div id="hot-opps" class="space-y-3">
+      <div class="bg-surface-2 border border-white/5 p-4 text-center">
+        <p class="text-dim text-xs font-mono">Loading opportunities...</p>
       </div>
     </div>
   </section>
@@ -287,25 +240,25 @@ tailwind.config = {
 <!-- BOTTOM NAV -->
 <nav class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 border-t"
   style="background: rgba(8,14,26,0.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: rgba(255,255,255,0.10);">
-  <a href="#" class="flex flex-col items-center gap-0.5 text-gold">
+  <a href="dashboard.html" class="flex flex-col items-center gap-0.5 text-gold">
     <span class="material-symbols-outlined text-xl">dashboard</span>
     <span class="text-[9px] font-mono uppercase tracking-wider">Dashboard</span>
   </a>
-  <a href="/permits" class="flex flex-col items-center gap-0.5 text-dim hover:text-txt transition-colors">
+  <a href="signals.html" class="flex flex-col items-center gap-0.5 text-dim hover:text-txt transition-colors">
     <span class="material-symbols-outlined text-xl">description</span>
     <span class="text-[9px] font-mono uppercase tracking-wider">Signals</span>
   </a>
-  <a href="#" class="flex flex-col items-center gap-0.5 text-dim hover:text-txt transition-colors">
+  <a href="pipeline.html" class="flex flex-col items-center gap-0.5 text-dim hover:text-txt transition-colors">
     <span class="material-symbols-outlined text-xl">filter_alt</span>
     <span class="text-[9px] font-mono uppercase tracking-wider">Pipeline</span>
   </a>
-  <a href="#" class="flex flex-col items-center gap-0.5 text-dim hover:text-txt transition-colors">
+  <a href="contacts.html" class="flex flex-col items-center gap-0.5 text-dim hover:text-txt transition-colors">
     <span class="material-symbols-outlined text-xl">contacts</span>
     <span class="text-[9px] font-mono uppercase tracking-wider">Contacts</span>
   </a>
-  <a href="#" class="flex flex-col items-center gap-0.5 text-dim hover:text-txt transition-colors">
-    <span class="material-symbols-outlined text-xl">settings</span>
-    <span class="text-[9px] font-mono uppercase tracking-wider">Settings</span>
+  <a href="financials.html" class="flex flex-col items-center gap-0.5 text-dim hover:text-txt transition-colors">
+    <span class="material-symbols-outlined text-xl">account_balance</span>
+    <span class="text-[9px] font-mono uppercase tracking-wider">Financials</span>
   </a>
 </nav>
 
@@ -313,42 +266,21 @@ tailwind.config = {
 
 <script>
 // --- Password Gate ---
-(function() {
-  var KEY = 'cg_auth';
-  var PASS = 'dark30';
-  var gate = document.getElementById('gate');
-  var app = document.getElementById('app');
-  var input = document.getElementById('gate-input');
-  var btn = document.getElementById('gate-btn');
-  var err = document.getElementById('gate-error');
-
-  function unlock() {
-    gate.classList.add('hidden');
-    app.classList.remove('hidden');
-    initApp();
-  }
-
-  if (sessionStorage.getItem(KEY) === '1') { unlock(); return; }
-
-  function attempt() {
-    if (input.value === PASS) {
-      sessionStorage.setItem(KEY, '1');
-      unlock();
-    } else {
-      err.classList.remove('hidden');
-      input.value = '';
-      input.focus();
-      setTimeout(function(){ err.classList.add('hidden'); }, 2000);
-    }
-  }
-
-  btn.addEventListener('click', attempt);
-  input.addEventListener('keydown', function(e) { if (e.key === 'Enter') attempt(); });
-  input.focus();
-})();
+window.cgSecureData
+  .ensureUnlocked({
+    gateId: 'gate',
+    appId: 'app',
+    inputId: 'gate-input',
+    buttonId: 'gate-btn',
+    errorId: 'gate-error'
+  })
+  .then(initApp)
+  .catch(function(err) {
+    console.error('Secure unlock failed:', err);
+  });
 
 // --- App Init ---
-function initApp() {
+async function initApp() {
   // Clock
   function tick() {
     var now = new Date();
@@ -362,7 +294,55 @@ function initApp() {
   tick();
   setInterval(tick, 1000);
 
-  // CountUp animation
+  // Load live KPI data
+  try {
+    var kpi = await window.cgSecureData.getDataset('kpi_summary');
+    if (kpi) {
+      document.getElementById('kpi-signals').setAttribute('data-count', kpi.total_signals || 0);
+      document.getElementById('kpi-opps').setAttribute('data-count', kpi.project_candidates || 0);
+      document.getElementById('kpi-contacts').setAttribute('data-count', kpi.verified_contacts || 0);
+      document.getElementById('kpi-cities').setAttribute('data-count', kpi.cities_covered || 0);
+      // Update hero subtitle
+      var sub = document.getElementById('hero-subtitle');
+      if (sub) sub.textContent = (kpi.cities_covered || 0) + ' Cities in Signal Coverage \u2014 Pipeline Active';
+    }
+  } catch(e) { console.warn('KPI load failed:', e); }
+
+  // Load hot opportunities from pipeline.json
+  try {
+    var pipeline = await window.cgSecureData.getDataset('pipeline');
+    if (pipeline) {
+      var candidates = (pipeline.candidates || []).slice(0, 5);
+      var container = document.getElementById('hot-opps');
+      if (candidates.length > 0) {
+        container.innerHTML = candidates.map(function(c) {
+          var score = Math.round((c.crane_relevance_score || 0) * 100) / 100;
+          var loc = (c.city || '') + (c.city && c.state ? ' ' : '') + (c.state || '');
+          var rawName = c.project_name_normalized || c.company_name_normalized || 'Unknown Project';
+          var name = rawName.length > 60 ? rawName.substring(0, 57) + '...' : rawName;
+          var vertical = c.vertical || c.project_type || '';
+          return '<div class="bg-surface-2 border border-white/5 border-l-4 border-l-gold p-4">' +
+            '<div class="flex items-start justify-between gap-3">' +
+              '<div class="flex-1 min-w-0">' +
+                '<div class="flex items-center gap-2 mb-1.5">' +
+                  '<span class="inline-flex items-center justify-center gold-gradient text-bg text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">' + score + '</span>' +
+                  '<span class="text-txt text-sm font-semibold truncate">' + loc + '</span>' +
+                '</div>' +
+                '<p class="text-dim text-xs leading-snug">' + name + '</p>' +
+                (vertical ? '<p class="text-dim/70 text-[10px] font-mono mt-1">' + vertical + '</p>' : '') +
+              '</div>' +
+              '<div class="text-right flex-shrink-0">' +
+                '<p class="text-[9px] font-mono text-dim uppercase">Signals</p>' +
+                '<p class="text-gold text-xs font-mono font-medium">' + (c.signal_count || 0) + '</p>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  } catch(e) { console.warn('Pipeline load failed:', e); }
+
+  // CountUp animation (runs after data-count attributes are set)
   var els = document.querySelectorAll('[data-count]');
   var duration = 1500;
   var fps = 60;
@@ -372,6 +352,7 @@ function initApp() {
 
   els.forEach(function(el) {
     var target = parseInt(el.getAttribute('data-count'), 10);
+    if (!target || target === 0) return;
     var suffix = el.getAttribute('data-suffix') || '';
     var frame = 0;
 

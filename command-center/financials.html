@@ -131,17 +131,19 @@
 
   @media(max-width:900px){.mrr-row{grid-template-columns:repeat(2,1fr);}.scenario-grid{grid-template-columns:1fr;}.inv-metrics{display:none;}}
 </style>
+<script src="_secure_loader.js" defer></script>
 </head>
 <body>
 
 <nav class="nav">
   <a href="/command-center.html" class="nav-logo">CRANEGENIUS</a>
   <div class="nav-links">
-    <a href="/command-center/dashboard.html" class="nav-link">Dashboard</a>
-    <a href="/command-center/pipeline.html" class="nav-link">Pipeline</a>
-    <a href="/command-center/signals-kanban.html" class="nav-link">Signals</a>
-    <a href="/command-center/predictive-analytics.html" class="nav-link">Predictive</a>
-    <a href="/command-center/financials.html" class="nav-link active">Financials</a>
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+    <a href="signals.html" class="nav-link">Signals</a>
+    <a href="pipeline.html" class="nav-link">Pipeline</a>
+    <a href="contacts.html" class="nav-link">Contacts</a>
+    <a href="financials.html" class="nav-link active">Financials</a>
+    <a href="projects.html" class="nav-link">Projects</a>
     <a href="/command-center/projects.html" class="nav-link">Projects</a>
   </div>
   <div class="nav-status"><span class="dot"></span>LIVE &bull; <span id="nav-period"></span></div>
@@ -223,13 +225,13 @@ function render(f) {
           <td>${fmt(o.weighted_mrr || 0)}</td>
           <td class="note vd">${o.next_action || o.notes || '&mdash;'}</td>
         </tr>`).join('')
-    : `<tr><td colspan="6" class="note vd">Add pipeline_opportunities in data/financials.json to publish a live pipeline breakdown.</td></tr>`;
+    : `<tr><td colspan="6" class="note vd">Add pipeline_opportunities to the secure financial export and rebuild the encrypted command-center bundle.</td></tr>`;
 
   const pipelineSection = `
   <div class="section">
     <div class="sec-hdr">
       <div class="sec-title">PIPELINE OPPORTUNITIES</div>
-      <div class="sec-meta">${pipelineProbability != null ? pipelineProbability + '% weighted probability' : 'Update pipeline_probability_pct in financials.json'}</div>
+      <div class="sec-meta">${pipelineProbability != null ? pipelineProbability + '% weighted probability' : 'Update pipeline_probability_pct in the secure financial export'}</div>
     </div>
     <table class="pl-table">
       <thead>
@@ -257,9 +259,9 @@ function render(f) {
       <div class="page-sub">${f.company.entity} &mdash; ${f.company.name} Operating Entity</div>
     </div>
     <div class="last-upd">
-      Source: <code style="color:var(--gold-dim);font-size:10px">data/financials.json</code><br>
+      Source: <code style="color:var(--gold-dim);font-size:10px">command-center/secure/command-center.enc.json</code><br>
       Last updated: ${f._meta.last_updated} &bull; ${f._meta.updated_by}<br>
-      <span style="color:var(--gold-dim);font-size:10px">Edit financials.json to update all pages</span>
+      <span style="color:var(--gold-dim);font-size:10px">Refresh the encrypted bundle to update all financial pages</span>
     </div>
   </div>
 
@@ -404,7 +406,7 @@ function render(f) {
     </table>
     <div class="edit-strip">
       <label>Source file:</label>
-      <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-dim);">data/financials.json</code>
+      <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-dim);">command-center/secure/command-center.enc.json</code>
       <span style="flex:1"></span>
       <button class="btn btn-out" onclick="copyInvestorText(${mrr},${t.burn},${t.netMargin})">COPY INVESTOR SUMMARY</button>
     </div>
@@ -480,17 +482,13 @@ Platform: B2B industrial intelligence engine + managed sales pipeline - 36 citie
   navigator.clipboard.writeText(text).then(() => alert('Investor summary copied.'));
 }
 
-// MAIN: fetch from data/financials.json
-fetch('/data/financials.json?v=' + Date.now())
-  .then(r => {
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  })
+// MAIN: decrypt financials from the secure command-center bundle
+window.cgSecureData.getDataset('financials')
   .then(data => render(data))
   .catch(err => {
     document.getElementById('app').innerHTML = `
-      <div class="error-banner">Could not load /data/financials.json: ${err.message}<br>
-      Make sure the file exists in the repo root at data/financials.json</div>
+      <div class="error-banner">Could not load encrypted financials: ${err.message}<br>
+      Rebuild command-center/secure/command-center.enc.json with tools/encrypt_command_center_data.py</div>
       <div class="loading">-- OFFLINE / FILE MISSING --</div>`;
   });
 </script>

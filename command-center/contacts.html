@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contacts — CraneGenius Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080c14;--bg2:#0d1628;--bg3:#111e35;--gold:#F5A623;--gold-border:rgba(245,166,35,.22);--border:#1e3a5f;--text:#e8f0ff;--muted:#8899aa;--mono:'DM Mono',monospace;--red:#E24B4A;--amber:#EF9F27;--green:#63991A;--blue:#378ADD;--purple:#7F77DD}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.5;font-size:14px}
+.shell{max-width:1260px;margin:0 auto;padding:28px 20px 64px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--gold-border)}
+.wordmark{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold)}
+.top-meta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+.section-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.metric-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);line-height:1}
+.metric-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.filter-input{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none}
+.filter-input:focus{border-color:var(--gold)}
+.filter-input::placeholder{color:var(--muted)}
+select.filter-input{cursor:pointer}
+.toggle-wrap{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;transition:.2s}
+.toggle-slider:before{content:'';position:absolute;width:14px;height:14px;left:2px;bottom:2px;background:var(--muted);border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider{background:rgba(99,153,26,.3);border-color:var(--green)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(16px);background:var(--green)}
+.contact-table{width:100%;border-collapse:collapse;font-size:12px}
+.contact-table th{text-align:left;padding:10px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--bg2);position:sticky;top:0;z-index:1;cursor:pointer;user-select:none}
+.contact-table th:hover{color:var(--gold)}
+.contact-table th .sort-arrow{margin-left:4px;font-size:8px}
+.contact-table td{padding:10px 10px;border-bottom:1px solid var(--border)}
+.contact-table tr:hover td{background:var(--bg3)}
+.badge-role{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase}
+.role-executive{background:rgba(245,166,35,.15);color:var(--gold)}
+.role-operations{background:rgba(55,138,221,.12);color:var(--blue)}
+.role-procurement{background:rgba(127,119,221,.12);color:var(--purple)}
+.role-pm{background:rgba(99,153,26,.12);color:var(--green)}
+.role-estimator{background:rgba(239,159,39,.12);color:var(--amber)}
+.role-default{background:var(--bg3);color:var(--muted)}
+.verified-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(99,153,26,.15);color:var(--green)}
+.tier-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px}
+.tier-1{background:rgba(245,166,35,.15);color:var(--gold)}
+.tier-2{background:rgba(55,138,221,.12);color:var(--blue)}
+.tier-3{background:var(--bg3);color:var(--muted)}
+.pagination{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:20px;font-family:var(--mono);font-size:12px}
+.page-btn{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:6px 14px;color:var(--text);cursor:pointer;font-family:var(--mono);font-size:11px}
+.page-btn:hover{border-color:var(--gold);color:var(--gold)}
+.page-btn:disabled{opacity:.3;cursor:default}
+.page-btn:disabled:hover{border-color:var(--border);color:var(--text)}
+.empty{text-align:center;padding:40px;color:var(--muted);font-family:var(--mono);font-size:12px}
+/* Detail panel */
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none}
+.detail-overlay.open{display:flex;justify-content:flex-end}
+.detail-panel{width:420px;max-width:90vw;background:var(--bg2);border-left:1px solid var(--border);padding:24px;overflow-y:auto;height:100vh}
+.detail-panel h3{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);margin-bottom:4px}
+.detail-panel .dp-title{font-size:14px;color:var(--text);margin-bottom:16px}
+.dp-field{margin-bottom:12px}
+.dp-field-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.dp-field-value{font-size:13px;color:var(--text)}
+.dp-field-value a{color:var(--gold);text-decoration:none}
+.dp-field-value a:hover{text-decoration:underline}
+.dp-close{position:absolute;top:16px;right:16px;background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);padding:4px 10px;cursor:pointer;font-family:var(--mono);font-size:11px}
+.dp-close:hover{border-color:var(--gold);color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="top-bar">
+  <div class="wordmark"><a href="index.html" style="color:inherit;text-decoration:none">CraneGenius</a></div>
+  <div class="top-meta"><a href="index.html" style="color:var(--gold);text-decoration:none">Command Center</a> &nbsp;&nbsp; <a href="dashboard.html" style="color:var(--gold);text-decoration:none">Dashboard</a> &nbsp;&nbsp; <a href="signals.html" style="color:var(--gold);text-decoration:none">Signals</a> &nbsp;&nbsp; <a href="pipeline.html" style="color:var(--gold);text-decoration:none">Pipeline</a> &nbsp;&nbsp; <span>Contacts</span> &nbsp;&nbsp; <a href="financials.html" style="color:var(--gold);text-decoration:none">Financials</a></div>
+</div>
+
+<div class="section-label">// Contact Directory</div>
+
+<div class="metric-grid" id="stats">
+  <div class="metric"><div class="metric-val" id="stat-total">--</div><div class="metric-label">Total Contacts</div></div>
+  <div class="metric"><div class="metric-val" id="stat-verified">--</div><div class="metric-label">Verified Emails</div></div>
+  <div class="metric"><div class="metric-val" id="stat-showing">--</div><div class="metric-label">Loaded</div></div>
+  <div class="metric"><div class="metric-val" id="stat-roles">--</div><div class="metric-label">Role Types</div></div>
+</div>
+
+<div class="filters">
+  <input type="text" class="filter-input" id="search" placeholder="Search name, company, email, city..." style="flex:1;min-width:200px">
+  <select class="filter-input" id="filter-role"><option value="">All Roles</option></select>
+  <select class="filter-input" id="filter-state"><option value="">All States</option></select>
+  <select class="filter-input" id="filter-seniority"><option value="">All Seniority</option></select>
+  <label class="toggle-wrap">
+    <label class="toggle"><input type="checkbox" id="filter-verified"><span class="toggle-slider"></span></label>
+    Verified only
+  </label>
+</div>
+
+<div style="overflow-x:auto">
+  <table class="contact-table">
+    <thead>
+      <tr>
+        <th data-sort="full_name">Name <span class="sort-arrow"></span></th>
+        <th data-sort="title">Title <span class="sort-arrow"></span></th>
+        <th data-sort="company_name">Company <span class="sort-arrow"></span></th>
+        <th data-sort="location_state">Location <span class="sort-arrow"></span></th>
+        <th data-sort="contact_role">Role <span class="sort-arrow"></span></th>
+        <th data-sort="email_verified">Email <span class="sort-arrow"></span></th>
+        <th data-sort="lead_score">Score <span class="sort-arrow"></span></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="pagination" id="pagination"></div>
+
+</div>
+
+<!-- Detail Panel Overlay -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-panel" style="position:relative" id="detail-panel">
+    <button class="dp-close" id="dp-close">ESC</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<script src="_secure_loader.js" defer></script>
+<script src="_nav.js" defer></script>
+<script>
+(async function() {
+  var PAGE_SIZE = 50;
+  var currentPage = 1;
+  var sortField = 'lead_score';
+  var sortDir = -1;
+  var allContacts = [];
+  var filteredContacts = [];
+
+  var data;
+  try {
+    data = await window.cgSecureData.getDataset('contacts');
+  } catch (err) {
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="7" class="empty">Failed to load encrypted contacts bundle: ' + (err && err.message ? err.message : 'unknown error') + '</td></tr>';
+    return;
+  }
+  allContacts = data.contacts || [];
+
+  // Stats
+  document.getElementById('stat-total').textContent = (data.total || 0).toLocaleString();
+  document.getElementById('stat-verified').textContent = (data.verified || 0).toLocaleString();
+  document.getElementById('stat-showing').textContent = allContacts.length.toLocaleString();
+  document.getElementById('stat-roles').textContent = data.by_role ? Object.keys(data.by_role).length : 0;
+
+  // Role filter
+  var roleSelect = document.getElementById('filter-role');
+  if (data.by_role) {
+    Object.keys(data.by_role).sort().forEach(function(r) {
+      var opt = document.createElement('option');
+      opt.value = r; opt.textContent = r + ' (' + data.by_role[r] + ')';
+      roleSelect.appendChild(opt);
+    });
+  }
+
+  // State filter — collect from contacts
+  var states = {};
+  allContacts.forEach(function(c) { if (c.location_state) states[c.location_state] = (states[c.location_state]||0)+1; });
+  var stateSelect = document.getElementById('filter-state');
+  Object.keys(states).sort().forEach(function(s) {
+    var opt = document.createElement('option');
+    opt.value = s; opt.textContent = s + ' (' + states[s] + ')';
+    stateSelect.appendChild(opt);
+  });
+
+  // Seniority filter
+  var senSelect = document.getElementById('filter-seniority');
+  if (data.by_seniority) {
+    Object.keys(data.by_seniority).sort().forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s; opt.textContent = s.replace(/_/g,' ') + ' (' + data.by_seniority[s] + ')';
+      senSelect.appendChild(opt);
+    });
+  }
+
+  function roleClass(role) {
+    if (!role) return 'role-default';
+    var r = role.toLowerCase();
+    if (r.indexOf('executive') !== -1 || r.indexOf('c_suite') !== -1) return 'role-executive';
+    if (r.indexOf('operations') !== -1) return 'role-operations';
+    if (r.indexOf('procurement') !== -1) return 'role-procurement';
+    if (r.indexOf('pm') !== -1 || r.indexOf('project') !== -1) return 'role-pm';
+    if (r.indexOf('estimat') !== -1) return 'role-estimator';
+    return 'role-default';
+  }
+
+  function applyFilters() {
+    var search = document.getElementById('search').value.toLowerCase();
+    var role = document.getElementById('filter-role').value;
+    var state = document.getElementById('filter-state').value;
+    var seniority = document.getElementById('filter-seniority').value;
+    var verifiedOnly = document.getElementById('filter-verified').checked;
+
+    filteredContacts = allContacts.filter(function(c) {
+      if (role && c.contact_role !== role) return false;
+      if (state && c.location_state !== state) return false;
+      if (seniority && c.seniority !== seniority) return false;
+      if (verifiedOnly && !c.email_verified) return false;
+      if (search) {
+        var hay = ((c.full_name||'') + ' ' + (c.title||'') + ' ' + (c.company_name||'') + ' ' + (c.email_masked||'') + ' ' + (c.location_city||'') + ' ' + (c.location_state||'')).toLowerCase();
+        if (hay.indexOf(search) === -1) return false;
+      }
+      return true;
+    });
+
+    // Sort
+    filteredContacts.sort(function(a,b) {
+      var va = a[sortField], vb = b[sortField];
+      if (va == null) va = '';
+      if (vb == null) vb = '';
+      if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * sortDir;
+      return String(va).localeCompare(String(vb)) * sortDir;
+    });
+
+    currentPage = 1;
+    renderTable();
+    renderPagination();
+  }
+
+  function renderTable() {
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var page = filteredContacts.slice(start, start + PAGE_SIZE);
+    var tbody = document.getElementById('tbody');
+
+    if (page.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">No contacts match your filters</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = page.map(function(c, i) {
+      var idx = start + i;
+      var loc = (c.location_city || '') + (c.location_city && c.location_state ? ', ' : '') + (c.location_state || '');
+      var emailDisplay = c.email_verified
+        ? '<span class="verified-badge">Verified</span> ' + (c.email_masked || '')
+        : (c.email_masked || '<span style="color:var(--muted)">-</span>');
+      var tierBadge = c.target_tier
+        ? '<span class="tier-badge tier-' + c.target_tier + '">T' + c.target_tier + '</span> '
+        : '';
+      var score = c.lead_score != null ? (Math.round(c.lead_score * 100) / 100) : '-';
+
+      return '<tr style="cursor:pointer" data-idx="' + idx + '">' +
+        '<td style="font-weight:500">' + (c.full_name || '-') + '</td>' +
+        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)" title="' + (c.title||'') + '">' + (c.title || '-') + '</td>' +
+        '<td>' + tierBadge + (c.company_name || '-') + '</td>' +
+        '<td style="font-family:var(--mono);font-size:11px">' + (loc || '-') + '</td>' +
+        '<td><span class="badge-role ' + roleClass(c.contact_role) + '">' + (c.contact_role || '-').replace(/_/g,' ') + '</span></td>' +
+        '<td style="font-size:11px">' + emailDisplay + '</td>' +
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gold)">' + score + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderPagination() {
+    var totalPages = Math.ceil(filteredContacts.length / PAGE_SIZE);
+    var pag = document.getElementById('pagination');
+    if (totalPages <= 1) { pag.innerHTML = ''; return; }
+    pag.innerHTML =
+      '<button class="page-btn" id="prev-btn">&laquo; Prev</button>' +
+      '<span style="color:var(--muted)">' + currentPage + ' / ' + totalPages + ' (' + filteredContacts.length + ' results)</span>' +
+      '<button class="page-btn" id="next-btn">Next &raquo;</button>';
+    document.getElementById('prev-btn').disabled = currentPage <= 1;
+    document.getElementById('next-btn').disabled = currentPage >= totalPages;
+    document.getElementById('prev-btn').onclick = function() { if (currentPage > 1) { currentPage--; renderTable(); renderPagination(); } };
+    document.getElementById('next-btn').onclick = function() { if (currentPage < totalPages) { currentPage++; renderTable(); renderPagination(); } };
+  }
+
+  function showDetail(contact) {
+    var c = contact;
+    var html = '<h3>' + (c.full_name || 'Unknown') + '</h3>';
+    html += '<div class="dp-title">' + (c.title || '') + (c.title && c.company_name ? ' at ' : '') + (c.company_name || '') + '</div>';
+
+    var fields = [
+      ['Role', c.contact_role ? c.contact_role.replace(/_/g, ' ') : null],
+      ['Seniority', c.seniority ? c.seniority.replace(/_/g, ' ') : null],
+      ['Company', c.company_name],
+      ['Company Type', c.company_type],
+      ['Company Domain', c.company_domain ? '<a href="https://' + c.company_domain + '" target="_blank">' + c.company_domain + '</a>' : null],
+      ['Target Tier', c.target_tier ? 'Tier ' + c.target_tier : null],
+      ['Email', c.email_verified ? (c.email + ' <span class="verified-badge">Verified</span>') : (c.email || null)],
+      ['Phone', c.phone],
+      ['Location', (c.location_city || '') + (c.location_city && c.location_state ? ', ' : '') + (c.location_state || '')],
+      ['LinkedIn', c.linkedin_url ? '<a href="' + c.linkedin_url + '" target="_blank">View Profile</a>' : null],
+      ['Lead Score', c.lead_score != null ? String(Math.round(c.lead_score * 100) / 100) : null],
+      ['Confidence', c.confidence_score != null ? String(Math.round(c.confidence_score * 100) / 100) : null],
+    ];
+
+    fields.forEach(function(f) {
+      if (!f[1] || f[1] === '') return;
+      html += '<div class="dp-field"><div class="dp-field-label">' + f[0] + '</div><div class="dp-field-value">' + f[1] + '</div></div>';
+    });
+
+    document.getElementById('detail-content').innerHTML = html;
+    document.getElementById('detail-overlay').classList.add('open');
+  }
+
+  // Event listeners
+  document.getElementById('search').addEventListener('input', applyFilters);
+  document.getElementById('filter-role').addEventListener('change', applyFilters);
+  document.getElementById('filter-state').addEventListener('change', applyFilters);
+  document.getElementById('filter-seniority').addEventListener('change', applyFilters);
+  document.getElementById('filter-verified').addEventListener('change', applyFilters);
+
+  // Sort headers
+  document.querySelectorAll('.contact-table th[data-sort]').forEach(function(th) {
+    th.addEventListener('click', function() {
+      var field = th.getAttribute('data-sort');
+      if (sortField === field) { sortDir *= -1; } else { sortField = field; sortDir = field === 'lead_score' ? -1 : 1; }
+      applyFilters();
+    });
+  });
+
+  // Row click -> detail
+  document.getElementById('tbody').addEventListener('click', function(ev) {
+    var tr = ev.target.closest('tr[data-idx]');
+    if (!tr) return;
+    var idx = parseInt(tr.getAttribute('data-idx'), 10);
+    if (filteredContacts[idx]) showDetail(filteredContacts[idx]);
+  });
+
+  // Close detail
+  document.getElementById('dp-close').addEventListener('click', function() {
+    document.getElementById('detail-overlay').classList.remove('open');
+  });
+  document.getElementById('detail-overlay').addEventListener('click', function(ev) {
+    if (ev.target === this) this.classList.remove('open');
+  });
+  document.addEventListener('keydown', function(ev) {
+    if (ev.key === 'Escape') document.getElementById('detail-overlay').classList.remove('open');
+  });
+
+  // Initial render
+  filteredContacts = allContacts.slice();
+  filteredContacts.sort(function(a,b) { return ((b.lead_score||0) - (a.lead_score||0)); });
+  renderTable();
+  renderPagination();
+})();
+</script>
+</body>
+</html>

@@ -142,30 +142,30 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="metric-sub">Tools + infra (from financials.json)</div>
   </div>
   <div class="metric">
-    <div class="metric-val" id="oppCount">524+</div>
-    <div class="metric-label">Active opportunities</div>
-    <div class="metric-sub">5 markets tracked</div>
+    <div class="metric-val" id="oppCount">--</div>
+    <div class="metric-label">Project candidates</div>
+    <div class="metric-sub" id="oppSub">Scored &amp; ranked</div>
   </div>
   <div class="metric">
-    <div class="metric-val">7,800+</div>
-    <div class="metric-label">GC contacts</div>
-    <div class="metric-sub">5,400+ verified emails</div>
+    <div class="metric-val" id="contactCount">--</div>
+    <div class="metric-label">Total contacts</div>
+    <div class="metric-sub" id="contactSub">-- verified emails</div>
   </div>
   <div class="metric">
-    <div class="metric-val">204</div>
-    <div class="metric-label">Active outreach</div>
-    <div class="metric-sub">PlusVibe campaign live</div>
+    <div class="metric-val" id="companyCount">--</div>
+    <div class="metric-label">Companies tracked</div>
+    <div class="metric-sub" id="companySub">All tiers</div>
   </div>
   <div class="metric">
-    <div class="metric-val">7</div>
-    <div class="metric-label">New pages live</div>
-    <div class="metric-sub">/directory /jobs /education /onboarding + ironsheet partner tip</div>
+    <div class="metric-val" id="signalCount">--</div>
+    <div class="metric-label">Signal events</div>
+    <div class="metric-sub" id="signalSub">Across all types</div>
   </div>
   <a href="signals-kanban.html" style="text-decoration:none;color:inherit">
   <div class="metric">
-    <div class="metric-val">36/68</div>
-    <div class="metric-label">Signals built</div>
-    <div class="metric-sub">Kanban → 68 Signals</div>
+    <div class="metric-val" id="citiesCount">--</div>
+    <div class="metric-label">Cities covered</div>
+    <div class="metric-sub">Signal geography</div>
   </div>
   </a>
 </div>
@@ -898,26 +898,29 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </div>
 
 </div>
+<script src="_secure_loader.js" defer></script>
+<script src="_nav.js" defer></script>
 <script src="/config.js" defer></script>
 <script src="supabase-loader.js" defer></script>
 <script>
 function switchTab(id,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById(id).classList.add('active');}
 (async function(){
-  var count = null;
-  // Try Supabase first
-  if (window.cgSupabase && cgSupabase.isConfigured()) {
-    var rows = await cgSupabase.query('opportunities', { select: 'id', limit: 1000 });
-    if (rows) count = rows.length;
-  }
-  // Fallback to static JSON
-  if (count === null) {
-    try {
-      var r = await fetch('/data/opportunities/opportunities.json');
-      var d = await r.json();
-      count = (d.opportunities || []).length;
-    } catch(e) {}
-  }
-  if (count > 0) document.querySelectorAll('#oppCount').forEach(function(el){ el.textContent = count + '+'; });
+  // Load live KPI data from exported JSON
+  try {
+    var kpi = await window.cgSecureData.getDataset('kpi_summary');
+    if (kpi) {
+      var fmt = function(n) { return n ? n.toLocaleString() : '--'; };
+      document.getElementById('oppCount').textContent = fmt(kpi.project_candidates);
+      document.getElementById('oppSub').textContent = fmt(kpi.high_confidence_projects) + ' high confidence';
+      document.getElementById('contactCount').textContent = fmt(kpi.total_contacts);
+      document.getElementById('contactSub').textContent = fmt(kpi.verified_contacts) + ' verified emails';
+      document.getElementById('companyCount').textContent = fmt(kpi.total_companies);
+      document.getElementById('signalCount').textContent = fmt(kpi.total_signals);
+      var typeCount = kpi.signals_by_type ? Object.keys(kpi.signals_by_type).length : 0;
+      document.getElementById('signalSub').textContent = typeCount + ' signal types';
+      document.getElementById('citiesCount').textContent = fmt(kpi.cities_covered);
+    }
+  } catch(e) { console.warn('KPI load failed:', e); }
 })();
 document.getElementById('dateStr').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
 </script>

@@ -1,5 +1,6 @@
 // Shared CraneGenius financial data loader
-// Populates any element with a data-fin attribute using data/financials.json
+// Populates any element with a data-fin attribute using the encrypted
+// command-center bundle loaded through _secure_loader.js.
 (function () {
   if (window.__craneFinanceLoaderInitialized) return;
   window.__craneFinanceLoaderInitialized = true;
@@ -114,16 +115,15 @@
   }
 
   function loadFinancials() {
-    fetch('/data/financials.json?v=' + Date.now(), { cache: 'no-store' })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-      })
+    if (!window.cgSecureData || typeof window.cgSecureData.getDataset !== 'function') {
+      console.warn('[CraneGenius] secure loader unavailable');
+      return;
+    }
+    window.cgSecureData
+      .getDataset('financials')
       .then(updateDom)
       .catch((err) =>
-        console.warn('[CraneGenius] financials.json load failed:', err)
+        console.warn('[CraneGenius] encrypted financials load failed:', err)
       );
   }
 

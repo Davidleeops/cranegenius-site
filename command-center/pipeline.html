@@ -37,7 +37,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .sig-ok{color:var(--green)}
 .help{font-size:11px;color:var(--muted);margin-top:16px;padding:12px;background:var(--bg3);border-radius:6px;border:1px solid var(--border)}
 </style>
-<script src="/command-center/_finance_loader.js" defer></script>
+<script src="_secure_loader.js" defer></script>
+<script src="_finance_loader.js" defer></script>
 </head>
 <body>
 <div class="shell">
@@ -98,7 +99,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
     <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px">
       <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Refresh this dashboard</span><br>
-      <code style="color:var(--text)">python3 scripts/write_pipeline_dashboard_data.py</code>
+      <code style="color:var(--text)">python3 tools/encrypt_command_center_data.py</code>
     </div>
     <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px">
       <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Schedule daily (cron)</span><br>
@@ -113,17 +114,17 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </div>
 
 <div class="help" id="help">
-  Data is loaded from <code>../runs/mvp_pipeline/dashboard_data.json</code>. Generate it with:<br>
-  <code>python3 scripts/write_pipeline_dashboard_data.py</code><br>
+  Data is loaded from the encrypted command-center bundle. Rebuild it with:<br>
+  <code>python3 tools/encrypt_command_center_data.py</code><br>
   If viewing as file://, serve the repo root (e.g. <code>python3 -m http.server 8080</code>) and open <code>http://localhost:8080/command-center/pipeline.html</code>.
 </div>
 </div>
 
+<script src="_nav.js" defer></script>
 <script src="/config.js" defer></script>
 <script src="supabase-loader.js" defer></script>
 <script>
 (function(){
-  var dataUrl = '../runs/mvp_pipeline/dashboard_data.json';
   function byId(id){ return document.getElementById(id); }
 
   function renderSignalTable(sig) {
@@ -182,8 +183,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     // Always try static JSON for digest/last_run metrics
     var staticData = null;
     try {
-      var r = await fetch(dataUrl);
-      if (r.ok) staticData = await r.json();
+      staticData = await window.cgSecureData.getDataset('pipeline');
     } catch(e) {}
 
     if (staticData) {

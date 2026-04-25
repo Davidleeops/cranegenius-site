@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Signal Events — CraneGenius Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080c14;--bg2:#0d1628;--bg3:#111e35;--gold:#F5A623;--gold-border:rgba(245,166,35,.22);--border:#1e3a5f;--text:#e8f0ff;--muted:#8899aa;--mono:'DM Mono',monospace;--red:#E24B4A;--amber:#EF9F27;--green:#63991A;--blue:#378ADD}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.5;font-size:14px}
+.shell{max-width:1140px;margin:0 auto;padding:28px 20px 64px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--gold-border)}
+.wordmark{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold)}
+.top-meta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+.section-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.metric-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);line-height:1}
+.metric-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.filter-input{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none}
+.filter-input:focus{border-color:var(--gold)}
+.filter-input::placeholder{color:var(--muted)}
+select.filter-input{cursor:pointer}
+.signal-table{width:100%;border-collapse:collapse;font-size:12px}
+.signal-table th{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--bg2);position:sticky;top:0;z-index:1}
+.signal-table td{padding:10px 12px;border-bottom:1px solid var(--border)}
+.signal-table tr:hover td{background:var(--bg3)}
+.badge-type{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;background:rgba(245,166,35,.12);color:var(--gold)}
+.confidence-bar{display:inline-block;width:60px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;vertical-align:middle;margin-left:6px}
+.confidence-fill{height:100%;border-radius:3px}
+.conf-high{background:var(--green)}.conf-med{background:var(--amber)}.conf-low{background:var(--red)}
+.pagination{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:20px;font-family:var(--mono);font-size:12px}
+.page-btn{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:6px 14px;color:var(--text);cursor:pointer;font-family:var(--mono);font-size:11px}
+.page-btn:hover{border-color:var(--gold);color:var(--gold)}
+.page-btn:disabled{opacity:.3;cursor:default}
+.page-btn:disabled:hover{border-color:var(--border);color:var(--text)}
+.type-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.type-chip{font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--muted);background:transparent;letter-spacing:.04em;transition:all .15s}
+.type-chip.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.type-chip:hover:not(.active){color:var(--text);border-color:var(--gold-border)}
+.type-chip .chip-count{opacity:.6;margin-left:4px}
+.empty{text-align:center;padding:40px;color:var(--muted);font-family:var(--mono);font-size:12px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="top-bar">
+  <div class="wordmark"><a href="index.html" style="color:inherit;text-decoration:none">CraneGenius</a></div>
+  <div class="top-meta"><a href="index.html" style="color:var(--gold);text-decoration:none">Command Center</a> &nbsp;&nbsp; <a href="dashboard.html" style="color:var(--gold);text-decoration:none">Dashboard</a> &nbsp;&nbsp; <span>Signals</span> &nbsp;&nbsp; <a href="pipeline.html" style="color:var(--gold);text-decoration:none">Pipeline</a> &nbsp;&nbsp; <a href="contacts.html" style="color:var(--gold);text-decoration:none">Contacts</a> &nbsp;&nbsp; <a href="financials.html" style="color:var(--gold);text-decoration:none">Financials</a></div>
+</div>
+
+<div class="section-label">// Signal Events — Live Intelligence Feed</div>
+
+<div class="metric-grid" id="stats">
+  <div class="metric"><div class="metric-val" id="stat-total">--</div><div class="metric-label">Total Signals</div></div>
+  <div class="metric"><div class="metric-val" id="stat-types">--</div><div class="metric-label">Signal Types</div></div>
+  <div class="metric"><div class="metric-val" id="stat-states">--</div><div class="metric-label">States Covered</div></div>
+  <div class="metric"><div class="metric-val" id="stat-showing">--</div><div class="metric-label">Showing</div></div>
+</div>
+
+<div id="type-chips" class="type-chips"></div>
+
+<div class="filters">
+  <input type="text" class="filter-input" id="search" placeholder="Search project, company, city..." style="flex:1;min-width:200px">
+  <select class="filter-input" id="filter-state"><option value="">All States</option></select>
+  <select class="filter-input" id="filter-confidence">
+    <option value="">All Confidence</option>
+    <option value="high">High (>0.7)</option>
+    <option value="medium">Medium (0.4-0.7)</option>
+    <option value="low">Low (<0.4)</option>
+  </select>
+</div>
+
+<div id="table-wrap" style="overflow-x:auto">
+  <table class="signal-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Project / Company</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Observed</th>
+        <th>Confidence</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="pagination" id="pagination"></div>
+
+</div>
+
+<script src="_secure_loader.js" defer></script>
+<script src="_nav.js" defer></script>
+<script>
+(async function() {
+  var PAGE_SIZE = 50;
+  var currentPage = 1;
+  var activeType = '';
+  var allEvents = [];
+  var filteredEvents = [];
+
+  // Load data
+  var data;
+  try {
+    data = await window.cgSecureData.getDataset('signals');
+  } catch (err) {
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="7" class="empty">Failed to load encrypted signals bundle: ' + (err && err.message ? err.message : 'unknown error') + '</td></tr>';
+    return;
+  }
+  allEvents = data.events || [];
+
+  // Stats
+  document.getElementById('stat-total').textContent = (data.total || 0).toLocaleString();
+  document.getElementById('stat-types').textContent = data.by_type ? Object.keys(data.by_type).length : 0;
+  document.getElementById('stat-states').textContent = data.by_state ? Object.keys(data.by_state).length : 0;
+  document.getElementById('stat-showing').textContent = allEvents.length.toLocaleString();
+
+  // Type chips
+  var chipContainer = document.getElementById('type-chips');
+  var chipHtml = '<button class="type-chip active" data-type="">All<span class="chip-count">(' + allEvents.length + ')</span></button>';
+  if (data.by_type) {
+    Object.keys(data.by_type).sort(function(a,b) { return data.by_type[b] - data.by_type[a]; }).forEach(function(t) {
+      chipHtml += '<button class="type-chip" data-type="' + t + '">' + t.replace(/_/g,' ') + '<span class="chip-count">(' + data.by_type[t] + ')</span></button>';
+    });
+  }
+  chipContainer.innerHTML = chipHtml;
+
+  // State filter options
+  var stateSelect = document.getElementById('filter-state');
+  if (data.by_state) {
+    Object.keys(data.by_state).sort().forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s + ' (' + data.by_state[s] + ')';
+      stateSelect.appendChild(opt);
+    });
+  }
+
+  function applyFilters() {
+    var search = document.getElementById('search').value.toLowerCase();
+    var state = document.getElementById('filter-state').value;
+    var conf = document.getElementById('filter-confidence').value;
+
+    filteredEvents = allEvents.filter(function(e) {
+      if (activeType && e.signal_type !== activeType) return false;
+      if (state && e.state !== state) return false;
+      if (conf === 'high' && (e.confidence_score || 0) <= 0.7) return false;
+      if (conf === 'medium' && ((e.confidence_score || 0) <= 0.4 || (e.confidence_score || 0) > 0.7)) return false;
+      if (conf === 'low' && (e.confidence_score || 0) >= 0.4) return false;
+      if (search) {
+        var hay = ((e.project_name_raw || '') + ' ' + (e.company_name_raw || '') + ' ' + (e.city || '') + ' ' + (e.source_name || '')).toLowerCase();
+        if (hay.indexOf(search) === -1) return false;
+      }
+      return true;
+    });
+
+    currentPage = 1;
+    renderTable();
+    renderPagination();
+  }
+
+  function renderTable() {
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var page = filteredEvents.slice(start, start + PAGE_SIZE);
+    var tbody = document.getElementById('tbody');
+
+    if (page.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">No signals match your filters</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = page.map(function(e) {
+      var cs = e.confidence_score || 0;
+      var confClass = cs > 0.7 ? 'conf-high' : (cs > 0.4 ? 'conf-med' : 'conf-low');
+      var confPct = Math.round(cs * 100);
+      var name = e.project_name_raw || e.company_name_raw || '-';
+      if (name.length > 50) name = name.substring(0, 47) + '...';
+      var observed = e.observed_at || '-';
+      if (observed.length > 10) observed = observed.substring(0, 10);
+
+      return '<tr>' +
+        '<td><span class="badge-type">' + (e.signal_type || '').replace(/_/g,' ') + '</span></td>' +
+        '<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + (e.project_name_raw || '') + '">' + name + '</td>' +
+        '<td>' + (e.city || '-') + '</td>' +
+        '<td>' + (e.state || '-') + '</td>' +
+        '<td style="font-family:var(--mono);font-size:11px">' + observed + '</td>' +
+        '<td>' + confPct + '%<div class="confidence-bar"><div class="confidence-fill ' + confClass + '" style="width:' + confPct + '%"></div></div></td>' +
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--muted)">' + (e.source_name || '-') + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderPagination() {
+    var totalPages = Math.ceil(filteredEvents.length / PAGE_SIZE);
+    var pag = document.getElementById('pagination');
+    if (totalPages <= 1) { pag.innerHTML = ''; return; }
+
+    pag.innerHTML =
+      '<button class="page-btn" id="prev-btn">&laquo; Prev</button>' +
+      '<span style="color:var(--muted)">' + currentPage + ' / ' + totalPages + ' (' + filteredEvents.length + ' results)</span>' +
+      '<button class="page-btn" id="next-btn">Next &raquo;</button>';
+
+    document.getElementById('prev-btn').disabled = currentPage <= 1;
+    document.getElementById('next-btn').disabled = currentPage >= totalPages;
+
+    document.getElementById('prev-btn').onclick = function() { if (currentPage > 1) { currentPage--; renderTable(); renderPagination(); } };
+    document.getElementById('next-btn').onclick = function() { if (currentPage < totalPages) { currentPage++; renderTable(); renderPagination(); } };
+  }
+
+  // Event listeners
+  document.getElementById('search').addEventListener('input', applyFilters);
+  document.getElementById('filter-state').addEventListener('change', applyFilters);
+  document.getElementById('filter-confidence').addEventListener('change', applyFilters);
+
+  chipContainer.addEventListener('click', function(ev) {
+    var btn = ev.target.closest('.type-chip');
+    if (!btn) return;
+    chipContainer.querySelectorAll('.type-chip').forEach(function(c) { c.classList.remove('active'); });
+    btn.classList.add('active');
+    activeType = btn.getAttribute('data-type');
+    applyFilters();
+  });
+
+  // Initial render
+  filteredEvents = allEvents;
+  renderTable();
+  renderPagination();
+})();
+</script>
+</body>
+</html>
