@@ -17,6 +17,8 @@
   var ADSB_URL = SUPABASE_URL + '/functions/v1/live-feeds?feed=adsb';
   var OPPS_PATH = '/platform/cranegenius_opportunities.json';
   var SIGNALS_PATH = '/platform/cranegenius_signals.json';
+  var HIDDEN_SIGNALS_PATH = '/platform/cranegenius_hidden_signals.json';
+  var REGISTRY_PATH = '/platform/cranegenius_signal_registry.json';
   var ADSB_REFRESH_MS = 60000;
   var MAX_RESULTS = 8;
 
@@ -36,6 +38,9 @@
 
   var opportunities = [];
   var signals = [];
+  var hiddenSignals = [];
+  var signalMetaByType = {};
+  var opportunitySourceMeta = {};
   var aircraftRaw = [];
   var aircraft = [];
   var dropdown = null;
@@ -102,6 +107,18 @@
 
   async function loadStaticData() {
     try {
+      var r0 = await fetch(REGISTRY_PATH, { cache: 'no-store' });
+      if (r0.ok) {
+        var registry = await r0.json();
+        var visibleTypes = (((registry || {}).platform || {}).visible_signal_types) || [];
+        signalMetaByType = {};
+        for (var i = 0; i < visibleTypes.length; i++) {
+          signalMetaByType[visibleTypes[i].signal_type] = visibleTypes[i];
+        }
+        opportunitySourceMeta = ((((registry || {}).platform || {}).opportunity_sources) || {});
+      }
+    } catch (e) { /* optional registry */ }
+    try {
       var r1 = await fetch(OPPS_PATH);
       if (r1.ok) {
         var arr1 = await r1.json();
@@ -115,6 +132,21 @@
         signals = (arr2 || []).filter(function (s) { return s && s.lat && s.lng; });
       }
     } catch (e) { /* keep going */ }
+    try {
+      var r3 = await fetch(HIDDEN_SIGNALS_PATH);
+      if (r3.ok) {
+        var arr3 = await r3.json();
+        hiddenSignals = (arr3 || []).filter(function (s) { return s && s.lat && s.lng; });
+      }
+    } catch (e) { /* optional hidden signals */ }
+  }
+
+  function getSignalMeta(signalType) {
+    return signalMetaByType[String(signalType || '')] || null;
+  }
+
+  function getOpportunitySource(sourceSignal) {
+    return opportunitySourceMeta[String(sourceSignal || '')] || null;
   }
 
   async function loadAviation() {
@@ -212,16 +244,26 @@
       var co = (o.company_name || '').toLowerCase();
       var city = (o.city || '').toLowerCase();
       var state = (o.state || '').toLowerCase();
+      var projectType = (o.project_type || '').toLowerCase();
+      var sourceMeta = getOpportunitySource(o.source_signal);
+      var sourceLabel = sourceMeta && sourceMeta.label ? sourceMeta.label.toLowerCase() : '';
+      var sourceDesc = sourceMeta && sourceMeta.description ? sourceMeta.description.toLowerCase() : '';
       var score = 0;
       if (name === lower || co === lower) score = 95;
       else if (name.indexOf(lower) === 0) score = 80;
       else if (co.indexOf(lower) === 0) score = 75;
       else if (name.indexOf(lower) !== -1) score = 60;
       else if (co.indexOf(lower) !== -1) score = 55;
+      else if (projectType.indexOf(lower) !== -1) score = 50;
+      else if (sourceLabel.indexOf(lower) !== -1) score = 45;
+      else if (sourceDesc.indexOf(lower) !== -1) score = 38;
       else if (city.indexOf(lower) === 0) score = 45;
       else if (city.indexOf(lower) !== -1) score = 30;
       else if (state === lower) score = 35;
       if (score > 0) {
+        var sourceBits = [];
+        if (sourceMeta && sourceMeta.label) sourceBits.push(sourceMeta.label);
+        if (o.project_type) sourceBits.push(o.project_type.replace(/_/g, ' '));
         rows.push({
           kind: 'opportunity',
           score: score,
@@ -229,7 +271,8 @@
           sub:
             (o.company_name || '') +
             (o.city ? ' • ' + o.city + ', ' + (o.state || '') : '') +
-            (o.signal_score != null ? ' • score ' + o.signal_score : ''),
+            (o.signal_score != null ? ' • score ' + o.signal_score : '') +
+            (sourceBits.length ? ' • ' + sourceBits.join(' • ') : ''),
           lat: o.lat,
           lng: o.lng,
           icon: '◉',
@@ -247,25 +290,42 @@
     if (!lower) return rows;
     for (var i = 0; i < signals.length; i++) {
       var s = signals[i];
+      var meta = getSignalMeta(s.signal_type);
       var type = (s.signal_type || '').toLowerCase();
+      var display = meta && meta.display_label ? meta.display_label.toLowerCase() : '';
+      var family = meta && meta.family ? meta.family.toLowerCase() : '';
+      var upstream = meta && meta.upstream_type_candidates ? meta.upstream_type_candidates.join(' ').toLowerCase() : '';
+      var examples = meta && meta.source_examples ? meta.source_examples.map(function (item) { return item.source_name; }).join(' ').toLowerCase() : '';
       var cat = (s.signal_category || '').toLowerCase();
       var geo = (s.geography || '').toLowerCase();
       var tags = (s.vertical_tags || []).join(' ').toLowerCase();
       var score = 0;
       if (type === lower) score = 70;
+      else if (display === lower) score = 68;
       else if (type.indexOf(lower) !== -1) score = 50;
+      else if (display.indexOf(lower) !== -1) score = 48;
+      else if (upstream.indexOf(lower) !== -1) score = 44;
+      else if (family.indexOf(lower) !== -1) score = 42;
+      else if (examples.indexOf(lower) !== -1) score = 36;
       else if (cat.indexOf(lower) !== -1) score = 40;
       else if (tags.indexOf(lower) !== -1) score = 35;
       else if (geo.indexOf(lower) !== -1) score = 30;
       if (score > 0) {
+        var sub = [];
+        if (s.geography) sub.push(s.geography);
+        if (meta && meta.family) sub.push(meta.family);
+        if (s.signal_date) sub.push(s.signal_date);
+        if (s.confidence != null) sub.push('conf ' + s.confidence);
+        if (meta && meta.source_examples && meta.source_examples.length) {
+          sub.push('src ' + meta.source_examples.slice(0, 2).map(function (item) {
+            return item.source_name;
+          }).join(', '));
+        }
         rows.push({
           kind: 'signal',
           score: score,
-          label: s.signal_type || '(signal)',
-          sub:
-            (s.geography || '') +
-            (s.signal_date ? ' • ' + s.signal_date : '') +
-            (s.confidence != null ? ' • conf ' + s.confidence : ''),
+          label: (meta && meta.display_label) || s.signal_type || '(signal)',
+          sub: sub.join(' • '),
           lat: s.lat,
           lng: s.lng,
           icon: '◆',
@@ -277,10 +337,56 @@
     return rows;
   }
 
+  function rankHiddenSignals(query) {
+    var rows = [];
+    var lower = query.toLowerCase();
+    if (!lower) return rows;
+    for (var i = 0; i < hiddenSignals.length; i++) {
+      var s = hiddenSignals[i];
+      var title = (s.project_name || '').toLowerCase();
+      var company = (s.company_name || '').toLowerCase();
+      var type = (s.signal_type || '').toLowerCase();
+      var layer = (s.layer_label || '').toLowerCase();
+      var geo = (s.geography || '').toLowerCase();
+      var source = (s.source_name || '').toLowerCase();
+      var score = 0;
+      if (title === lower || company === lower) score = 92;
+      else if (title.indexOf(lower) === 0) score = 78;
+      else if (company.indexOf(lower) === 0) score = 74;
+      else if (title.indexOf(lower) !== -1) score = 60;
+      else if (company.indexOf(lower) !== -1) score = 56;
+      else if (layer.indexOf(lower) !== -1) score = 50;
+      else if (type.indexOf(lower) !== -1) score = 46;
+      else if (geo.indexOf(lower) !== -1) score = 38;
+      else if (source.indexOf(lower) !== -1) score = 34;
+      if (score > 0) {
+        rows.push({
+          kind: 'hidden_signal',
+          score: score,
+          label: s.project_name || s.layer_label || '(hidden signal)',
+          sub:
+            (s.company_name || '') +
+            (s.geography ? ' • ' + s.geography : '') +
+            (s.layer_label ? ' • ' + s.layer_label : '') +
+            (s.signal_date ? ' • ' + String(s.signal_date).slice(0, 10) : ''),
+          lat: s.lat,
+          lng: s.lng,
+          icon: '⬢',
+          color: '#a855f7',
+          payload: s
+        });
+      }
+    }
+    return rows;
+  }
+
   function search(query) {
     var q = (query || '').trim();
     if (!q) return [];
-    var all = rankAircraft(q).concat(rankOpportunities(q)).concat(rankSignals(q));
+    var all = rankAircraft(q)
+      .concat(rankOpportunities(q))
+      .concat(rankSignals(q))
+      .concat(rankHiddenSignals(q));
     all.sort(function (a, b) { return b.score - a.score; });
     return all.slice(0, MAX_RESULTS);
   }

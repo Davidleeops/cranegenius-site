@@ -115,6 +115,9 @@
                         e.recommended_lift_categories || []
                       ).join(", "),
                       source_signal: e.source_signal,
+                      source_label:
+                        (getOpportunitySourceMeta(e.source_signal) || {}).label ||
+                        e.source_signal,
                     },
                   })),
               });
@@ -250,12 +253,116 @@
                             },
                             children: a.feature.company_name,
                           }),
+                        a.feature.source_label &&
+                          (0, r.jsxs)("div", {
+                            style: {
+                              marginTop: 6,
+                              fontSize: 11,
+                              color: "rgba(245,212,135,0.82)",
+                            },
+                            children: ["Source: ", a.feature.source_label],
+                          }),
                       ],
                     }),
                   }),
               ],
             })
           : null;
+      }
+      let SIGNAL_TYPE_META = {
+          building_permit: {
+            displayLabel: "Building Permits",
+            familyLabel: "Permitting",
+            upstreamTypes: ["permit_activity", "structural_permit"],
+          },
+          concrete_pour: {
+            displayLabel: "Concrete Activity",
+            familyLabel: "Construction",
+            upstreamTypes: ["permit_activity", "capital_improvement"],
+          },
+          corporate_capex: {
+            displayLabel: "Corporate Capex",
+            familyLabel: "Capex",
+            upstreamTypes: [
+              "capital_improvement",
+              "capital_improvement_plan",
+              "infrastructure_announcement",
+              "infrastructure_project",
+            ],
+          },
+          crane_permit: {
+            displayLabel: "Lift Permits",
+            familyLabel: "Lifting",
+            upstreamTypes: ["lift_permit", "obstruction_notice"],
+          },
+          demolition_permit: {
+            displayLabel: "Demolition",
+            familyLabel: "Permitting",
+            upstreamTypes: ["permit_activity", "site_plan_review"],
+          },
+          environmental_review: {
+            displayLabel: "Environmental & Review",
+            familyLabel: "Regulatory",
+            upstreamTypes: [
+              "capital_improvement_plan",
+              "federal_infrastructure_award",
+              "site_plan_review",
+              "zoning_filing",
+            ],
+          },
+          excavation: {
+            displayLabel: "Excavation",
+            familyLabel: "Sitework",
+            upstreamTypes: ["permit_activity", "site_plan_review"],
+          },
+          foundation_permit: {
+            displayLabel: "Foundation Work",
+            familyLabel: "Permitting",
+            upstreamTypes: ["permit_activity", "structural_permit"],
+          },
+          site_prep: {
+            displayLabel: "Site Preparation",
+            familyLabel: "Sitework",
+            upstreamTypes: ["permit_activity", "site_plan_review"],
+          },
+          structural_steel: {
+            displayLabel: "Structural Steel",
+            familyLabel: "Construction",
+            upstreamTypes: ["structural_permit", "capital_improvement"],
+          },
+          utility_expansion: {
+            displayLabel: "Utility & Grid Expansion",
+            familyLabel: "Utility",
+            upstreamTypes: [
+              "electric_utility_certificate",
+              "gas_pipeline_certificate",
+              "lng_certificate",
+              "utility_infrastructure",
+              "utility_irp",
+            ],
+          },
+          zoning_change: {
+            displayLabel: "Zoning & Entitlements",
+            familyLabel: "Entitlement",
+            upstreamTypes: ["zoning_filing", "zoning_variance", "site_plan_review"],
+          },
+        },
+        OPPORTUNITY_SOURCE_META = {
+          project_candidates: { label: "Project Candidates Pipeline" },
+          global_intelligence: { label: "Global Intelligence Feed" },
+        };
+      function getSignalDisplayMeta(e) {
+        let t = SIGNAL_TYPE_META[e];
+        return (
+          t || {
+            displayLabel: String(e || "signal").replace(/_/g, " "),
+            familyLabel: "Normalized",
+            upstreamTypes: [],
+          }
+        );
+      }
+      function getOpportunitySourceMeta(e) {
+        return OPPORTUNITY_SOURCE_META[e] || { label: e };
       }
       let p = {
         id: "signals-points",
@@ -291,19 +398,25 @@
                 type: "FeatureCollection",
                 features: e
                   .filter((e) => e.lat && e.lng)
-                  .map((e) => ({
-                    type: "Feature",
-                    geometry: { type: "Point", coordinates: [e.lng, e.lat] },
-                    properties: {
-                      id: e.id,
-                      signal_type: e.signal_type,
-                      signal_category: e.signal_category,
-                      geography: e.geography,
-                      confidence: e.confidence,
-                      signal_date: e.signal_date,
-                      vertical_tags: (e.vertical_tags || []).join(", "),
-                    },
-                  })),
+                  .map((e) => {
+                    let t = getSignalDisplayMeta(e.signal_type);
+                    return {
+                      type: "Feature",
+                      geometry: { type: "Point", coordinates: [e.lng, e.lat] },
+                      properties: {
+                        id: e.id,
+                        signal_type: e.signal_type,
+                        display_label: t.displayLabel,
+                        signal_family: t.familyLabel,
+                        upstream_types: t.upstreamTypes.join(", "),
+                        signal_category: e.signal_category,
+                        geography: e.geography,
+                        confidence: e.confidence,
+                        signal_date: e.signal_date,
+                        vertical_tags: (e.vertical_tags || []).join(", "),
+                      },
+                    };
+                  }),
               });
             })
             .catch(console.error);
@@ -356,12 +469,10 @@
                             fontSize: 14,
                             color: "#06b6d4",
                             marginBottom: 6,
-                            textTransform: "capitalize",
                           },
-                          children: String(l.feature.signal_type).replace(
-                            /_/g,
-                            " ",
-                          ),
+                          children:
+                            l.feature.display_label ||
+                            String(l.feature.signal_type).replace(/_/g, " "),
                         }),
                         (0, r.jsx)("div", {
                           style: {
@@ -400,6 +511,28 @@
                             }),
                           ],
                         }),
+                        l.feature.signal_family &&
+                          (0, r.jsx)("div", {
+                            style: {
+                              fontSize: 11,
+                              color: "rgba(245,212,135,0.82)",
+                              marginBottom: 4,
+                            },
+                            children: l.feature.signal_family,
+                          }),
+                        l.feature.upstream_types &&
+                          (0, r.jsxs)("div", {
+                            style: {
+                              fontSize: 10,
+                              color: "rgba(240,237,232,0.48)",
+                              marginBottom: 4,
+                              lineHeight: 1.4,
+                            },
+                            children: [
+                              "Upstream: ",
+                              l.feature.upstream_types,
+                            ],
+                          }),
                         (0, r.jsx)("div", {
                           style: {
                             fontSize: 11,
@@ -459,6 +592,14 @@
             tags: ["tower_cranes", "mobile_cranes"],
             color: "#10b981",
           },
+          labor_demand: {
+            id: "labor_demand",
+            label: "Labor Demand",
+            signalTypes: [],
+            hiddenSignalTypes: ["hiring_signal"],
+            tags: [],
+            color: "#a855f7",
+          },
         },
         y = {
           totalOpportunities: 0,
@@ -468,6 +609,8 @@
           marketLeaders: [],
           intelLayers: {},
           equipmentCounts: {},
+          upstreamLayers: [],
+          upstreamLayerCounts: {},
         },
         x = new Set(["hot", "critical"]),
         h = (0, o.createContext)(void 0);
@@ -486,145 +629,208 @@
         let { children: t } = e,
           [n, i] = (0, o.useState)([]),
           [l, a] = (0, o.useState)([]),
-          [s, c] = (0, o.useState)(!0),
-          [d, u] = (0, o.useState)(null),
-          [p, g] = (0, o.useState)([
+          [s, c] = (0, o.useState)([]),
+          [d, u] = (0, o.useState)([]),
+          [p, g] = (0, o.useState)(!0),
+          [v, j] = (0, o.useState)(null),
+          [S, k] = (0, o.useState)([
             {
               id: "opportunities",
               label: "Opportunities dataset",
               status: "pending",
             },
             { id: "signals", label: "Signals dataset", status: "pending" },
+            {
+              id: "hidden_signals",
+              label: "Hidden signal layers",
+              status: "pending",
+            },
+            {
+              id: "signal_registry",
+              label: "Signal registry",
+              status: "pending",
+            },
           ]),
-          v = (0, o.useCallback)(async () => {
-            (c(!0),
-              u(null),
-              g((e) =>
-                m(m(e, "opportunities", "pending"), "signals", "pending"),
+          w = (0, o.useCallback)(async () => {
+            (g(!0),
+              j(null),
+              k((e) =>
+                m(
+                  m(
+                    m(m(e, "opportunities", "pending"), "signals", "pending"),
+                    "hidden_signals",
+                    "pending",
+                  ),
+                  "signal_registry",
+                  "pending",
+                ),
               ));
             try {
-              let [e, t] = await Promise.all([
+              let [e, t, n, r] = await Promise.all([
                 b("/platform/cranegenius_opportunities.json"),
                 b("/platform/cranegenius_signals.json"),
+                b("/platform/cranegenius_hidden_signals.json"),
+                b("/platform/cranegenius_signal_registry.json"),
               ]);
               (i(e),
                 a(t),
-                g((n) =>
+                c(n),
+                u(((r || {}).platform || {}).upstream_layers || []),
+                k((o) =>
                   m(
                     m(
-                      n,
-                      "opportunities",
+                      m(
+                        m(
+                          o,
+                          "opportunities",
+                          "ok",
+                          "".concat(e.length.toLocaleString(), " records"),
+                        ),
+                        "signals",
+                        "ok",
+                        "".concat(t.length.toLocaleString(), " records"),
+                      ),
+                      "hidden_signals",
                       "ok",
-                      "".concat(e.length.toLocaleString(), " records"),
+                      "".concat(n.length.toLocaleString(), " mapped events"),
                     ),
-                    "signals",
+                    "signal_registry",
                     "ok",
-                    "".concat(t.length.toLocaleString(), " records"),
+                    "".concat(
+                      ((((r || {}).platform || {}).upstream_layers || []).length).toLocaleString(),
+                      " upstream cards",
+                    ),
                   ),
                 ));
-            } catch (t) {
-              let e = t instanceof Error ? t.message : "Unknown data error";
-              (u(e),
-                g((t) =>
-                  m(m(t, "opportunities", "error", e), "signals", "error", e),
+            } catch (e) {
+              let t = e instanceof Error ? e.message : "Unknown data error";
+              (j(t),
+                k((e) =>
+                  m(
+                    m(
+                      m(m(e, "opportunities", "error", t), "signals", "error", t),
+                      "hidden_signals",
+                      "error",
+                      t,
+                    ),
+                    "signal_registry",
+                    "error",
+                    t,
+                  ),
                 ));
             } finally {
-              c(!1);
+              g(!1);
             }
           }, []);
         (0, o.useEffect)(() => {
-          v();
-        }, [v]);
-        let j = (0, o.useMemo)(
+          w();
+        }, [w]);
+        let I = (0, o.useMemo)(
           () =>
-            (function (e, t) {
-              var n, r;
-              let o =
-                arguments.length > 2 && void 0 !== arguments[2]
-                  ? arguments[2]
+            (function (e, t, n, r) {
+              var o, i;
+              let l =
+                arguments.length > 4 && void 0 !== arguments[4]
+                  ? arguments[4]
                   : f;
-              if (!e.length && !t.length) return y;
-              let i = e.length,
-                l = e.filter((e) => {
+              if (!e.length && !t.length && !n.length)
+                return { ...y, upstreamLayers: r || [] };
+              let a = e.length,
+                s = e.filter((e) => {
                   var t;
                   return (
                     !!x.has((e.priority_band || "").toLowerCase()) ||
                     (null != (t = e.signal_score) ? t : 0) >= 8
                   );
                 }).length,
-                a = t.length,
-                s =
-                  0 === i
+                c = t.length,
+                d =
+                  0 === a
                     ? 0
                     : e.reduce((e, t) => e + (Number(t.signal_score) || 0), 0) /
-                      i,
-                c = new Map();
+                      a,
+                u = new Map();
               e.forEach((e) => {
                 if (!e.city && !e.state) return;
                 let t = e.state
                   ? "".concat(e.city || "Unknown", ", ").concat(e.state)
                   : e.city || "Unknown";
-                c.set(t, (c.get(t) || 0) + 1);
+                u.set(t, (u.get(t) || 0) + 1);
               });
-              let d = Array.from(c.entries())
+              let p = Array.from(u.entries())
                   .sort((e, t) => t[1] - e[1])
                   .slice(0, 4),
-                u = null != (r = null == (n = d[0]) ? void 0 : n[1]) ? r : 0,
-                p = d.map((e) => {
+                g = null != (i = null == (o = p[0]) ? void 0 : o[1]) ? i : 0,
+                v = p.map((e) => {
                   let [t, n] = e;
-                  return { name: t, value: n, maxValue: u || n || 1 };
+                  return { name: t, value: n, maxValue: g || n || 1 };
                 }),
-                g = {};
+                j = {},
+                S = {};
               return (
-                Object.entries(o).forEach((n) => {
-                  let [r, o] = n;
-                  g[r] = (function (e, t, n) {
-                    let r = 0,
-                      o = new Set();
+                Object.entries(l).forEach((o) => {
+                  let [i, l] = o;
+                  j[i] = (function (e, t, n, r) {
+                    let o = 0,
+                      i = new Set();
                     for (let n of t) {
                       if (!n.lat || !n.lng) continue;
                       let t = e.signalTypes.some((e) => n.signal_type === e),
-                        i = e.tags.some((e) =>
+                        r = e.tags.some((e) =>
                           (n.vertical_tags || []).includes(e),
                         );
-                      (t || i) && !o.has(n.id) && (o.add(n.id), r++);
+                      (t || r) && !i.has(n.id) && (i.add(n.id), o++);
                     }
                     for (let t of n) {
                       if (!t.lat || !t.lng) continue;
                       let n = t.recommended_lift_categories || [];
                       0 !== n.length &&
                         e.tags.some((e) => n.includes(e)) &&
-                        !o.has(t.id) &&
-                        (o.add(t.id), r++);
+                        !i.has(t.id) &&
+                        (i.add(t.id), o++);
                     }
-                    return r;
-                  })(o, t, e);
+                    for (let t of r) {
+                      if (!t.lat || !t.lng) continue;
+                      let n = (e.hiddenSignalTypes || []).some(
+                        (e) => t.signal_type === e,
+                      );
+                      n && !i.has(t.id) && (i.add(t.id), o++);
+                    }
+                    return o;
+                  })(l, t, e, n);
+                }),
+                (r || []).forEach((e) => {
+                  S[e.id] = e.count || 0;
                 }),
                 {
-                  totalOpportunities: i,
-                  hotOpportunities: l,
-                  signalCount: a,
-                  averageSignalScore: Number(s.toFixed(1)),
-                  marketLeaders: p,
+                  totalOpportunities: a,
+                  hotOpportunities: s,
+                  signalCount: c,
+                  averageSignalScore: Number(d.toFixed(1)),
+                  marketLeaders: v,
                   intelLayers: {
-                    crane_opportunities: i,
-                    industrial_signals: a,
+                    crane_opportunities: a,
+                    industrial_signals: c,
                   },
-                  equipmentCounts: g,
+                  equipmentCounts: j,
+                  upstreamLayers: r || [],
+                  upstreamLayerCounts: S,
                 }
               );
-            })(n, l),
-          [n, l],
+            })(n, l, s, d),
+          [n, l, s, d],
         );
         return (0, r.jsx)(h.Provider, {
           value: {
             opportunities: n,
             signals: l,
-            metrics: j,
-            loading: s,
-            error: d,
-            diagnostics: p,
-            refresh: v,
+            hiddenSignals: s,
+            upstreamLayers: d,
+            metrics: I,
+            loading: p,
+            error: v,
+            diagnostics: S,
+            refresh: w,
           },
           children: t,
         });
@@ -639,13 +845,13 @@
       }
       function S(e) {
         let { visibleVerticals: t } = e,
-          { signals: n, opportunities: o } = j();
-        return n.length || o.length
+          { signals: n, opportunities: o, hiddenSignals: l } = j();
+        return n.length || o.length || l.length
           ? (0, r.jsx)(r.Fragment, {
               children: Object.entries(f).map((e) => {
-                let [l, a] = e;
-                if (!t[l]) return null;
-                let s = (function (e) {
+                let [a, s] = e;
+                if (!t[a]) return null;
+                let c = (function (e) {
                     let t = [];
                     for (let r of n) {
                       if (!r.lat || !r.lng) continue;
@@ -686,14 +892,36 @@
                           },
                         });
                     }
+                    for (let n of l) {
+                      if (!n.lat || !n.lng) continue;
+                      let r = (e.hiddenSignalTypes || []).some(
+                        (e) => n.signal_type === e,
+                      );
+                      r &&
+                        t.push({
+                          type: "Feature",
+                          geometry: {
+                            type: "Point",
+                            coordinates: [n.lng, n.lat],
+                          },
+                          properties: {
+                            id: n.id,
+                            type: "hidden_signal",
+                            signal_type: n.signal_type,
+                            geography: n.geography,
+                            project_name: n.project_name,
+                            company_name: n.company_name,
+                          },
+                        });
+                    }
                     return { type: "FeatureCollection", features: t };
-                  })(a),
-                  c = {
-                    id: "equipment-".concat(l),
+                  })(s),
+                  d = {
+                    id: "equipment-".concat(a),
                     type: "circle",
-                    source: "equipment-".concat(l),
+                    source: "equipment-".concat(a),
                     paint: {
-                      "circle-color": a.color,
+                      "circle-color": s.color,
                       "circle-radius": [
                         "interpolate",
                         ["linear"],
@@ -713,17 +941,18 @@
                 return (0, r.jsx)(
                   i.kL,
                   {
-                    id: "equipment-".concat(l),
+                    id: "equipment-".concat(a),
                     type: "geojson",
-                    data: s,
-                    children: (0, r.jsx)(i.Wd, { ...c }),
+                    data: c,
+                    children: (0, r.jsx)(i.Wd, { ...d }),
                   },
-                  l,
+                  a,
                 );
               }),
             })
           : null;
       }
+
       var k = n(472),
         w = n.n(k);
       function I() {
@@ -865,6 +1094,7 @@
                 earth_moving: !1 !== t.earth_moving,
                 rigging: !1 !== t.rigging,
                 concrete_pumping: !1 !== t.concrete_pumping,
+                labor_demand: !1 !== t.labor_demand,
               },
             }),
             (0, r.jsx)(I, {}),
@@ -934,6 +1164,7 @@
             count: 2166,
             enabled: !0,
           },
+          { id: "labor_demand", label: "Labor Demand", count: 26, enabled: !0 },
         ],
         F = _.map((e) => e.id),
         D = A.map((e) => e.id),
@@ -1721,7 +1952,8 @@
             Object.values(n.intelLayers || {}).filter((e) => (e || 0) > 0)
               .length ||
             Object.keys(n.intelLayers || {}).length ||
-            0;
+            0,
+          h = n.upstreamLayers || [];
         return (0, r.jsxs)("div", {
           style: {
             position: l ? "relative" : "absolute",
@@ -2043,15 +2275,132 @@
                     ],
                   }),
                 "SIGNALS" === e &&
-                  (0, r.jsx)("div", {
-                    style: {
-                      fontFamily: "'DM Mono', monospace",
-                      fontSize: 11,
-                      color: "#475569",
-                      padding: "20px 0",
-                      textAlign: "center",
-                    },
-                    children: "Signal feed loading...",
+                  (0, r.jsxs)(r.Fragment, {
+                    children: [
+                      (0, r.jsx)("div", {
+                        style: {
+                          fontFamily: "'DM Mono', monospace",
+                          fontSize: 9,
+                          letterSpacing: 1.5,
+                          color: "#475569",
+                          marginBottom: 8,
+                        },
+                        children: "UPSTREAM SIGNAL CARDS",
+                      }),
+                      h.length
+                        ? h.map((t) =>
+                            (0, r.jsxs)(
+                              "div",
+                              {
+                                style: {
+                                  padding: "10px 0",
+                                  borderTop: "1px solid rgba(148,163,184,0.08)",
+                                },
+                                children: [
+                                  (0, r.jsxs)("div", {
+                                    style: {
+                                      display: "flex",
+                                      alignItems: "flex-start",
+                                      justifyContent: "space-between",
+                                      gap: 10,
+                                      marginBottom: 6,
+                                    },
+                                    children: [
+                                      (0, r.jsxs)("div", {
+                                        children: [
+                                          (0, r.jsx)("div", {
+                                            style: {
+                                              fontFamily: "'DM Sans', sans-serif",
+                                              fontSize: 12,
+                                              fontWeight: 600,
+                                              color: "#e2e8f0",
+                                            },
+                                            children: t.label,
+                                          }),
+                                          (0, r.jsx)("div", {
+                                            style: {
+                                              fontFamily: "'DM Mono', monospace",
+                                              fontSize: 10,
+                                              color: t.map_enabled ? "#10b981" : "#64748b",
+                                              marginTop: 3,
+                                              letterSpacing: 0.8,
+                                            },
+                                            children: t.map_enabled
+                                              ? "MAP FILTER READY"
+                                              : "SUMMARY CARD",
+                                          }),
+                                        ],
+                                      }),
+                                      (0, r.jsx)("div", {
+                                        style: {
+                                          fontFamily: "'DM Mono', monospace",
+                                          fontSize: 13,
+                                          color: t.color || "#c9a84c",
+                                        },
+                                        children: (t.count || 0).toLocaleString(),
+                                      }),
+                                    ],
+                                  }),
+                                  (0, r.jsx)("div", {
+                                    style: {
+                                      fontFamily: "'DM Sans', sans-serif",
+                                      fontSize: 11,
+                                      color: "#94a3b8",
+                                      lineHeight: 1.45,
+                                      marginBottom: 6,
+                                    },
+                                    children: t.description,
+                                  }),
+                                  (0, r.jsxs)("div", {
+                                    style: {
+                                      display: "flex",
+                                      gap: 12,
+                                      flexWrap: "wrap",
+                                      fontFamily: "'DM Mono', monospace",
+                                      fontSize: 10,
+                                      color: "#64748b",
+                                    },
+                                    children: [
+                                      (0, r.jsxs)("span", {
+                                        children: ["RECENT ", t.recent_event_count || 0],
+                                      }),
+                                      (0, r.jsxs)("span", {
+                                        children: ["MAP READY ", t.map_ready_count || 0],
+                                      }),
+                                      (0, r.jsx)("span", {
+                                        children: (t.signal_types || []).join(", "),
+                                      }),
+                                    ],
+                                  }),
+                                  !!(t.source_examples || []).length &&
+                                    (0, r.jsx)("div", {
+                                      style: {
+                                        fontFamily: "'DM Mono', monospace",
+                                        fontSize: 10,
+                                        color: "#c9a84c",
+                                        marginTop: 6,
+                                        lineHeight: 1.45,
+                                      },
+                                      children: (t.source_examples || [])
+                                        .map((e) => e.source_name)
+                                        .join(", "),
+                                    }),
+                                ],
+                              },
+                              t.id,
+                            ),
+                          )
+                        : (0, r.jsx)("div", {
+                            style: {
+                              fontFamily: "'DM Mono', monospace",
+                              fontSize: 11,
+                              color: "#475569",
+                              padding: "20px 0",
+                              textAlign: "center",
+                            },
+                            children: "Signal cards loading...",
+                          }),
+                    ],
                   }),
                 "HEATMAP" === e &&
                   (0, r.jsx)("div", {
