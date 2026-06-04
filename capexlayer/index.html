@@ -81,10 +81,15 @@
   input:focus,textarea:focus{outline:none;border-color:var(--gold);}
   footer{padding:40px 24px;text-align:center;font-family:var(--font-mono);font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,168,76,0.75);}
 @media (max-width:768px){
-    .nav{flex-wrap:wrap;padding:16px 24px;gap:18px;}
-    .nav-links{flex-wrap:wrap;gap:18px;}
+    .nav{flex-wrap:wrap;padding:16px 24px;gap:12px;}
+    .nav-links{flex-wrap:wrap;gap:4px 12px;width:100%;}
+    .nav-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;}
     section{padding:72px 24px;}
-    .hero{padding:72px 24px;}
+    .hero{padding:72px 24px;gap:28px;}
+    .stat-grid{gap:14px;margin-top:32px;}
+    .grid-two{gap:24px;}
+    .api-grid,.audience-grid{gap:16px;}
+    .proof-metrics{gap:12px;}
   }
 </style>
 <!-- Microsoft Clarity -->

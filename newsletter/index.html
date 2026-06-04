@@ -91,7 +91,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .webinar-option-btn.outline:hover{border-color:var(--gold);color:var(--gold)}
 .webinar-option-btn.gold{background:var(--gold);color:var(--bg)}
 .webinar-option-btn.gold:hover{opacity:.85}
-@media(max-width:768px){.pricing-grid{grid-template-columns:1fr}.pricing-grid-top{grid-template-columns:1fr}.tier-options{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.stat-row{gap:20px}.webinar-cta{grid-template-columns:1fr}}
+.ladder-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+.gets-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem}
+.nav-toggle{display:none;background:none;border:none;color:#8899aa;font-size:22px;cursor:pointer;padding:8px 12px;min-height:44px;min-width:44px}
+.nav-mobile{display:none;width:100%}
+@media(max-width:900px){.ladder-grid{grid-template-columns:repeat(2,1fr)}.ladder-grid>div{border-right:1px solid var(--border)!important;border-bottom:1px solid var(--border)}}
+@media(max-width:768px){.pricing-grid{grid-template-columns:1fr}.pricing-grid-top{grid-template-columns:1fr}.tier-options{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.stat-row{gap:20px}.webinar-cta{grid-template-columns:1fr}.gets-grid{grid-template-columns:1fr}.nav-desktop-links{display:none!important}.footer-grid{grid-template-columns:1fr 1fr;gap:1.5rem}.nav-toggle{display:block}.nav-mobile.open{display:flex;flex-direction:column;width:100%;padding:12px 0 8px;border-top:1px solid rgba(245,166,35,.22);gap:0}.nav-mobile a{display:flex;align-items:center;min-height:44px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase}.nav-mobile a:hover{color:#F5A623}}
+@media(max-width:600px){.ladder-grid{grid-template-columns:1fr}.ladder-grid>div{border-right:none!important}.footer-grid{grid-template-columns:1fr}}
 </style>
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
@@ -99,7 +106,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <nav id="cg-nav" style="position:sticky;top:0;z-index:9999;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;border-bottom:1px solid rgba(245,166,35,.22);background:rgba(8,12,20,.95);backdrop-filter:blur(12px);flex-wrap:wrap;gap:8px">
   <a href="/" style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#F5A623;text-decoration:none;flex-shrink:0">CraneGenius</a>
-  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+  <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" onclick="var m=document.getElementById('navMobile');m.classList.toggle('open');this.setAttribute('aria-expanded',m.classList.contains('open'))">&#9776;</button>
+  <div class="nav-desktop-links" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
     <a href="/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#F5A623;text-decoration:none;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px">Lift Estimator</a>
     <a href="/opportunities/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px">Opportunities</a>
     <a href="/marketplace/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#8899aa;text-decoration:none;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px">Marketplace</a>
@@ -126,6 +134,24 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       </div>
     </div>
     <a href="/ironsheet/" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#000;background:#F5A623;border-radius:3px;padding:4px 12px;text-decoration:none;letter-spacing:.05em;text-transform:uppercase">Ironsheet</a>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a href="/" style="color:#F5A623">Lift Estimator</a>
+    <a href="/opportunities/">Opportunities</a>
+    <a href="/marketplace/">Marketplace</a>
+    <a href="/data-centers/">Data Centers</a>
+    <a href="/partner/">Crane Companies</a>
+    <a href="/directory/">Directory</a>
+    <a href="/jobs/">Jobs</a>
+    <a href="/manpower/">Manpower</a>
+    <a href="/newsletter/" style="color:#F5A623">Intelligence Brief</a>
+    <a href="/sell-your-company/">Sell Your Company</a>
+    <a href="/education/">Education</a>
+    <a href="/capex-layer/">CapexLayer</a>
+    <a href="/investor-brief.html">Investor Brief</a>
+    <a href="/dark30/">Dark 30 Ventures</a>
+    <a href="/acquisitions/">Acquisitions</a>
+    <a href="/ironsheet/" style="color:#F5A623">Ironsheet</a>
   </div>
 </nav>
 <style>.cg-dropdown.open .cg-drop-menu{display:block!important}.cg-drop-menu a:hover{color:#F5A623!important;background:rgba(245,166,35,.06)}</style>
@@ -197,7 +223,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 
   <!-- PRICING LADDER -->
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-bottom:32px;border:1px solid var(--border);overflow:hidden">
+  <div class="ladder-grid" style="margin-bottom:32px;border:1px solid var(--border);overflow:hidden">
     <div id="tier-founding" class="launch-tier" style="background:rgba(34,197,94,.08);border-right:1px solid var(--border);padding:20px 16px;text-align:center;position:relative">
       <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)"></div>
       <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px">Founding 10</div>
@@ -238,7 +264,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-bottom:32px;letter-spacing:.04em">Your price is <strong style="color:var(--gold)">grandfathered for life</strong>. Join at $19 — you pay $19 forever, even when full price hits $49.</div>
 
   <!-- WHAT EVERY SUBSCRIBER GETS -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px">
+  <div class="gets-grid" style="margin-bottom:32px">
     <div class="pricing-card" style="border-color:var(--green)">
       <div class="card-tier" style="color:var(--green)">Every Issue — The Ironsheet</div>
       <div class="card-features" style="margin-bottom:0">
@@ -263,7 +289,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 
   <!-- BIGGER TIERS CALLOUT -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+  <div class="gets-grid" style="margin-bottom:24px">
     <div class="pricing-card advisory">
       <div class="card-tier">Territory Coverage</div>
       <div class="card-price" style="font-size:36px">$249<span>/mo</span></div>
@@ -410,7 +436,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <footer style="background:#04080f;border-top:0.5px solid rgba(245,166,35,.18);margin-top:4rem;padding:2.5rem 24px 1.5rem;font-family:'DM Sans',sans-serif">
   <div style="max-width:960px;margin:0 auto">
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2rem">
+    <div class="footer-grid" style="margin-bottom:2rem">
       <div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#F5A623;letter-spacing:.06em;margin-bottom:.4rem">CraneGenius</div>
         <div style="font-size:11px;color:rgba(232,226,212,.45);line-height:1.7;max-width:260px">AI-native intelligence for crane companies, capital projects, and industrial acquisitions. Built by a former Operating Engineer and Industrial Sales Executive.</div>

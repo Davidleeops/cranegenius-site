@@ -17,7 +17,7 @@ body{background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;fo
 .subject-line{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:16px}
 .brief-hook{font-size:15px;color:var(--text);line-height:1.65;margin-bottom:20px}
 .brief-hook strong{color:var(--gold)}
-.brief-table{width:100%;border-collapse:collapse;font-size:12px;margin:16px 0}
+.brief-table{width:100%;min-width:560px;border-collapse:collapse;font-size:12px;margin:16px 0}
 .brief-table th,.brief-table td{border:1px solid var(--border);padding:8px 10px;text-align:left}
 .brief-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);background:var(--bg3)}
 .brief-free-line{font-size:13px;color:var(--muted);padding:14px;background:var(--bg3);border-left:3px solid var(--gold);margin:20px 0}
@@ -41,7 +41,8 @@ body{background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;fo
     <strong>[DIRECCI&Oacute;N DE LA LICENCIA]</strong>.
   </div>
 
-  <table class="brief-table" aria-label="Resumen de licencias">
+  <div class="brief-scroll" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+  <table class="brief-table" style="min-width:560px" aria-label="Resumen de licencias">
     <thead>
       <tr>
         <th>Direcci&oacute;n</th>
@@ -55,6 +56,7 @@ body{background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;fo
       <tr><td colspan="5" style="color:var(--muted);font-style:italic">[Filas generadas por la pipeline]</td></tr>
     </tbody>
   </table>
+  </div>
 
   <div class="brief-free-line">
     Somos pagados por las empresas de renta de gr&uacute;as,
