@@ -1,0 +1,16 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/marketplace", "destination": "/need-a-crane.html", "permanent": false },
+    { "source": "/marketplace/", "destination": "/need-a-crane.html", "permanent": false },
+    { "source": "/estimate", "destination": "/need-a-crane.html", "permanent": false },
+    { "source": "/estimate/", "destination": "/need-a-crane.html", "permanent": false },
+    { "source": "/checkout", "destination": "/manual-order.html", "permanent": false },
+    { "source": "/checkout/", "destination": "/manual-order.html", "permanent": false },
+    { "source": "/start", "destination": "/manual-order.html", "permanent": false },
+    { "source": "/start/", "destination": "/manual-order.html", "permanent": false },
+    { "source": "/platform", "destination": "https://cg-platform-v2.vercel.app/", "permanent": false },
+    { "source": "/platform/", "destination": "https://cg-platform-v2.vercel.app/", "permanent": false }
+  ]
+}
