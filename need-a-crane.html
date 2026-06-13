@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Need a Crane | CraneGenius</title>
+<meta name="description" content="Submit a crane request and CraneGenius will review the project, match the need to the right crane company, and follow up manually.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080e1a;--panel:#111927;--gold:#c9a84c;--text:#f0ede8;--muted:#8794aa;--border:rgba(201,168,76,.22);--green:#5fd17a}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0,rgba(201,168,76,.12),transparent 35%),var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;line-height:1.6}a{color:var(--gold)}main{max-width:1040px;margin:0 auto;padding:28px 24px 70px}nav{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:58px}.brand{font-family:"Bebas Neue",sans-serif;font-size:30px;letter-spacing:.08em;color:var(--text);text-decoration:none}.brand span{color:var(--gold)}.navlink{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--muted)}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,420px);gap:34px;align-items:start}.eyebrow{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}h1{font-family:"Bebas Neue",sans-serif;font-size:clamp(48px,7vw,86px);line-height:.95;letter-spacing:.035em;margin:0 0 20px}.lead{font-size:18px;color:var(--muted);max-width:660px}.notice{border:1px solid rgba(95,209,122,.3);background:rgba(95,209,122,.07);border-radius:8px;padding:16px 18px;margin:26px 0;color:#dff8e7}.steps{display:grid;gap:12px;margin-top:22px}.step{border:1px solid var(--border);border-radius:8px;background:rgba(17,25,39,.72);padding:16px}.step strong{display:block;color:var(--gold);font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}.card{border:1px solid var(--border);border-radius:8px;background:linear-gradient(180deg,rgba(17,25,39,.98),rgba(9,15,28,.98));padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.32)}.card h2{font-family:"Bebas Neue",sans-serif;font-size:32px;letter-spacing:.05em;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin-bottom:18px}label{display:block;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}input,select,textarea{width:100%;border:1px solid rgba(255,255,255,.12);background:#070d18;color:var(--text);border-radius:6px;padding:12px 13px;font-family:"DM Sans",sans-serif;font-size:14px}textarea{min-height:104px;resize:vertical}button{width:100%;border:0;border-radius:6px;background:var(--green);color:#07101b;padding:14px 16px;margin-top:18px;font-family:"DM Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;cursor:pointer}button:disabled{opacity:.65;cursor:wait}.fine{font-size:12px;color:var(--muted);margin-top:12px}.result{display:none;border:1px solid rgba(95,209,122,.35);background:rgba(95,209,122,.08);border-radius:6px;padding:14px;margin-top:16px;color:#dff8e7}.result.error{border-color:rgba(255,123,123,.38);background:rgba(255,123,123,.08);color:#ffdada}@media(max-width:820px){.grid{grid-template-columns:1fr}nav{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<main>
+<nav><a class="brand" href="/">CRANE<span>GENIUS</span></a><a class="navlink" href="https://calendly.com/lemuel-lee-jr/15min" target="_blank" rel="noopener">Book Founder Call</a></nav>
+<section class="grid">
+<div>
+<div class="eyebrow">Crane Request Intake</div>
+<h1>Need a crane? Send the job details.</h1>
+<p class="lead">CraneGenius reviews your lift location, timing, equipment need, and project context, then helps route the request to the right crane company. This is a manual review flow, not an automated bidding board.</p>
+<div class="notice">Urgent requests are monitored during business hours. If the form has any issue, email <a href="mailto:david@cranegenius.com">david@cranegenius.com</a> or book the Calendly fallback.</div>
+<div class="steps"><div class="step"><strong>1. Submit the request</strong><span>Include location, timeline, lift details, and contact information.</span></div><div class="step"><strong>2. Manual review</strong><span>We check fit and project context before making any introduction.</span></div><div class="step"><strong>3. Warm next step</strong><span>You get a direct follow-up, a Calendly slot, or an introduction path.</span></div></div>
+</div>
+<form class="card" id="crane-form" action="https://formspree.io/f/mgoldjjb" method="POST">
+<h2>Send Request</h2><div class="sub">No payment. No public posting. Manual review by the founder.</div>
+<input type="hidden" name="_subject" value="CraneGenius crane request"><input type="hidden" name="source" value="need-a-crane">
+<label for="name">Name</label><input id="name" name="name" autocomplete="name" required>
+<label for="company">Company</label><input id="company" name="company" autocomplete="organization">
+<label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required>
+<label for="phone">Phone</label><input id="phone" name="phone" autocomplete="tel" required>
+<label for="location">Project location</label><input id="location" name="location" placeholder="City, state, site, or address" required>
+<label for="timeline">Timeline</label><select id="timeline" name="timeline"><option value="">Select if known</option><option>Today or tomorrow</option><option>This week</option><option>Next 2 weeks</option><option>Within 30 days</option><option>Still planning</option></select>
+<label for="details">Lift details</label><textarea id="details" name="details" placeholder="What is being lifted, approximate weight, reach, height, access constraints, project type..."></textarea>
+<button id="submit" type="submit">Send Crane Request</button><p class="fine">Submitting this sends the request to CraneGenius for manual review. It does not guarantee availability or pricing.</p><div class="result" id="result"></div>
+</form>
+</section>
+</main>
+<script>
+(function(){var form=document.getElementById('crane-form'),btn=document.getElementById('submit'),box=document.getElementById('result');form.addEventListener('submit',function(e){e.preventDefault();box.style.display='none';box.className='result';btn.disabled=true;btn.textContent='Sending...';fetch(form.action,{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}}).then(function(r){if(!r.ok)throw new Error('failed');box.textContent='Request sent. David will review it and follow up manually. You can also book a backup slot at calendly.com/lemuel-lee-jr/15min.';box.style.display='block';form.reset();}).catch(function(){box.textContent='The form could not be sent. Email david@cranegenius.com with your project location, timeline, contact info, and lift details.';box.className='result error';box.style.display='block';}).finally(function(){btn.disabled=false;btn.textContent='Send Crane Request';});});})();
+</script>
+</body>
+</html>
